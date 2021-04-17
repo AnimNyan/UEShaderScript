@@ -75,7 +75,8 @@ class AddUEShaderScript_PT_main_panel(bpy.types.Panel):
         
         layout.operator("AddUEShaderScript.saveshadermap_operator")
         layout.operator("AddUEShaderScript.loadimagetexture_operator")
-      
+
+
 class AddUEShaderScript_OT_save_shader_map(bpy.types.Operator):
     #default name is for Roman Noodles label
     #text is changed for other Shader Map Types
@@ -90,13 +91,20 @@ class AddUEShaderScript_OT_save_shader_map(bpy.types.Operator):
         if(mytool.is_add_img_textures == True):
             print("hey")
             
-        saveNodes(self,context, mytool)
+        nodes_to_dict(self,context, mytool)
         
         return {"FINISHED"}
 
-def saveNodes(self, context, mytool):
-    nodes = tree.nodes
+
+def nodes_to_dict(tree):
+    """ Actually, we construct and return a List """
+    if tree is not None:
+        nodes = tree.nodes
+    else:
+        nodes = []
+    nodes_list = []
     for node in nodes:
+        #bl_idname e.g. ShaderNodeTexImage
         node_dict = {"node_name": node.bl_idname}
         node_dict["x"] = node.location.x
         node_dict["y"] = node.location.y
@@ -119,6 +127,96 @@ def saveNodes(self, context, mytool):
                 continue
             attrs_list.append(attr_dict)
         node_dict["attrs"] = attrs_list
+        inputs = []
+        for input in node.inputs:
+            input_dict = socket_to_dict_input(input)
+            inputs.append(input_dict)
+        if node.bl_idname != "CompositorNodeOutputFile":
+            node_dict["inputs"] = inputs
+        else:
+            node_dict["inputs"] = []
+        outputs = []
+        for output in node.outputs:
+            output_dict = socket_to_dict_output(output)
+            outputs.append(output_dict)
+        node_dict["outputs"] = outputs
+        # Special handling ShaderNodeGroup
+        if node.bl_idname == "ShaderNodeGroup":
+            node_dict["node_tree"] = nodes_to_dict_handle_shader_node_group(
+                node)
+        if node.bl_idname == "CompositorNodeGroup":
+            node_dict["node_tree"] = nodes_to_dict_handle_compositor_node_group(
+                node)
+        if node.bl_idname == "CompositorNodeOutputFile":
+            # We just handle OutputFile->file_slots, does not handle layer_slots (Waiting for bugs)
+            node_dict["file_slots"] = nodes_to_dict_handle_compositor_node_output_file(
+                node)
+            # We treat all file slot's file format as the same of OutputFile->format->file_format
+            node_dict["file_format"] = node.format.file_format
+        nodes_list.append(node_dict)
+    links_list = links_to_list(tree)
+    return (nodes_list, links_list)
+
+
+def dict_to_nodes(nodes_list, tree):
+    nodes = tree.nodes
+    ret_nodes = []
+    for node in nodes_list:
+        # Fixed: in input_dict_to_socket_value
+        # input.default_value[0] = value[0]
+        # TypeError: ‘float’ object does not support item assignment
+        if node["node_name"] in NOT_NEEDED_NODE_TYPES:
+            new_node = nodes.new(type=node["node_name"])
+            ret_nodes.append(new_node)
+            new_node.width = node["width"]
+            new_node.width_hidden = node["width_hidden"]
+            new_node.height = node["height"]
+            if node["parent"] != "None":
+                parent = nodes[node["parent"]]
+                new_node.parent = parent
+            new_node.location.x = node["x"]
+            new_node.location.y = node["y"]
+            continue
+        new_node = nodes.new(type=node["node_name"])
+        ret_nodes.append(new_node)
+        new_node.width = node["width"]
+        new_node.width_hidden = node["width_hidden"]
+        new_node.height = node["height"]
+        if node["parent"] != "None":
+            parent = nodes[node["parent"]]
+            new_node.parent = parent
+        new_node.location.x = node["x"]
+        new_node.location.y = node["y"]
+        # Special handlling ShaderNodeGroup
+        if node["node_name"] == "ShaderNodeGroup":
+            dict_to_nodes_handle_shader_node_group(new_node, node)
+        if node["node_name"] == "CompositorNodeGroup":
+            dict_to_nodes_handle_compositor_node_group(new_node, node)
+        if node["node_name"] == "CompositorNodeOutputFile":
+            dict_to_nodes_handle_compositor_node_output_file(new_node, node)
+            new_node.format.file_format = node["file_format"]
+        if node["node_name"] in NOT_TO_HANDLE_ATTRS_NODES:
+            continue
+        for attr_dict in node["attrs"]:
+            dict_to_attr(new_node, attr_dict)
+        # Repeat one more time to make sure UI updates right
+        for attr_dict in node["attrs"]:
+            dict_to_attr(new_node, attr_dict, repeated=True)
+        inputs = new_node.inputs
+        for index, input_dict in enumerate(node["inputs"]):
+            # Get the right input socket by name
+            input = get_input_by_name(inputs, input_dict["name"], index)
+            if input is not None:
+                input_dict_to_socket_value(input, input_dict)
+            #input_dict_to_socket_value(inputs[index], input_dict)
+        outputs = new_node.outputs
+        for index, output_dict in enumerate(node["outputs"]):
+            # Get the right ouput socket by name
+            output = get_output_by_name(outputs, output_dict["name"], index)
+            if output is not None:
+                output_dict_to_socket_value(output, output_dict)
+            #output_dict_to_socket_value(outputs[index], output_dict)
+    return ret_nodes
 
 class AddUEShaderScript_OT_load_image_texture(bpy.types.Operator):
     #default name is for Roman Noodles label
