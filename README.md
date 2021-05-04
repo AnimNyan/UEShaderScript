@@ -6,9 +6,9 @@ First things first, I have a discord server for questions, development and bugs 
 ## Credits
 A huge thank you to Aaron Elkins who designed Node Kit, a Blender plugin under the GPL Licence which was several years in the making. 
 UEShaderScript copies a huge amount of code from Node Kit and I want to thank Aaron Elkins for his kindness 
-for giving me permission to release UEShaderscript. 
+for giving me permission to release UEShaderscript. Please have a look at and (maybe) buy his plugin here: https://blendermarket.com/products/node-kit
 
-##What does UEShaderScript do?
+## What does UEShaderScript do?
 UEShaderScript is a free Blender Plugin designed to be used with UModel: https://www.gildor.org/en/projects/umodel#files and Befzz's psk/psa importer: https://github.com/Befzz/blender3d_import_psk_psa
 The plugin allows for one click texturing for all selected meshes and is built for 3d assets exported from Unreal Engine. 
 
