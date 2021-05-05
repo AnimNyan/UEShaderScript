@@ -65,8 +65,9 @@ class PathProperties(bpy.types.PropertyGroup):
         
     )
     is_normal_non_colour: bpy.props.BoolProperty(name="Normal Map Textures Non Colour", default= True)
+    is_m_non_colour: bpy.props.BoolProperty(name="Transparency Map Textures Non Colour", default= True)
     is_orm_non_colour: bpy.props.BoolProperty(name="Packed ARM Textures Non Colour (True for Roman Noodles)", default= False)
-    is_m_non_colour: bpy.props.BoolProperty(name="Transparency Map Textures Non Colour (True for Roman Noodles)", default= True)
+
     is_add_img_textures: bpy.props.BoolProperty(name="Add Image Textures", default= True)
     is_delete_unused_img_texture_nodes: bpy.props.BoolProperty(name="Delete Unused Image Texture Nodes", default= True)
     is_delete_unused_related_nodes: bpy.props.BoolProperty(name="Delete Unused Image AND Related Texture Nodes (Slows down adding shaders)", default= False)
@@ -98,7 +99,7 @@ class LOADUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
         #to properties
         pathtool = scene.path_tool
 
-        #set isOverridePackage to override __package__ as it does
+        #set isOverridePackage to override __package__ variable as it does
         #not work for imported functions
         isOverridePackage = True
         preferences = get_preferences(isOverridePackage)
@@ -112,7 +113,6 @@ class LOADUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
         left.alignment = "RIGHT"
         left.prop(preferences, 'folders', expand=False)
 
-       
 
         selected_folders_presets = get_selected_folder_presets(isOverridePackage)
 
@@ -134,8 +134,9 @@ class LOADUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
         layout.prop(pathtool, "clipping_method_enum")
         layout.prop(pathtool, "is_reuse_node_group_with_same_name")
         layout.prop(pathtool, "is_normal_non_colour")
-        layout.prop(pathtool, "is_orm_non_colour")
         layout.prop(pathtool, "is_m_non_colour")
+        layout.prop(pathtool, "is_orm_non_colour")
+        
         layout.prop(pathtool, "is_change_principle_bsdf_emission_strength")
 
         if(pathtool.is_change_principle_bsdf_emission_strength):
