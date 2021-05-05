@@ -66,12 +66,17 @@ class PathProperties(bpy.types.PropertyGroup):
     )
     is_normal_non_colour: bpy.props.BoolProperty(name="Normal Map Textures Non Colour", default= True)
     is_orm_non_colour: bpy.props.BoolProperty(name="Packed ARM Textures Non Colour (True for Roman Noodles)", default= False)
+    is_m_non_colour: bpy.props.BoolProperty(name="Transparency Map Textures Non Colour (True for Roman Noodles)", default= True)
     is_add_img_textures: bpy.props.BoolProperty(name="Add Image Textures", default= True)
     is_delete_unused_img_texture_nodes: bpy.props.BoolProperty(name="Delete Unused Image Texture Nodes", default= True)
     is_delete_unused_related_nodes: bpy.props.BoolProperty(name="Delete Unused Image AND Related Texture Nodes (Slows down adding shaders)", default= False)
 
     is_change_principle_bsdf_emission_strength: bpy.props.BoolProperty(name="Change Principled BSDF Strength", default= True)
     principled_bsdf_emission_strength_float: bpy.props.FloatProperty(name="Principled BSDF Emission Strength", default = 5)
+
+    #options to allow reuse of node groups and textures
+    is_reuse_node_group_with_same_name: bpy.props.BoolProperty(name="Reuse Node Group With Same Name", default= True)
+
     # is_material_skin: bpy.props.BoolProperty(name="Add Skin Related Nodes", default= False)
     # is_add_height_map: bpy.props.BoolProperty(name="Add Height Map Skin Texture", default= False)
 
@@ -127,8 +132,10 @@ class LOADUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
 
         layout.prop(pathtool, "texture_file_type_enum")
         layout.prop(pathtool, "clipping_method_enum")
+        layout.prop(pathtool, "is_reuse_node_group_with_same_name")
         layout.prop(pathtool, "is_normal_non_colour")
         layout.prop(pathtool, "is_orm_non_colour")
+        layout.prop(pathtool, "is_m_non_colour")
         layout.prop(pathtool, "is_change_principle_bsdf_emission_strength")
 
         if(pathtool.is_change_principle_bsdf_emission_strength):
@@ -557,7 +564,27 @@ def dict_to_nodes(nodes_list, tree):
     return ret_nodes
 
 def dict_to_nodes_handle_shader_node_group(new_node, node_dict):
+    #store active/selected scene to variable
+    scene = bpy.context.scene
+    #allow access to user inputted properties through pointer
+    #to properties
+    pathtool = scene.path_tool
+    
     node_group_name = node_dict["node_tree"]["name"]
+    #debug
+    print("pathtool.is_reuse_node_group_with_same_name", pathtool.is_reuse_node_group_with_same_name)
+
+    #if the user has chosen to reuse node groups we must check 
+    #whether a node group exists to be reused 
+    if(pathtool.is_reuse_node_group_with_same_name):
+        check_if_should_reuse_node_group(new_node, node_dict, node_group_name)
+    else:
+        #else if the user has chosen not to reuse node groups create new node groups
+        #whether or not they already exist
+        create_a_new_node_group(new_node, node_dict, node_group_name)
+    
+
+def check_if_should_reuse_node_group(new_node, node_dict, node_group_name):
     #check if the node group with name you are trying to restore exists
     #if it exists then check how many users it has
     is_node_group_name_exist = bpy.data.node_groups.get(node_group_name, None)
@@ -756,6 +783,11 @@ def dict_to_textures(img_textures_list, material, node_tree, props_txt_path, pat
                     #and set the alpha threshold to 0 which looks best
                     #with the least clipped
                     if textures["texture"] == "transparency":
+                        #change to non-colour based on user settings
+                        if(pathtool.is_m_non_colour):
+                            node_to_load.image.colorspace_settings.name = "Non-Color"
+                        
+                        #change clipping method + threshold to clip
                         clipping_method = pathtool.clipping_method_enum
                         if clipping_method == "CLIP":
                             material.blend_method = "CLIP"
@@ -776,7 +808,6 @@ def dict_to_textures(img_textures_list, material, node_tree, props_txt_path, pat
                     elif textures["texture"] == "packed_orm":
                         if(pathtool.is_orm_non_colour):
                             node_to_load.image.colorspace_settings.name = "Non-Color"
-
 
                     #special case if the node loaded was an emissive BDE
                     #find the principled BSDF node
