@@ -75,8 +75,9 @@ class PathProperties(bpy.types.PropertyGroup):
     is_change_principle_bsdf_emission_strength: bpy.props.BoolProperty(name="Change Principled BSDF Strength", default= True)
     principled_bsdf_emission_strength_float: bpy.props.FloatProperty(name="Principled BSDF Emission Strength", default = 5)
 
-    #options to allow reuse of node groups and textures
+    #options to allow reuse of node groups and image textures
     is_reuse_node_group_with_same_name: bpy.props.BoolProperty(name="Reuse Node Group With Same Name", default= True)
+    is_reuse_img_texture_with_same_name: bpy.props.BoolProperty(name="Reuse Image Textures With Same Name", default= True)
 
     # is_material_skin: bpy.props.BoolProperty(name="Add Skin Related Nodes", default= False)
     # is_add_height_map: bpy.props.BoolProperty(name="Add Height Map Skin Texture", default= False)
@@ -132,7 +133,10 @@ class LOADUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
 
         layout.prop(pathtool, "texture_file_type_enum")
         layout.prop(pathtool, "clipping_method_enum")
+
         layout.prop(pathtool, "is_reuse_node_group_with_same_name")
+        layout.prop(pathtool, "is_reuse_img_texture_with_same_name")
+
         layout.prop(pathtool, "is_normal_non_colour")
         layout.prop(pathtool, "is_m_non_colour")
         layout.prop(pathtool, "is_orm_non_colour")
@@ -214,7 +218,8 @@ class LOADUESHADERSCRIPT_OT_add_basic_all(bpy.types.Operator):
         pathtool = scene.path_tool
         
         create_basic_all_shader_maps(context, pathtool)
-        log("\n\n\nFinished create_basic_all_shader_maps in: %.4f sec" % (time.time() - time_start))
+        #don't use log so can use new line characterws
+        print("\n\n\n [UE Shader Script]: Finished create_basic_all_shader_maps in: %.4f sec" % (time.time() - time_start))
     
         return {"FINISHED"}
 
@@ -584,7 +589,8 @@ def check_if_should_reuse_node_group(new_node, node_dict, node_group_name):
 
     if (is_node_group_name_exist):
         #if it has 0 users it will still reuse the node group
-        #as long as the node group with node group name exists
+        #as long as a node group with the node group name 
+        #recorded in the python dictionary exists
         #it will reuse it
         reuse_the_node_group(new_node, node_dict, node_group_name)
     else:
@@ -668,6 +674,9 @@ def dict_to_textures(img_textures_list, material, node_tree, props_txt_path, pat
 
     #---------------------add image texture nodes 
     if pathtool.is_add_img_textures:
+        #turn the path to the skin map to an absolute path instead of a relative one
+        #to avoid errors
+        abs_skin_map_path = bpy.path.abspath(pathtool.skin_map_path)
 
         not_delete_img_texture_node_list = []
         #use loop to go through all locations
@@ -742,9 +751,10 @@ def dict_to_textures(img_textures_list, material, node_tree, props_txt_path, pat
                 #because it doesn't come from the props.txt file
                 #it is externally added from skin_map_path
                 #and the skin_map path is not empty
-                if textures["texture"] == "skin" and pathtool.skin_map_path !="":
+                if textures["texture"] == "skin" and abs_skin_map_path !="":
                     node_to_load = node_tree.nodes[node_name]
-                    node_to_load.image = bpy.data.images.load(pathtool.skin_map_path)
+                    #bpy.data.images.load(abs_skin_map_path)
+                    node_to_load.image = load_image_texture(node_to_load, abs_skin_map_path, pathtool)
                     #add to whitelist
                     not_delete_img_texture_node_list.append(node_to_load)
                     #continue and skip the rest of this loop because there is no need to check 
@@ -766,7 +776,8 @@ def dict_to_textures(img_textures_list, material, node_tree, props_txt_path, pat
                     #and node_name which is the Node Name in the Items panel in the shader editor
                     #this will uniquely identify a single node
                     node_to_load = node_tree.nodes[node_name]
-                    node_to_load.image = bpy.data.images.load(complete_path)
+                    #node_to_load.image = bpy.data.images.load(complete_path)
+                    node_to_load.image = load_image_texture(node_to_load, complete_path, pathtool)
 
                     #special case if the node that was loaded was a transparency node _M
                     #we need to set the material blend_method to alpha clip
@@ -845,7 +856,7 @@ def dict_to_textures(img_textures_list, material, node_tree, props_txt_path, pat
             #to delete if option is checked
             if pathtool.is_delete_unused_related_nodes:
                 #debug
-                print("prefix_of_related_nodes_to_delete:", prefix_of_related_nodes_to_delete)
+                #print("prefix_of_related_nodes_to_delete:", prefix_of_related_nodes_to_delete)
 
                 #go back through all the nodes and now delete all nodes 
                 #that start with the prefix
@@ -860,6 +871,55 @@ def dict_to_textures(img_textures_list, material, node_tree, props_txt_path, pat
                             nodes.remove(node)
                 
 
+def load_image_texture(node_to_load, complete_path_to_image, pathtool):
+    #if the user has chosen to reuse node groups we must check 
+    #whether a node group exists to be reused 
+    if(pathtool.is_reuse_img_texture_with_same_name):
+        check_if_should_reuse_img_texture(node_to_load, complete_path_to_image)
+    else:
+        #else if the user has chosen not to reuse node groups create new node groups
+        #whether or not they already exist
+        create_a_new_img_texture(node_to_load, complete_path_to_image)
+
+    return node_to_load.image
+
+    
+    
+
+def check_if_should_reuse_img_texture(node_to_load, complete_path_to_image):
+    #reminder complete_path_to_image will look like
+    #C:\Nyan\Dwight Recolor\Game\Characters\Slashers\Bear\Textures\Outfit01\T_BEHead01_BC.tga
+    #extract just the image texture name using basename to get only the very right bit just the file name
+    
+    img_texture_file_name = os.path.basename(complete_path_to_image)
+
+    #debug
+    #print("img_texture_file_name:", img_texture_file_name)
+
+    #check if the node group with name you are trying to restore exists
+    #if it exists then check how many users it has
+    is_image_texture_name_exist = bpy.data.images.get(img_texture_file_name, None)
+    
+    #debug
+    #print("is_image_texture_name_exist for", img_texture_name, ":", is_image_texture_name_exist)
+
+    if (is_image_texture_name_exist):
+        #if it has 0 users it will still reuse the image texture
+        #as long as an image with the same name as the image texture being loaded exists
+        #it will reuse it
+        reuse_the_img_texture(node_to_load, img_texture_file_name)
+    else:
+        create_a_new_img_texture(node_to_load, complete_path_to_image)
+
+
+def create_a_new_img_texture(node_to_load, complete_path_to_image):
+    node_to_load.image = bpy.data.images.load(complete_path_to_image)
+    #return node_to_load.image
+
+
+def reuse_the_img_texture(node_to_load, img_texture_file_name):
+    node_to_load.image = bpy.data.images[img_texture_file_name]
+    #return node_to_load.image
 
 
 #returns first principled bsdf in case of two
