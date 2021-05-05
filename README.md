@@ -1,30 +1,64 @@
 # UEShaderScript
 
 ## Discord
-First things first, I have a discord server for questions, development and bugs find me here: https://discord.gg/rkkWSH2EMz
+First things first, I have a discord server for questions, support and bugs find me here: https://discord.gg/rkkWSH2EMz
 
 ## Credits
 A huge thank you to Aaron Elkins who designed Node Kit, a Blender plugin under the GPL Licence which was several years in the making. 
 UEShaderScript copies a huge amount of code from Node Kit and I want to thank Aaron Elkins for his kindness 
-for giving me permission to release UEShaderscript. Please have a look at and (maybe) buy his plugin here: https://blendermarket.com/products/node-kit
+for giving me permission to release UEShaderscript. Please have a look at his plugin and his work here: https://blendermarket.com/products/node-kit
+
+## Permissions
+UEShaderScript is under the GPL Licence that means you have permission to use part or the whole of this plugin for free or commercial purposes free of charge.
+This add on is completely free what I want is for the most people to benefit from this and that's enough to make me smile. I promise continued support and updates to this the add on for free!
 
 ## What does UEShaderScript do?
 UEShaderScript is a free Blender Plugin designed to be used with UModel: https://www.gildor.org/en/projects/umodel#files and Befzz's psk/psa importer: https://github.com/Befzz/blender3d_import_psk_psa
-The plugin allows for one click texturing for all selected meshes and is built for 3d assets exported from Unreal Engine. 
+The plugin allows for one click bulk texturing for all selected meshes and is built for all 3d assets exported from Unreal Engine. 
 
-The plugin does three things:
-1. Comes with default shader map presets for Dead By Daylight and Home Sweet Home Survive. We are still looking for shader maps! 
+UEShaderScript does three things:
+1. Comes with default shader map presets for Dead By Daylight and Home Sweet Home Survive. We are still looking for shader maps to add to the default presets for other games! 
 Again find me on my discord here: https://discord.gg/rkkWSH2EMz to send me screenshots of shader maps you want to be included in the default presets!
 
 2. Adds the ability to save shader maps and mark which image texture nodes should load an image and dynamically load image textures to them.
 
 3. Adds the ability to load shader maps and their respective image textures based on a props.txt file exported from UModel: https://www.gildor.org/en/projects/umodel#files
 
+##Video Demo and Tutorial for UEShaderScript (Tutorial to be added)
+[![UEShaderScript v1.0.3 demo](https://i.ytimg.com/vi/sGY5rCJW5ZQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=sGY5rCJW5ZQ&lc=UgyelgrzDH2_XMyxoBB4AaABAg "UEShaderScript v1.0.3 demo")
 
 ## Installation
 To install:
-1. Download the "UEShaderScript_v.1.0.3.zip" file do NOT unzip it. 
-2. Open Blender and click Edit > Preferences > Add-Ons > Install > in the file explorer find "UEShaderScript_v.1.0.3.zip" and select it > 
-in the Add-Ons search search for UE Shader Maps and enable the Add On to complete the installation.
+1. Download the "UEShaderScript_v.X.X.X.zip" file do NOT unzip it. 
+2. Open Blender and click Edit > Preferences > Add-Ons > Install > in the file explorer find "UEShaderScript_v.X.X.X.zip" and select it.
+3. In the Add-Ons search, search for UE Shader Maps and enable the Add On to complete the installation.
+
+### Prerequisite software
+UModel/UE Viewer: https://www.gildor.org/en/projects/umodel (Download and unzip)
+Befzz's psk importer: https://github.com/Befzz/blender3d_import_psk_psa (Right Click on the Stable (branch latest) 280 direct link > Save Link As)
+Pak files of an Unreal Engine Game you are trying to unpack (for Steam Games select the game in your library > press the cog > 
+browse local files > a file explorer should have opened with your game folder > look for a Content Folder with pak files in folders)
 
 ## Usage
+### Using Prerequisite Software to setup for UEShaderScript
+1. Download the latest version of [UModel/UE Viewer](https://www.gildor.org/en/projects/umodel#files) for your operating system, 
+right click on the umodel zip file > Extract All which will create an unzipped folder.
+2. I suggest if you have the space making a copy of the Pak files into the unzipped folder of UModel.
+3. Next go to [Befzz's psk importer](https://github.com/Befzz/blender3d_import_psk_psa), and right click on the Stable (branch latest) 280 direct link > Save Link As and save it somewhere.
+4. To install Befzz's psk importer, open a blender file > click Edit > Preferences > Add-Ons > Install > in the file explorer find "io_import_scene_unreal_psa_psk_280.py" and select and install it.
+5. In the unzipped UModel open the umodel.exe file.
+ 
+### Loading Preset Shader Maps
+1. Go to the 3D View and press n > you should see a panel called "UE Shaders" > click on UE Shaders to open the panel.
+2. You may need to hover your mouse over the left edge of the panel > click and drag to the left to expand the window to see the text.
+3. At the very top of the of the Panel you should see a list of Preset Shader Maps > click on one of these Presets to highlight and select it.
+4. Now scroll down to the bottom of the panel and you should see two boxes one labelled "ADD SHADER MAP TO SELECTED MATERIAL (ONE MATERIAL)",
+this is for adding a shader map to a single material. The other box should be labelled "ADD SHADER MAP TO ALL MATERIALS ON SELECTED MESHES (ALL MATERIALS)"
+
+### Loading a Preset for a single material
+
+### Advanced Options Loading Preset Shader Maps
+
+### Saving Preset Shader Maps
+#### Rules when Saving presets
+1. The "X Node Name" refere

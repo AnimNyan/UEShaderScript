@@ -37,10 +37,10 @@ NOT_TO_HANDLE_ATTRS_NODES = [
 
 #define all user input properties
 class PathProperties(bpy.types.PropertyGroup):
-    props_txt_path: bpy.props.StringProperty(name="Select PropsTxt File", description="Select a props.txt file", subtype="FILE_PATH")
+    props_txt_path: bpy.props.StringProperty(name="Select PropsTxt File*", description="Select a props.txt file", subtype="FILE_PATH")
     skin_map_path: bpy.props.StringProperty(name="Select Skin Map File", description="Select a skin map image file", subtype="FILE_PATH")
     material_folder_path: bpy.props.StringProperty(name="Select Materials Folder", description="Select a Materials folder", subtype="DIR_PATH")
-    export_folder_path: bpy.props.StringProperty(name="Select Exported Game Folder", description="Select a Game folder", subtype="DIR_PATH")
+    export_folder_path: bpy.props.StringProperty(name="Select Exported Game Folder*", description="Select a Game folder", subtype="DIR_PATH")
     is_replace_nodes: bpy.props.BoolProperty(name="Replace Existing Shader Maps", default= True)
    
 
@@ -156,6 +156,7 @@ class LOADUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
         #create box for all related boxes adding shader map to selected material
         box.label(text = "ADD SHADER MAP TO SELECTED MATERIAL (ONE MATERIAL)",)
         box.label(text = "Select a mesh and a material and add a shader map to the selected material")
+        box.label(text = "* - marks required fields")
         box.prop(pathtool, "props_txt_path")
         box.prop(pathtool, "export_folder_path")
         box.prop(pathtool, "skin_map_path")
@@ -167,6 +168,7 @@ class LOADUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
         box = layout.box()
         box.label(text = "ADD SHADER MAP TO ALL MATERIALS ON SELECTED MESHES (ALL MATERIALS)")
         box.label(text = "Select multiple meshes and add shader maps to all the materials on the selected meshes")
+        box.label(text = "* - marks required fields")
         box.prop(pathtool, "material_folder_path")
         box.prop(pathtool, "export_folder_path")
         box.prop(pathtool, "skin_map_path")
