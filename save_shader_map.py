@@ -1530,6 +1530,7 @@ def export_to_default_json():
     f = open(home_full_path, "w+")
     json_string = presets_to_json_string()
     f.write(json_string)
+    f.close()
 
     #write to the json file in the plugin folder
     f = open(current_directory_full_path, "w+")
