@@ -183,6 +183,17 @@ class LOADUESHADERSCRIPT_OT_add_basic(bpy.types.Operator):
         #find the selected material and 
         #create a basic shader on it
         selected_mat = bpy.context.active_object.active_material
+
+        #this makes a list of all selected objects (can be multiple)
+        active_obj = bpy.context.active_object
+        
+        #shade smooth on the active object
+        #may already be shaded smooth if coming from the 
+        #create_all_shader_maps
+        #but this is just in case the user only runs create_one_shader_map
+        mesh = active_obj.data
+        for f in mesh.polygons:
+            f.use_smooth = True
         
         create_one_shader_map(context, selected_mat, pathtool.props_txt_path, pathtool)
         
@@ -322,19 +333,6 @@ def create_one_shader_map(context, material, props_txt_path, pathtool):
     #for just imported meshes from the psk importer
     material.use_nodes = True
 
-    #this makes a list of all selected objects (can be multiple)
-    active_obj = bpy.context.active_object
-    
-    #shade smooth on the active object
-    #may already be shaded smooth if coming from the 
-    #create_all_shader_maps
-    #but this is just in case the user only runs create_one_shader_map
-    mesh = active_obj.data
-    for f in mesh.polygons:
-        f.use_smooth = True
-
-
-
     #convert windows path to string
     props_txt_path = str(props_txt_path)
 
@@ -353,15 +351,6 @@ def create_one_shader_map(context, material, props_txt_path, pathtool):
         clear_links(tree)
     
     load_preset(context, material, abs_props_txt_path, pathtool)
-    #choose which shader map type to be be using
-    # if (pathtool.shader_type_enum == "DBDRomanNoodlesYanima"):
-    #     roman_noodles_shader_map(material, abs_props_txt_path, pathtool)
-        
-    # elif (pathtool.shader_type_enum == "DBDFrutto"):
-    #     frutto_shader_map(material, abs_props_txt_path, pathtool)
-        
-    # elif (pathtool.shader_type_enum == "HSHSTico"):
-    #     tico_shader_map(material, abs_props_txt_path, pathtool)
 
 
 def clear_nodes(tree):
@@ -857,7 +846,7 @@ def dict_to_textures(img_textures_list, material, node_tree, props_txt_path, pat
             if pathtool.is_delete_unused_related_nodes:
                 #debug
                 print("prefix_of_related_nodes_to_delete:", prefix_of_related_nodes_to_delete)
-                
+
                 #go back through all the nodes and now delete all nodes 
                 #that start with the prefix
                 for node in nodes:
