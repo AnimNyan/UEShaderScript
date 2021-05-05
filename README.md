@@ -24,7 +24,7 @@ Again find me on my discord here: https://discord.gg/rkkWSH2EMz to send me scree
 
 3. Adds the ability to load shader maps and their respective image textures based on a props.txt file exported from UModel: https://www.gildor.org/en/projects/umodel#files
 
-##Video Demo and Tutorial for UEShaderScript (Tutorial to be added)
+## Video Demo and Tutorial for UEShaderScript (Tutorial to be added)
 [![UEShaderScript v1.0.3 demo](https://i.ytimg.com/vi/sGY5rCJW5ZQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=sGY5rCJW5ZQ&lc=UgyelgrzDH2_XMyxoBB4AaABAg "UEShaderScript v1.0.3 demo")
 
 ## Installation
@@ -46,7 +46,8 @@ right click on the umodel zip file > Extract All which will create an unzipped f
 2. I suggest if you have the space making a copy of the Pak files into the unzipped folder of UModel.
 3. Next go to [Befzz's psk importer](https://github.com/Befzz/blender3d_import_psk_psa), and right click on the Stable (branch latest) 280 direct link > Save Link As and save it somewhere.
 4. To install Befzz's psk importer, open a blender file > click Edit > Preferences > Add-Ons > Install > in the file explorer find "io_import_scene_unreal_psa_psk_280.py" and select and install it.
-5. In the unzipped UModel open the umodel.exe file.
+5. In the unzipped UModel open the umodel.exe file this will open up a window, now you'll need to know what settings to use for your game which you'll likely find on the Gildor Forums for UModel: https://www.gildor.org/smf/ . 
+6. For Dead By Daylight check the box labelled override game detection and as of DBD version 4.7.0 click the 1st Dropdown for "Unreal Engine 4" and second for "Unreal Engine 4.25"
  
 ### Loading Preset Shader Maps
 1. Go to the 3D View and press n > you should see a panel called "UE Shaders" > click on UE Shaders to open the panel.
@@ -55,10 +56,18 @@ right click on the umodel zip file > Extract All which will create an unzipped f
 4. Now scroll down to the bottom of the panel and you should see two boxes one labelled "ADD SHADER MAP TO SELECTED MATERIAL (ONE MATERIAL)",
 this is for adding a shader map to a single material. The other box should be labelled "ADD SHADER MAP TO ALL MATERIALS ON SELECTED MESHES (ALL MATERIALS)"
 
-### Loading a Preset for a single material
+### Bulk Loading a Preset for all materials on all selected meshes
+So to load a single preset for all materials on all selected objects we want to look at the box labelled 
+"ADD SHADER MAP TO ALL MATERIALS ON SELECTED MESHES (ALL MATERIALS)"
+
+### Loading a Preset for one selected material
+
+Most of the time we don't want to use this, this is just in case we have one or two materials which should have a different shader map preset.
+So to load a single preset for one material we want to look at the box labelled "ADD SHADER MAP TO SELECTED MATERIAL (ONE MATERIAL)"
+1.
 
 ### Advanced Options Loading Preset Shader Maps
 
 ### Saving Preset Shader Maps
-#### Rules when Saving presets
+### Rules when Saving presets
 1. The "X Node Name" refere
