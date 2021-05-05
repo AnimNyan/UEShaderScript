@@ -1,7 +1,5 @@
 import bpy
 
-import base64
-
 import json
 
 import os
@@ -25,8 +23,6 @@ from bpy.types import (Panel,
 
 
 
-
-
 #import libraries required for types
 #for dict to nodes
 from mathutils import (Vector, Euler, Color)
@@ -46,7 +42,8 @@ from bpy.types import (
     NodeSocketVectorTranslation, NodeSocketVectorVelocity, NodeSocketVectorXYZ, NodeSocketVirtual
 )
 
-#import pathlib for finding current working direction for get_default_json_path
+#import pathlib for finding current working direction for get_default_json_paths()
+#and .exists in import_default_json()
 import pathlib
 
 #define globals
@@ -499,7 +496,7 @@ def nodes_to_dict_handle_shader_node_group(node, savetool):
     node_tree_dict = {}
     node_tree_dict["interface_inputs"] = interface_inputs_list
     node_tree_dict["name"] = node_tree_of_node_group.name
-    #img_textures list is unused here but that is intentional
+    #img_textures list is unused here but that is okay
     nodes_list, links_list, img_textures_list = nodes_to_dict(node_tree_of_node_group, savetool)
     node_tree_dict["nodes_list"] = nodes_list
     node_tree_dict["links_list"] = links_list
@@ -548,16 +545,16 @@ def links_to_list(tree):
 
 def textures_to_list(savetool, nodes):
     img_textures_list = []
-    suffix_node_to_list(savetool.bc_suffix, savetool.bc_suffix_node, img_textures_list, "diffuse", nodes)
-    suffix_node_to_list(savetool.orm_suffix, savetool.orm_suffix_node, img_textures_list, "packed_orm", nodes)
-    suffix_node_to_list(savetool.n_suffix, savetool.n_suffix_node,  img_textures_list, "normal", nodes)
-    suffix_node_to_list(savetool.m_suffix, savetool.m_suffix_node,  img_textures_list, "transparency", nodes)
-    suffix_node_to_list(savetool.bde_suffix, savetool.bde_suffix_node, img_textures_list, "emissions", nodes)
-    suffix_node_to_list(savetool.hm_suffix, savetool.hm_suffix_node, img_textures_list, "height", nodes)
+    suffix_and_node_name_to_list(savetool.bc_suffix, savetool.bc_node_name, img_textures_list, "diffuse", nodes)
+    suffix_and_node_name_to_list(savetool.orm_suffix, savetool.orm_node_name, img_textures_list, "packed_orm", nodes)
+    suffix_and_node_name_to_list(savetool.n_suffix, savetool.n_node_name,  img_textures_list, "normal", nodes)
+    suffix_and_node_name_to_list(savetool.m_suffix, savetool.m_node_name,  img_textures_list, "transparency", nodes)
+    suffix_and_node_name_to_list(savetool.bde_suffix, savetool.bde_node_name, img_textures_list, "emissions", nodes)
+    suffix_and_node_name_to_list(savetool.hm_suffix, savetool.hm_node_name, img_textures_list, "height", nodes)
     #skin texture is always added and is found from the user chosen path 
-    suffix_node_to_list("Not/Applicable", savetool.skin_suffix_node, img_textures_list, "skin", nodes)
-    suffix_node_to_list(savetool.cust1_suffix, savetool.cust1_suffix_node, img_textures_list, "cust1", nodes)
-    suffix_node_to_list(savetool.cust2_suffix, savetool.cust2_suffix_node, img_textures_list, "cust2", nodes)
+    suffix_and_node_name_to_list("Not/Applicable", savetool.skin_node_name, img_textures_list, "skin", nodes)
+    suffix_and_node_name_to_list(savetool.cust1_suffix, savetool.cust1_node_name, img_textures_list, "cust1", nodes)
+    suffix_and_node_name_to_list(savetool.cust2_suffix, savetool.cust2_node_name, img_textures_list, "cust2", nodes)
 
    
     #if the img_textures list is empty
@@ -566,48 +563,49 @@ def textures_to_list(savetool, nodes):
 
     
     #debug
-    #print("img_textures_dict: ", img_textures_dict)
+    #print("img_textures_list: ", img_textures_list)
     #print("img_textures_list length: ", len(img_textures_list))
     
     return img_textures_list
 
 
-def suffix_node_to_list(suffix, suffix_node, img_textures_list, texture, nodes):
+def suffix_and_node_name_to_list(suffix, node_name, img_textures_list, texture, nodes):
     img_textures_dict = {}
     
     #if both the suffix and suffix node are not empty
     #record the suffix in the dictionary
-    if suffix != "" and suffix_node != "":
+    if suffix != "" and node_name != "":
 
         #try get the node by node name
         #if it does not exist 
         #do not let it be recorded in the img_textures_dict or img_textures_list
         #because we don't want to record 
         #img textures that will never get loaded
-        node = nodes.get(suffix_node, None)
+        #debug
+        #print("node_name:", node_name)
+        node = nodes.get(node_name, None)
         
-        #by default assume node with suffix node name does not exist
-        is_node_with_suffix_node_name_exist = False
+        #print("node:", node, "\n")
 
-        if node is not None:
-            is_node_with_suffix_node_name_exist = True
+        #by default assume node with suffix node name does not exist
+        is_node_with_node_name_exist = False
+
+        if (node != None):
+            is_node_with_node_name_exist = True
         else:
             #notify user if their
             #Shader Map did not have a Node with the correctly named Node Name
-            #two brackets inner brackets converts to tuple
-            #.join needs a tuple
-            warning_message = " ".join(("A node with Node Name: \"",suffix_node,"\" does not exist so no texture was recorded to load!"))
-            bpy.ops.ueshaderscript.show_message(
-                message = warning_message
-                    )
+            #two brackets inner brackets converts to tuple .join needs a tuple
+            warning_message = " ".join(("A node with Node Name: \"", node_name, "\" does not exist so no texture was recorded to load!"))
+            bpy.ops.ueshaderscript.show_message(message = warning_message)
         
         #only record in the img_textures_dict and img_textures_list if the node exists
         #in the current shader setup
-        if is_node_with_suffix_node_name_exist:
+        if is_node_with_node_name_exist:
             #texture is just for debugging purposes so can check JSON file
             img_textures_dict["texture"] = texture
             img_textures_dict["suffix"] = suffix
-            img_textures_dict["suffix_node"] = suffix_node
+            img_textures_dict["node_name"] = node_name
     
 
     #if an entry was added into the img_textures_dict 
@@ -622,22 +620,25 @@ def suffix_node_to_list(suffix, suffix_node, img_textures_list, texture, nodes):
 class SaveProperties(bpy.types.PropertyGroup):
     cust_map_name: bpy.props.StringProperty(name="Name of Shader Map", description="Name of your custom shader map")
     bc_suffix: bpy.props.StringProperty(name="Diffuse Suffix", description="Suffix of Diffuse", default="_BC")
-    bc_suffix_node: bpy.props.StringProperty(name="Diffuse Node Name", description="Diffuse image texture node name", default="Diffuse Node")
+    bc_node_name: bpy.props.StringProperty(name="Diffuse Node Name", description="Diffuse image texture node name", default="Diffuse Node")
     orm_suffix: bpy.props.StringProperty(name="Packed RGB ARM Suffix", description="Suffix of Packed RGB (AO, Rough, Metallic)", default="_ORM")
-    orm_suffix_node: bpy.props.StringProperty(name="Packed RGB Node Name", description="Packed RGB image texture node name", default="Packed RGB Node")
+    orm_node_name: bpy.props.StringProperty(name="Packed RGB Node Name", description="Packed RGB image texture node name", default="Packed RGB Node")
     n_suffix: bpy.props.StringProperty(name="Normal Map Suffix", description="Suffix of Normal Map", default="_N")
-    n_suffix_node: bpy.props.StringProperty(name="Normal Map Node Name", description="Normal Map image texture node name", default="Normal Map Node")
+    n_node_name: bpy.props.StringProperty(name="Normal Map Node Name", description="Normal Map image texture node name", default="Normal Map Node")
     m_suffix: bpy.props.StringProperty(name="Alpha Map Suffix", description="Suffix of Alpha (Transparency) Map", default="_M")
-    m_suffix_node: bpy.props.StringProperty(name="Alpha Map Node Name", description="Alpha Map image texture node name", default="Transparency Map Node")
+    m_node_name: bpy.props.StringProperty(name="Alpha Map Node Name", description="Alpha Map image texture node name", default="Transparency Map Node")
     bde_suffix: bpy.props.StringProperty(name="Emissions Map Suffix", description="Suffix of Emissions Map", default="_BDE")
-    bde_suffix_node: bpy.props.StringProperty(name="Emissions Map Node Name", description="Emissions Map image texture node name", default="Emissions Map Node")
+    bde_node_name: bpy.props.StringProperty(name="Emissions Map Node Name", description="Emissions Map image texture node name", default="Emissions Map Node")
     hm_suffix: bpy.props.StringProperty(name="Height Map Suffix", description="Suffix of Height Map", default="")
-    hm_suffix_node: bpy.props.StringProperty(name="Height Map Node Name", description="Height Map image texture node name", default="")
-    skin_suffix_node: bpy.props.StringProperty(name="Skin Node Name", description="Skin image texture node name", default="")
+    hm_node_name: bpy.props.StringProperty(name="Height Map Node Name", description="Height Map image texture node name", default="")
     cust1_suffix: bpy.props.StringProperty(name="Custom1 Suffix", description="Suffix of Custom1 Texture", default="")
-    cust1_suffix_node: bpy.props.StringProperty(name="Custom1 Node Name", description="Custom1 image texture node name", default="")
+    cust1_node_name: bpy.props.StringProperty(name="Custom1 Node Name", description="Custom1 image texture node name", default="")
     cust2_suffix: bpy.props.StringProperty(name="Custom2 Suffix", description="Suffix of Custom2 Texture", default="")
-    cust2_suffix_node: bpy.props.StringProperty(name="Custom2 Node Name", description="Custom2 image texture node name", default="")
+    cust2_node_name: bpy.props.StringProperty(name="Custom2 Node Name", description="Custom2 image texture node name", default="")
+
+    #skin only needs a node name as it is not from the game files
+    #rather it is externally added by the user themself
+    skin_node_name: bpy.props.StringProperty(name="Skin Node Name", description="Skin image texture node name", default="")
     is_add_img_textures: bpy.props.BoolProperty(name="Load Image Textures to Shader Map", default= True)
 
 
@@ -708,27 +709,27 @@ class SAVEUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
             box.label(text = "(leave suffix OR node name empty if you do NOT want to load the specific image texture)")
             box.label(text = "Node Names can be found/changed by selecting an image texture node > Press n > Item > Name")
             box.prop(savetool, "bc_suffix")
-            box.prop(savetool, "bc_suffix_node")
+            box.prop(savetool, "bc_node_name")
             box.prop(savetool, "orm_suffix")
-            box.prop(savetool, "orm_suffix_node")
+            box.prop(savetool, "orm_node_name")
             box.prop(savetool, "n_suffix")
-            box.prop(savetool, "n_suffix_node")
+            box.prop(savetool, "n_node_name")
             box.prop(savetool, "m_suffix")
-            box.prop(savetool, "m_suffix_node")
+            box.prop(savetool, "m_node_name")
             box.prop(savetool, "bde_suffix")
-            box.prop(savetool, "bde_suffix_node")
+            box.prop(savetool, "bde_node_name")
             box.prop(savetool, "hm_suffix")
-            box.prop(savetool, "hm_suffix_node")
+            box.prop(savetool, "hm_node_name")
             box.prop(savetool, "cust1_suffix")
-            box.prop(savetool, "cust1_suffix_node")
+            box.prop(savetool, "cust1_node_name")
             box.prop(savetool, "cust2_suffix")
-            box.prop(savetool, "cust2_suffix_node")
+            box.prop(savetool, "cust2_node_name")
 
             row = box.row()
 
             box.label(text = "Skin Texture Node (Special Case No Suffix)")
             box.label(text = "Skin Texture Height Map always added regardless of props.txt files")
-            box.prop(savetool, "skin_suffix_node")
+            box.prop(savetool, "skin_node_name")
         
         layout.operator("SAVEUESHADERSCRIPT.saveshadermap_operator")
 
@@ -1210,50 +1211,78 @@ def dict_to_string(d):
     """Convert a Python dictionary to JSON string"""
     return json.dumps(d, indent=4)
 
-DEFAULT_JSON_FILE = "ue_shader_script_default_json"
 
 
-def get_default_json_path():
+DEFAULT_JSON_FILE = "ue_shader_script_default_json.json"
+
+
+def get_default_json_paths():
     path_lib = pathlib.Path(__file__).parent.absolute()
-    #home = os.path.expanduser("~")
-    #full_path = os.path.join(home, DEFAULT_JSON_FILE)
-    full_path = os.path.join(path_lib, DEFAULT_JSON_FILE)
+    home = os.path.expanduser("~")
+    home_full_path = os.path.join(home, DEFAULT_JSON_FILE)
+    current_directory_full_path = os.path.join(path_lib, DEFAULT_JSON_FILE)
     #debug
-    #print("full_path: ", full_path)
-    return full_path
+    #print("home_full_path: ", home_full_path)
+    #print("home_full_path: ", home_full_path)
+    return home_full_path, current_directory_full_path
 
 
 def import_default_json():
     """Use this to import default json file in ~/node_kit_default_json"""
-    full_path = get_default_json_path()
-    try:
-        with open(full_path) as f:
+    home_full_path, current_directory_full_path = get_default_json_paths()
+    # try:
+    #     with open(full_path) as f:
+    #         json_string = f.read()
+    #         json_string_to_presets(json_string, skip_autosave=True)
+    # except IOError:
+    #     print(full_path, ": file not accessible")
+    
+    home_json_file = pathlib.Path(home_full_path)
+    current_directory_json_file = pathlib.Path(current_directory_full_path)
+    #first try to import home_full_path
+    #this is because if the user created presets but deleted the add on
+    #this json file in the home_full_path will still be there
+    #however, the json file in the plugin folder will have been deleted
+    #when the plugin was uninstalled
+    
+    if(home_json_file.exists()):
+        with open(home_full_path) as f:
             json_string = f.read()
+            #json_string_to_presets will delete any existing presets
             json_string_to_presets(json_string, skip_autosave=True)
-    except IOError:
-        print(full_path, ": file not accessible")
+    else:
+        log("Home directory default JSON File not accessible.")
+        #if the json file in the home directory does not exist 
+        #this may be a first install of the program
+        #so check the plugin folder for a file
+        if(current_directory_json_file.exists()):
+            with open(current_directory_full_path) as f:
+                json_string = f.read()
+                #json_string_to_presets will delete any existing presets
+                json_string_to_presets(json_string, skip_autosave=True)
+        else:
+            log("Error no JSON File was found in the Home or Plugin Folder, please send a screenshot of the error to the developer.")
 
-_10_LAST_USED_PRESETS_KEY = "10_last_used_presets"
-USED_KEY = "_used"
 
-def base64encode(s):
-    return base64.b64encode(s.encode("utf-8")).decode("utf-8")
 
-def base64decode(s):
-    return base64.b64decode(s.encode("utf-8")).decode("utf-8")
+# _10_LAST_USED_PRESETS_KEY = "10_last_used_presets"
+# USED_KEY = "_used"
 
+#json_string_to_presets will delete any existing presets
 def json_string_to_presets(json_string, skip_autosave=False):
     dict = json_to_dict(json_string)
     #debug
     #print("dict: ", dict)
     pref = get_preferences()
     folders_presets = pref.folders_presets
+    #clear all presets in folder
     folders_presets.clear()
     for key in dict:
-        if key == _10_LAST_USED_PRESETS_KEY:
-            presets_list = dict[key]
-            import_10_last_used_presets(presets_list)
-            continue
+        #Not using 10 last used functionality
+        # if key == _10_LAST_USED_PRESETS_KEY:
+        #     presets_list = dict[key]
+        #     import_10_last_used_presets(presets_list)
+        #     continue
         presets = dict[key]
         new_folder = folders_presets.add()
         new_folder.folder_name = key
@@ -1272,65 +1301,90 @@ def json_string_to_presets(json_string, skip_autosave=False):
             new_preset = new_folder_presets.add()
             new_preset.used = 0
             for k in preset:
+                content = preset[k]
+                new_preset.name = k
+                new_preset.content = content
+                
+                #-----------Not using last used section of code
                 #if the key is _used it's going to be something like 1
                 #this is when it was last used
-                if k == USED_KEY:
-                    new_preset.used = preset[USED_KEY]
-                else:
+                #if k == USED_KEY:
+                #    new_preset.used = preset[USED_KEY]
+                #else:
                 #otherwise if it is not the used key we shall decode it 
-                #with base64
-                    content = base64decode(preset[k])
-                    new_preset.name = k
-                    new_preset.content = content
+                    # content = preset[k]
+                    # new_preset.name = k
+                    # new_preset.content = content
                 #debug
                 #print("preset[k]", preset[k])
-    import_10_most_used_presets()
+    #import_10_most_used_presets()
     save_pref(skip_autosave=skip_autosave)
 
-def import_10_last_used_presets(presets_list):
-    pref = get_preferences()
-    pref.ten_last_used_presets.clear()
-    for preset in presets_list:
-        new_preset = pref.ten_last_used_presets.add()
-        new_preset.folder_name = preset[0]
-        new_preset.preset_name = preset[1]
+# def import_10_last_used_presets(presets_list):
+#     pref = get_preferences()
+#     pref.ten_last_used_presets.clear()
+#     for preset in presets_list:
+#         new_preset = pref.ten_last_used_presets.add()
+#         new_preset.folder_name = preset[0]
+#         new_preset.preset_name = preset[1]
 
-def import_10_most_used_presets():
-    update_10_most_used_presets()
+# def import_10_most_used_presets():
+#     update_10_most_used_presets()
 
 def is_preset_added(folder_name, preset_name):
     preferences = get_preferences()
-    for p in preferences.ten_most_used_presets:
-        if p.folder_name == folder_name and \
-                p.preset_name == preset_name:
+    # for preset in preferences.ten_most_used_presets:
+    #go through all presets recorded in the plugin
+    for preset in preferences.all_presets:
+        if preset.folder_name == folder_name and \
+                preset.preset_name == preset_name:
             return True
     return False
 
-def update_10_most_used_presets():
+# def update_10_most_used_presets():
+#     pref = get_preferences()
+#     ten_most_used_presets = pref.ten_most_used_presets
+#     ten_most_used_presets.clear()
+#     folders = pref.folders_presets
+#     presets = []
+#     for folder in folders:
+#         for preset in folder.presets:
+#             if hasattr(preset, "used"):
+#                 presets.append((folder.folder_name, preset.name, preset.used))
+
+#     def sort_fun(ele):
+#         return ele[2]
+#     presets = sorted(presets, key=sort_fun, reverse=True)
+#     l = len(presets)
+#     if l > 10:
+#         l = 10
+#     for i in range(0, l):
+#         preset = presets[i]
+#         if not is_preset_added(preset[0], preset[1]):
+#             new_preset = pref.ten_most_used_presets.add()
+#             new_preset.folder_name = preset[0]
+#             new_preset.preset_name = preset[1]
+#     if len(pref.ten_most_used_presets) >= 0:
+#         pref.ten_most_used_presets_index = 0
+
+#on import update all presets
+def update_all_presets():
     pref = get_preferences()
-    ten_most_used_presets = pref.ten_most_used_presets
-    ten_most_used_presets.clear()
+    all_presets = pref.all_presets
+
+    #reset all presets list so can check
+    #what presets are present before
+    #recording all currently present
+    all_presets.clear()
     folders = pref.folders_presets
-    presets = []
     for folder in folders:
         for preset in folder.presets:
-            if hasattr(preset, "used"):
-                presets.append((folder.folder_name, preset.name, preset.used))
-
-    def sort_fun(ele):
-        return ele[2]
-    presets = sorted(presets, key=sort_fun, reverse=True)
-    l = len(presets)
-    if l > 10:
-        l = 10
-    for i in range(0, l):
-        preset = presets[i]
-        if not is_preset_added(preset[0], preset[1]):
-            new_preset = pref.ten_most_used_presets.add()
-            new_preset.folder_name = preset[0]
-            new_preset.preset_name = preset[1]
-    if len(pref.ten_most_used_presets) >= 0:
-        pref.ten_most_used_presets_index = 0
+            #add a new collection item to the all_presets list
+            #.add is a built in blender function for preferences 
+            #record all presets in preferences the preferences all_presets list
+            new_preset = pref.all_presets.add()
+            new_preset.folder_name = folder.folder_name
+            new_preset.preset_name = preset.name
 
 
 def get_selected_folder_presets(isOverridePackage = False):
@@ -1365,12 +1419,16 @@ class FolderPresetsCollection(PropertyGroup):
     preset_index: IntProperty()
 
 
-class TenLastUsedPresetsCollection(PropertyGroup):
-    folder_name: StringProperty()
-    preset_name: StringProperty()
+# class TenLastUsedPresetsCollection(PropertyGroup):
+#     folder_name: StringProperty()
+#     preset_name: StringProperty()
 
 
-class TenMostUsedPresetsCollection(PropertyGroup):
+# class TenMostUsedPresetsCollection(PropertyGroup):
+#     folder_name: StringProperty()
+#     preset_name: StringProperty()
+
+class AllPresetsCollection(PropertyGroup):
     folder_name: StringProperty()
     preset_name: StringProperty()
 
@@ -1386,10 +1444,13 @@ class SavePreferences(bpy.types.AddonPreferences):
                           items=get_folders_items,
                           update=update_folders,
                           default=None)
-    ten_last_used_presets: CollectionProperty(type=TenLastUsedPresetsCollection)
-    ten_last_used_presets_index: IntProperty()
-    ten_most_used_presets: CollectionProperty(type=TenMostUsedPresetsCollection)
-    ten_most_used_presets_index: IntProperty()
+    #all_presets is a list that records all the presets present in the plugin
+    all_presets: CollectionProperty(type=AllPresetsCollection)
+    #----not using last used or most used functionality
+    # ten_last_used_presets: CollectionProperty(type=TenLastUsedPresetsCollection)
+    # ten_last_used_presets_index: IntProperty()
+    # ten_most_used_presets: CollectionProperty(type=TenMostUsedPresetsCollection)
+    # ten_most_used_presets_index: IntProperty()
     # `presets` and `preset_index` are not used
     # `presets` is for the old version
     presets: CollectionProperty(type=PresetCollection)
@@ -1462,8 +1523,16 @@ def redraw_all():
 
 def export_to_default_json():
     """Use this to export to default json file in ~/node_kit_default_json"""
-    full_path = get_default_json_path()
-    f = open(full_path, "w+")
+    home_full_path, current_directory_full_path = get_default_json_paths()
+    #reason why we write to both is the json file at home_full_path is used for backup
+    #in case the plugin folder is deleted
+    #write to the json file in the home directory
+    f = open(home_full_path, "w+")
+    json_string = presets_to_json_string()
+    f.write(json_string)
+
+    #write to the json file in the plugin folder
+    f = open(current_directory_full_path, "w+")
     json_string = presets_to_json_string()
     f.write(json_string)
     f.close()
@@ -1477,9 +1546,9 @@ def presets_to_json_string():
         presets = []
         for preset in folder_presets.presets:
             preset_dict = {}
-            preset_dict[preset.name] = base64encode(preset.content)
-            if hasattr(preset, "used"):
-                preset_dict[USED_KEY] = preset.used
+            preset_dict[preset.name] = preset.content
+            #if hasattr(preset, "used"):
+            #    preset_dict[USED_KEY] = preset.used
             presets.append(preset_dict)
         JSON[folder_presets.folder_name] = presets
     #JSON[_10_LAST_USED_PRESETS_KEY] = _10_last_used_presets_to_json()
@@ -1515,10 +1584,11 @@ def json_string_to_presets_append(json_string):
     pref = get_preferences()
     folders_presets = pref.folders_presets
     for key in dict:
-        if key == _10_LAST_USED_PRESETS_KEY:
-            presets_list = dict[key]
-            import_10_last_used_presets(presets_list)
-            continue
+        #Not using last used functionality
+        # if key == _10_LAST_USED_PRESETS_KEY:
+        #     presets_list = dict[key]
+        #     import_10_last_used_presets(presets_list)
+        #     continue
         presets = dict[key]
         if folder_name_exist(key):
             new_folder = get_folder_presets_by_name(key)
@@ -1530,20 +1600,30 @@ def json_string_to_presets_append(json_string):
             new_preset = new_folder_presets.add()
             new_preset.used = 0
             for k in preset:
-                if k == USED_KEY:
-                    new_preset.used = preset[USED_KEY]
-                else:
+                # if k == USED_KEY:
+                #     new_preset.used = preset[USED_KEY]
+                # else:
                     # Append new preset with a name "XXX-copy" if
                     # this preset have the same name exists
-                    new_name = k
-                    while preset_name_exist_in_folder(
-                            new_folder.folder_name,
-                            new_name):
-                        new_name = new_name + " copy"
-                    new_preset.name = new_name
-                    content = base64decode(preset[k])
-                    new_preset.content = content
+                    # new_name = k
+                    # while preset_name_exist_in_folder(
+                    #         new_folder.folder_name,
+                    #         new_name):
+                    #     new_name = new_name + " copy"
+                    # new_preset.name = new_name
+                    # content = preset[k]
+                    # new_preset.content = content
+                new_name = k
+                while preset_name_exist_in_folder(
+                        new_folder.folder_name,
+                        new_name):
+                    new_name = new_name + " copy"
+                new_preset.name = new_name
+                content = preset[k]
+                new_preset.content = content
     #import_10_most_used_presets()
+    #on importing the default json update the all presets list
+    update_all_presets()
     save_pref()
 
 def get_folder_presets_by_name(name):
@@ -1582,7 +1662,7 @@ VERBOSE = True
 
 def log(msg):
     if VERBOSE:
-        print("[UE Shader]", msg)
+        print("[UE Shader Script]:", msg)
 
 def report_error(self, message):
     full_message = "%s\n\nPlease report to the add-on developer with this error message (A screenshot is awesome)" % message
@@ -1614,12 +1694,11 @@ class ShowMessageOperator(bpy.types.Operator):
             wm = context.window_manager
             self.called = True
             return wm.invoke_props_dialog(self, width=600)
-        return {'FINISHED'}    
+        return {'FINISHED'}
 
 
 
-classes = [SaveProperties, PresetCollection,
-    FolderPresetsCollection, TenLastUsedPresetsCollection, TenMostUsedPresetsCollection, SavePreferences,
+classes = [SaveProperties, PresetCollection, FolderPresetsCollection, AllPresetsCollection, SavePreferences, 
 
     ImportAndAppendPresetsOperator, ExportPresetsOperator,
     

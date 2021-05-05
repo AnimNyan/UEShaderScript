@@ -26,7 +26,7 @@ import bpy
 bl_info = {
     "name": "UE Shader Map Setups",
     "author": "Anime Nyan",
-    "version": (1, 0, 3),
+    "version": (1, 0, 4),
     "blender": (2, 92, 0),
     "location": "TO BE ADDED",
     "description": "Adds the ability to save shader maps for 3d Meshes from Unreal Engine games and adds default preset shader maps for your convenience ",
@@ -37,7 +37,7 @@ bl_info = {
 }
 
 """
-Version': '1.0.3' written by Anime Nyan
+Version': '1.0.4' written by Anime Nyan
 
 Adds two panels one in the Shader Editor View to save different preset shader maps and one in the 3D View to load shader maps. From the github page please download the default_presets.json file and import it
 in the Shader Editor View.

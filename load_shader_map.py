@@ -4,6 +4,7 @@ import bpy, re
 import glob
 from pathlib import Path
 
+import time
 
 import os
 
@@ -11,7 +12,7 @@ import os
 #import classes 
 from .save_shader_map import SHADER_PRESETS_UL_items, ShowMessageOperator
 #import functions
-from .save_shader_map import get_preferences, get_selected_folder_presets, json_to_nodes_dict
+from .save_shader_map import get_preferences, get_selected_folder_presets, json_to_nodes_dict, log
 
 
 from mathutils import (Vector, Euler, Color)
@@ -41,17 +42,8 @@ class PathProperties(bpy.types.PropertyGroup):
     material_folder_path: bpy.props.StringProperty(name="Select Materials Folder", description="Select a Materials folder", subtype="DIR_PATH")
     export_folder_path: bpy.props.StringProperty(name="Select Exported Game Folder", description="Select a Game folder", subtype="DIR_PATH")
     is_replace_nodes: bpy.props.BoolProperty(name="Replace Existing Shader Maps", default= True)
-    # shader_type_enum: bpy.props.EnumProperty(
-    #     name = "Shader Map Type",
-    #     description = "Dropdown List of all the types of Shader Maps",
-    #     items = 
-    #     [
-    #         ("DBDRomanNoodlesYanima" , "DBD Roman Noodles & YanimaDBD Shader Maps", ""),
-    #         ("DBDFrutto" , "DBD Frutto Shader Maps", ""),
-    #         ("HSHSTico" , "HSHS Tico Shader Maps", "")
-    #     ]
-        
-    # )
+   
+
     texture_file_type_enum: bpy.props.EnumProperty(
         name = "Texture File Type",
         description = "Dropdown List of all the texture file types",
@@ -76,7 +68,10 @@ class PathProperties(bpy.types.PropertyGroup):
     is_orm_non_colour: bpy.props.BoolProperty(name="Packed ARM Textures Non Colour (True for Roman Noodles)", default= False)
     is_add_img_textures: bpy.props.BoolProperty(name="Add Image Textures", default= True)
     is_delete_unused_img_texture_nodes: bpy.props.BoolProperty(name="Delete Unused Image Texture Nodes", default= True)
-    is_delete_unused_related_nodes: bpy.props.BoolProperty(name="Delete Unused Image AND Related Texture Nodes (Slow needed for maps with Emissions)", default= True)
+    is_delete_unused_related_nodes: bpy.props.BoolProperty(name="Delete Unused Image AND Related Texture Nodes (Slows down adding shaders)", default= False)
+
+    is_change_principle_bsdf_emission_strength: bpy.props.BoolProperty(name="Change Principled BSDF Strength", default= True)
+    principled_bsdf_emission_strength_float: bpy.props.FloatProperty(name="Principled BSDF Emission Strength", default = 5)
     # is_material_skin: bpy.props.BoolProperty(name="Add Skin Related Nodes", default= False)
     # is_add_height_map: bpy.props.BoolProperty(name="Add Height Map Skin Texture", default= False)
 
@@ -127,13 +122,18 @@ class LOADUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
         #loaded into them
         layout.prop(pathtool, "is_delete_unused_img_texture_nodes")
         #only show this option if delete unused_img_texture_nodes is checked
-        if (pathtool.is_delete_unused_img_texture_nodes):
+        if(pathtool.is_delete_unused_img_texture_nodes):
             layout.prop(pathtool, "is_delete_unused_related_nodes")
 
         layout.prop(pathtool, "texture_file_type_enum")
         layout.prop(pathtool, "clipping_method_enum")
         layout.prop(pathtool, "is_normal_non_colour")
         layout.prop(pathtool, "is_orm_non_colour")
+        layout.prop(pathtool, "is_change_principle_bsdf_emission_strength")
+
+        if(pathtool.is_change_principle_bsdf_emission_strength):
+            layout.prop(pathtool, "principled_bsdf_emission_strength_float")
+
         
         #Create a box for all related inputs and operators 
         #for adding the shader maps one by one to
@@ -185,13 +185,17 @@ class LOADUESHADERSCRIPT_OT_add_basic_all(bpy.types.Operator):
     bl_label = "Add ALL Shader Maps"
     bl_idname = "loadueshaderscript.addbasicall_operator"
     def execute(self, context):
+        #time how long it takes to create all shader maps for all materials
+        #set start time
+        time_start = time.time()
+
         scene = context.scene 
         #allow access to user inputted properties through pointer
         #to properties
         pathtool = scene.path_tool
         
         create_basic_all_shader_maps(context, pathtool)
-        
+        log("Finished create_basic_all_shader_maps in: %.4f sec" % (time.time() - time_start))
     
         return {"FINISHED"}
 
@@ -300,7 +304,7 @@ def get_value_in_gen_obj(gen_obj_match):
     #because we are matching one specific file
     #so if more matches then one print an error
     if match > 1:
-        bpy.ops.ueshaderscript.show_message(message = "Error: There was more than one match for the props_txt_path for rglob")
+        bpy.ops.ueshaderscript.show_message(message = "Error: More than one match for the props_txt_path for rglob")
     
     return props_txt_path
 
@@ -407,6 +411,8 @@ def load_preset(context, material, props_txt_path, pathtool):
         elif shader_type == "WORLD":
             world = get_active_world()
             node_tree = world.node_tree
+        #debug
+        #print("nodes_dict", nodes_dict)
         nodes = dict_to_nodes(nodes_dict["nodes_list"], node_tree)
         list_to_links(nodes_dict["links_list"], node_tree, nodes)
         dict_to_textures(nodes_dict["img_textures_list"], material, node_tree, props_txt_path, pathtool)
@@ -519,6 +525,7 @@ def dict_to_nodes(nodes_list, tree):
         new_node.location.x = node["x"]
         new_node.location.y = node["y"]
         # Special handlling ShaderNodeGroup
+        # this is for Group nodes
         if node["node_name"] == "ShaderNodeGroup":
             dict_to_nodes_handle_shader_node_group(new_node, node)
         # if node["node_name"] == "CompositorNodeGroup":
@@ -550,8 +557,43 @@ def dict_to_nodes(nodes_list, tree):
     return ret_nodes
 
 def dict_to_nodes_handle_shader_node_group(new_node, node_dict):
-    node_tree_of_group = group = bpy.data.node_groups.new(type="ShaderNodeTree",
-                                                          name=node_dict["node_tree"]["name"])
+    node_group_name = node_dict["node_tree"]["name"]
+    #check if the node group with name you are trying to restore exists
+    #if it exists then check how many users it has
+    is_node_group_name_exist = bpy.data.node_groups.get(node_group_name, None)
+    
+    #debug
+    #print("is_node_group_name_exist for", node_group_name, ":", is_node_group_name_exist)
+
+    if (is_node_group_name_exist):
+        #if it has 0 users it will still reuse the node group
+        #as long as the node group with node group name exists
+        #it will reuse it
+        reuse_the_node_group(new_node, node_dict, node_group_name)
+    else:
+        create_a_new_node_group(new_node, node_dict, node_group_name)
+
+
+def reuse_the_node_group(new_node, node_dict, node_group_name):
+    #find and reuse already created node group
+    node_tree_of_group = bpy.data.node_groups[node_group_name]
+
+    #don't copy inputs and outputs of the shader_node group if you are reusing it
+    #only set the node tree of the node to the existing node group
+    new_node.node_tree = node_tree_of_group
+
+    #make sure use fake user is enabled for the node group
+    bpy.data.node_groups[node_group_name].use_fake_user = True
+
+
+def create_a_new_node_group(new_node, node_dict, node_group_name):
+    #make a new node_group
+    node_tree_of_group = bpy.data.node_groups.new(type="ShaderNodeTree",
+                                                          name=node_group_name)
+    copy_inputs_outputs_links_for_node_group(node_tree_of_group, new_node, node_dict, node_group_name)
+    
+
+def copy_inputs_outputs_links_for_node_group(node_tree_of_group, new_node, node_dict, node_group_name):
     for input in node_dict["inputs"]:
         new_node.inputs.new(input["type_name"], input["name"])
         node_tree_of_group.inputs.new(input["type_name"], input["name"])
@@ -566,6 +608,10 @@ def dict_to_nodes_handle_shader_node_group(new_node, node_dict):
     inputs_list = node_dict["node_tree"]["interface_inputs"]
     list_to_interface_inputs(interface_inputs, inputs_list)
     new_node.node_tree = node_tree_of_group
+
+    #make sure use fake user is enabled for the node group
+    bpy.data.node_groups[node_group_name].use_fake_user = True
+
 
 
 def list_to_links(links_list, tree, nodes):
@@ -589,7 +635,7 @@ def list_to_links(links_list, tree, nodes):
 
 
 def dict_to_textures(img_textures_list, material, node_tree, props_txt_path, pathtool):
-    #print("\nprops_txt_path", props_txt_path)
+    print("\nprops_txt_path", props_txt_path)
     
     #open the propstxt file for the material and find the
     #texture locations from it
@@ -672,7 +718,7 @@ def dict_to_textures(img_textures_list, material, node_tree, props_txt_path, pat
             #recorded in the node_dict when the dictionary is saved
             for textures in img_textures_list:
                 suffix = textures["suffix"]
-                node_name = textures["suffix_node"]
+                node_name = textures["node_name"]
 
                 #special case if the node is a skin texture node
                 #always load skin height map texture regardless
@@ -713,9 +759,11 @@ def dict_to_textures(img_textures_list, material, node_tree, props_txt_path, pat
                         clipping_method = pathtool.clipping_method_enum
                         if clipping_method == "CLIP":
                             material.blend_method = "CLIP"
+                            material.shadow_method = "CLIP"
                             material.alpha_threshold = 0
                         elif clipping_method == "HASHED":
                             material.blend_method = "HASHED"
+                            material.shadow_method = "HASHED"
                         else:
                             bpy.ops.ueshaderscript.show_message(message = "Error could not find clipping method")
 
@@ -734,7 +782,9 @@ def dict_to_textures(img_textures_list, material, node_tree, props_txt_path, pat
                     #find the principled BSDF node
                     #and turn the emission strength to 5
                     elif textures["texture"] == "emissive":
-                        change_emission_strength_principled_bsdf(node_tree, "BSDF_PRINCIPLED")
+                        #only change the emission strength if the bool checkbox is checked
+                        if (pathtool.is_change_principle_bsdf_emission_strength):
+                            change_emission_strength_principled_bsdf(node_tree, "BSDF_PRINCIPLED", pathtool.principled_bsdf_emission_strength_float)
                         
                         
                     #if a image texture node has been loaded
@@ -745,8 +795,6 @@ def dict_to_textures(img_textures_list, material, node_tree, props_txt_path, pat
                     if pathtool.is_delete_unused_img_texture_nodes:
                         not_delete_img_texture_node_list.append(node_to_load)
         
-
-
 
 
         #check through the whole tree for image
@@ -771,34 +819,37 @@ def dict_to_textures(img_textures_list, material, node_tree, props_txt_path, pat
                     prefix_of_related_nodes_to_delete.append(node.name)
                     nodes.remove(node) 
 
-            print("prefix_of_related_nodes_to_delete:", prefix_of_related_nodes_to_delete)
+            
+            #do one more loop through all nodes to check for related nodes
+            #to delete if option is checked
             if pathtool.is_delete_unused_related_nodes:
+                #debug
+                #print("prefix_of_related_nodes_to_delete:", prefix_of_related_nodes_to_delete)
                 #go back through all the nodes and now delete all nodes 
                 #that start with the prefix
                 for node in nodes:
-                    print("node:", node)
+                    #print("node:", node)
                     #the line below must not be int he loop otherwise the loop fails
                     node_name = node.name
                     #for every node check against every prefix that is on the blacklist
                     for prefix in prefix_of_related_nodes_to_delete:
                         if node_name.startswith(prefix):
-                            print("node:", node, "has been deleted.")
+                            #print("node:", node, "has been deleted.")
                             nodes.remove(node)
                 
 
+
+
 #returns first principled bsdf in case of two
-def change_emission_strength_principled_bsdf(node_tree, node_type):
+def change_emission_strength_principled_bsdf(node_tree, node_type, emission_strength):
     count = 0
     for node in node_tree.nodes:
         if (node.type == "BSDF_PRINCIPLED"):
             count = count + 1
-            node.inputs["Emission Strength"] = 5
+            node.inputs["Emission Strength"] = emission_strength
     
     if count > 1:
-        bpy.ops.ueshaderscript.show_message(message="Warning changed all Principled BSDF node Emission Strengths to 5")
-        
-
-
+        bpy.ops.ueshaderscript.show_message(message="Warning changed all Principled BSDF nodes Emission Strength to 5")
         
 
 
@@ -876,7 +927,10 @@ def get_output_by_name(outputs, name, index):
             return output
     return None
 
+
 def list_to_interface_inputs(inputs, inputs_list):
+    #debug
+    #print("list(enumerate(inputs)):", list(enumerate(inputs)))
     for index, input in enumerate(inputs):
         min_value = inputs_list[index]["min_value"]
         max_value = inputs_list[index]["max_value"]
@@ -884,6 +938,7 @@ def list_to_interface_inputs(inputs, inputs_list):
             input.min_value = min_value
         if max_value != "None":
             input.max_value = max_value
+
 
 def output_dict_to_socket_value(output, output_dict):
     input_dict_to_socket_value(output, output_dict)
@@ -919,7 +974,7 @@ def dict_to_attr(node, attr_dict, repeated=False):
             try:
                 bpy.ops.image.open(filepath=attr_dict["image_filepath"])
             except Exception as e:
-                print("[UE Shader]: file path of image attributes not found: ",
+                log("file path of image attributes not found: ",
                       attr_dict["image_filepath"])
             filename = os.path.basename(attr_dict["image_filepath"])
             image = bpy.data.images.get(filename)
@@ -951,8 +1006,9 @@ def dict_to_attr(node, attr_dict, repeated=False):
         color_ramp.hue_interpolation = color_ramp_dict["hue_interpolation"]
         color_ramp.interpolation = color_ramp_dict["interpolation"]
         elements = color_ramp.elements
-        for e in elements:
-            print(e.position)
+        # debug
+        #for e in elements:
+            # print("color ramp element position:", e.position)
         for index, color_ramp_element in enumerate(color_ramp_dict["elements"]):
             if index == 0 or index == len(color_ramp_dict["elements"]) - 1:
                 ele = elements[index]
