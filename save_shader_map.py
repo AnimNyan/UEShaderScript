@@ -1301,6 +1301,12 @@ def json_string_to_presets(json_string, skip_autosave=False):
             new_preset = new_folder_presets.add()
             new_preset.used = 0
             for k in preset:
+                #content will be stored as a string
+                #like this: "DBD Roman Noodles Skin": "{\n    \"nodes_list\": [\n        {\n ..."
+                #it looks bad, but we must store it this way with \n characters because
+                #it must be in a single string
+                #a single string is the easiest to store in the Blender add on Preferences
+                #as as bpy.types.StringProperty
                 content = preset[k]
                 new_preset.name = k
                 new_preset.content = content
@@ -1409,6 +1415,12 @@ def get_selected_folder_presets(isOverridePackage = False):
 
 class PresetCollection(PropertyGroup):
     name: StringProperty()
+    #content will be stored as a string
+    #like this: "DBD Roman Noodles Skin": "{\n    \"nodes_list\": [\n        {\n ..."
+    #it looks bad, but we must store it this way with \n characters because
+    #it must be in a single string
+    #a single string is the easiest to store in the Blender add on Preferences
+    #as as bpy.types.StringProperty
     content: StringProperty()
     used: IntProperty(default=0)
 
@@ -1620,6 +1632,13 @@ def json_string_to_presets_append(json_string):
                         new_name):
                     new_name = new_name + " copy"
                 new_preset.name = new_name
+
+                #content will be stored as a string
+                #like this: "DBD Roman Noodles Skin": "{\n    \"nodes_list\": [\n        {\n ..."
+                #it looks bad, but we must store it this way with \n characters because
+                #it must be in a single string
+                #a single string is the easiest to store in the Blender add on Preferences
+                #as as bpy.types.StringProperty
                 content = preset[k]
                 new_preset.content = content
     #import_10_most_used_presets()
