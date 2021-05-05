@@ -203,7 +203,7 @@ class LOADUESHADERSCRIPT_OT_add_basic_all(bpy.types.Operator):
         pathtool = scene.path_tool
         
         create_basic_all_shader_maps(context, pathtool)
-        log("Finished create_basic_all_shader_maps in: %.4f sec" % (time.time() - time_start))
+        log("\n\n\nFinished create_basic_all_shader_maps in: %.4f sec" % (time.time() - time_start))
     
         return {"FINISHED"}
 
@@ -573,7 +573,7 @@ def dict_to_nodes_handle_shader_node_group(new_node, node_dict):
     
     node_group_name = node_dict["node_tree"]["name"]
     #debug
-    print("pathtool.is_reuse_node_group_with_same_name", pathtool.is_reuse_node_group_with_same_name)
+    #print("pathtool.is_reuse_node_group_with_same_name", pathtool.is_reuse_node_group_with_same_name)
 
     #if the user has chosen to reuse node groups we must check 
     #whether a node group exists to be reused 
@@ -836,7 +836,7 @@ def dict_to_textures(img_textures_list, material, node_tree, props_txt_path, pat
             #debug
             #print("\nnot_delete_img_texture_node_list (the whitelist):", not_delete_img_texture_node_list)
             
-            #initialise blacklist to delete related nodes
+            #initialise and clear blacklist to delete related nodes
             prefix_of_related_nodes_to_delete = []
             nodes = node_tree.nodes
             for node in nodes:
@@ -856,7 +856,8 @@ def dict_to_textures(img_textures_list, material, node_tree, props_txt_path, pat
             #to delete if option is checked
             if pathtool.is_delete_unused_related_nodes:
                 #debug
-                #print("prefix_of_related_nodes_to_delete:", prefix_of_related_nodes_to_delete)
+                print("prefix_of_related_nodes_to_delete:", prefix_of_related_nodes_to_delete)
+                
                 #go back through all the nodes and now delete all nodes 
                 #that start with the prefix
                 for node in nodes:
