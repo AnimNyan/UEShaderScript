@@ -81,9 +81,6 @@ class SAVEUESHADERSCRIPT_OT_save_shader_map(bpy.types.Operator):
         #to properties
         savetool = scene.save_tool
         
-        #if(savetool.is_add_img_textures == True):
-        #    print("hey")
-        
         node_editor = area
         
         tree = node_editor.spaces[0].node_tree
@@ -630,7 +627,7 @@ def suffix_and_node_name_to_list(suffix, node_name, img_textures_list, texture, 
 #define all user input properties
 class SaveProperties(bpy.types.PropertyGroup):
     cust_map_name: bpy.props.StringProperty(name="Name of Shader Map", description="Name of your custom shader map")
-    bc_suffix: bpy.props.StringProperty(name="Diffuse Suffix", description="Suffix of Diffuse", default="_BC _BC_02")
+    bc_suffix: bpy.props.StringProperty(name="Diffuse Suffix", description="Suffix of Diffuse", default="_BC _BC_01 _BC_02 _BC_03 _BC_04")
     bc_node_name: bpy.props.StringProperty(name="Diffuse Node Name", description="Diffuse image texture node name", default="Diffuse Node")
     orm_suffix: bpy.props.StringProperty(name="Packed RGB ARM Suffix", description="Suffix of Packed RGB (AO, Rough, Metallic)", default="_ORM")
     orm_node_name: bpy.props.StringProperty(name="Packed RGB Node Name", description="Packed RGB image texture node name", default="Packed RGB Node")
@@ -746,6 +743,7 @@ class SAVEUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
             box.label(text = "Skin Texture Node (Special Case No Suffix)")
             box.label(text = "Skin Texture Height Map always added regardless of props.txt files")
             box.prop(savetool, "skin_node_name")
+            box.operator("SAVEUESHADERSCRIPT.reset_inputs_main_panel_operator")
         
         layout.operator("SAVEUESHADERSCRIPT.saveshadermap_operator")
 
@@ -1704,6 +1702,7 @@ def report_error(self, message):
     full_message = "%s\n\nPlease report to the add-on developer with this error message (A screenshot is awesome)" % message
     self.report({"ERROR"}, full_message)
 
+
 class ShowMessageOperator(bpy.types.Operator):
     bl_idname = "ueshaderscript.show_message"
     bl_label = ""
@@ -1732,6 +1731,49 @@ class ShowMessageOperator(bpy.types.Operator):
             return wm.invoke_props_dialog(self, width=700)
         return {'FINISHED'}
 
+#--------reset save function main panel class
+class SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel(bpy.types.Operator):
+    bl_idname = "saveueshaderscript.reset_inputs_main_panel_operator"
+    bl_label = "Reset All Inputs to Default"
+    bl_description = "Reset Main Panel for UEShaderScript"
+    bl_options = {'REGISTER'}
+
+    @classmethod
+    def poll(cls, context):
+        return True
+    
+    def execute(self, context):
+        #store active/selected scene to variable
+        scene = context.scene
+        
+        #allow access to user inputted properties through pointer
+        #to properties
+        savetool = scene.save_tool
+
+        #don't need to unset the custom map name
+        #because don't want user typing in name again and again
+        #savetool.property_unset("cust_map_name")
+        savetool.property_unset("bc_suffix")
+        savetool.property_unset("bc_node_name")
+        savetool.property_unset("orm_suffix")
+        savetool.property_unset("orm_node_name")
+        savetool.property_unset("n_suffix")
+        savetool.property_unset("n_node_name")
+        savetool.property_unset("m_suffix")
+        savetool.property_unset("m_node_name")
+        savetool.property_unset("bde_suffix")
+        savetool.property_unset("bde_node_name")
+        savetool.property_unset("hm_suffix")
+        savetool.property_unset("hm_node_name")
+        savetool.property_unset("cust1_suffix")
+        savetool.property_unset("cust1_node_name")
+        savetool.property_unset("cust2_suffix")
+        savetool.property_unset("cust2_node_name")
+        savetool.property_unset("cust3_suffix")
+        savetool.property_unset("cust3_node_name")
+        savetool.property_unset("skin_node_name")
+        savetool.property_unset("is_add_img_textures")
+        return {'FINISHED'}
 
 
 classes = [SaveProperties, PresetCollection, FolderPresetsCollection, AllPresetsCollection, SavePreferences, 
@@ -1741,7 +1783,7 @@ classes = [SaveProperties, PresetCollection, FolderPresetsCollection, AllPresets
      SHADER_PRESETS_UL_items, SAVEUESHADERSCRIPT_PT_main_panel, 
 Shader_ShowFolderActionsOperator, SHADER_MT_FolderActionsMenu, Shader_NewFolderOperator, 
 Shader_RemoveFolderOperator, Shader_RenameFolderOperator, SAVEUESHADERSCRIPT_OT_remove_preset, ShowMessageOperator,
-RenamePresetOperator, MovePresetUpOperator, MovePresetDownOperator, MovePresetOperator, 
+RenamePresetOperator, MovePresetUpOperator, MovePresetDownOperator, MovePresetOperator, SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel,
 
     SAVEUESHADERSCRIPT_OT_save_shader_map]
  

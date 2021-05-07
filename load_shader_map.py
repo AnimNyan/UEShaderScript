@@ -78,6 +78,9 @@ class PathProperties(bpy.types.PropertyGroup):
     #options to allow reuse of node groups and image textures
     is_reuse_node_group_with_same_name: bpy.props.BoolProperty(name="Reuse Node Group With Same Name", default= True)
     is_reuse_img_texture_with_same_name: bpy.props.BoolProperty(name="Reuse Image Textures With Same Name", default= True)
+    
+    #for roman noodles
+    is_add_skin_map: bpy.props.BoolProperty(name="Add Height Map Skin Texture (True for Roman Noodles)", default= False)
 
     # is_material_skin: bpy.props.BoolProperty(name="Add Skin Related Nodes", default= False)
     # is_add_height_map: bpy.props.BoolProperty(name="Add Height Map Skin Texture", default= False)
@@ -139,13 +142,17 @@ class LOADUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
 
         layout.prop(pathtool, "is_normal_non_colour")
         layout.prop(pathtool, "is_m_non_colour")
-        layout.prop(pathtool, "is_orm_non_colour")
         
         layout.prop(pathtool, "is_change_principle_bsdf_emission_strength")
 
         if(pathtool.is_change_principle_bsdf_emission_strength):
             layout.prop(pathtool, "principled_bsdf_emission_strength_float")
 
+        #Roman Noodles related settings
+        layout.prop(pathtool, "is_orm_non_colour")
+        layout.prop(pathtool, "is_add_skin_map")
+
+        layout.operator("loadueshaderscript.reset_settings_main_panel_operator")
         
         #Create a box for all related inputs and operators 
         #for adding the shader maps one by one to
@@ -158,7 +165,8 @@ class LOADUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
         box.label(text = "Select a mesh and a material and add a shader map to the selected material")
         box.prop(pathtool, "props_txt_path")
         box.prop(pathtool, "export_folder_path")
-        box.prop(pathtool, "skin_map_path")
+        if(pathtool.is_add_skin_map):
+            box.prop(pathtool, "skin_map_path")
         box.operator("loadueshaderscript.addbasic_operator")
                 
         #Create a box for adding shader maps to all materials
@@ -169,7 +177,8 @@ class LOADUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
         box.label(text = "Select multiple meshes and add shader maps to all the materials on the selected meshes")
         box.prop(pathtool, "material_folder_path")
         box.prop(pathtool, "export_folder_path")
-        box.prop(pathtool, "skin_map_path")
+        if(pathtool.is_add_skin_map):
+            box.prop(pathtool, "skin_map_path")
         box.operator("loadueshaderscript.addbasicall_operator" )
         
         
@@ -1399,12 +1408,52 @@ def roman_noodles_shader_map(material, props_txt_path, pathtool):
                 material.blend_method = 'CLIP'
 
 
+#--------reset settings for load function main panel class
+class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
+    bl_idname = "loadueshaderscript.reset_settings_main_panel_operator"
+    bl_label = "Reset All Settings to Default"
+    bl_description = "Reset Main Panel for UEShaderScript"
+    bl_options = {'REGISTER'}
+
+    @classmethod
+    def poll(cls, context):
+        return True
+    
+    def execute(self, context):
+        #store active/selected scene to variable
+        scene = context.scene
+        #allow access to user inputted properties through pointer
+        #to properties
+        pathtool = scene.path_tool
+
+        #don't reset the paths otherwise
+        #user has to set them again and again
+        #pathtool.property_unset("props_txt_path")
+        #pathtool.property_unset("skin_map_path")
+        #pathtool.property_unset("material_folder_path")
+        #pathtool.property_unset("export_folder_path")
+        pathtool.property_unset("is_replace_nodes")
+        pathtool.property_unset("texture_file_type_enum")
+        pathtool.property_unset("clipping_method_enum")
+        pathtool.property_unset("is_normal_non_colour")
+        pathtool.property_unset("is_m_non_colour")
+        pathtool.property_unset("is_orm_non_colour")
+        pathtool.property_unset("is_add_img_textures")
+        pathtool.property_unset("is_delete_unused_img_texture_nodes")
+        pathtool.property_unset("is_delete_unused_related_nodes")
+        pathtool.property_unset("is_change_principle_bsdf_emission_strength")
+        pathtool.property_unset("principled_bsdf_emission_strength_float")
+        pathtool.property_unset("is_reuse_node_group_with_same_name")
+        pathtool.property_unset("is_reuse_img_texture_with_same_name")
+        pathtool.property_unset("is_add_skin_map")
+        return {'FINISHED'}
 
 
 
 
 classes = [PathProperties, LOADUESHADERSCRIPT_PT_main_panel, 
-LOADUESHADERSCRIPT_OT_add_basic, LOADUESHADERSCRIPT_OT_add_basic_all]
+LOADUESHADERSCRIPT_OT_add_basic, LOADUESHADERSCRIPT_OT_add_basic_all,
+LOADUESHADERSCRIPT_OT_reset_settings_main_panel]
  
 def register():
     for cls in classes:
