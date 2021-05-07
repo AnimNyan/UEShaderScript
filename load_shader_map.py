@@ -80,7 +80,7 @@ class PathProperties(bpy.types.PropertyGroup):
     is_reuse_img_texture_with_same_name: bpy.props.BoolProperty(name="Reuse Image Textures With Same Name", default= True)
     
     #for roman noodles
-    is_add_skin_map: bpy.props.BoolProperty(name="Add Height Map Skin Texture (True for Roman Noodles)", default= False)
+    is_add_skin_map: bpy.props.BoolProperty(name="Add Height Map Skin Texture (True for Roman Noodles Skin)", default= False)
 
     # is_material_skin: bpy.props.BoolProperty(name="Add Skin Related Nodes", default= False)
     # is_add_height_map: bpy.props.BoolProperty(name="Add Height Map Skin Texture", default= False)
@@ -777,7 +777,8 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
                 #and the skin_map path is not empty
                 #so do not need to check the suffix for a match against the propstxt file
                 #always load
-                if textures["texture"] == "skin" and abs_skin_map_path !="":
+                #also require that is_add_skin_map is checked by the user to add a skin map
+                if textures["texture"] == "skin" and abs_skin_map_path !="" and pathtool.is_add_skin_map:
                     node_to_load = node_tree.nodes[node_name]
                     #bpy.data.images.load(abs_skin_map_path)
                     load_image_texture(node_to_load, abs_skin_map_path, pathtool)
