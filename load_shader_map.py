@@ -283,7 +283,8 @@ def create_basic_all_shader_maps(context, pathtool):
             #instead of C:\Nyan\Dwight Recolor\Game\Characters\Slashers\Nurse\Materials\Outfit01
             #this allows for extra redundancy
             #so the props.txt file can be either in the current directory, or its subdirectories
-            gen_obj_match = Path(abs_mat_folder_path).rglob(material.name + ".props.txt")
+            props_txt_name = "".join((material.name, ".props.txt"))
+            gen_obj_match = Path(abs_mat_folder_path).rglob(props_txt_name)
             
             props_txt_path = get_value_in_gen_obj(gen_obj_match)
             
@@ -296,7 +297,7 @@ def create_basic_all_shader_maps(context, pathtool):
             #\Game\Characters\Campers\CommonAcc\Materials\Top\MI_CMMHair019_TAA.props.txt
             if props_txt_path == "":
                 abs_export_folder_path = bpy.path.abspath(pathtool.export_folder_path)
-                gen_obj_match = Path(abs_export_folder_path).rglob(material.name + ".props.txt")
+                gen_obj_match = Path(abs_export_folder_path).rglob(props_txt_name)
                 #get the new props_txt_path in the new generator object
                 props_txt_path = get_value_in_gen_obj(gen_obj_match)
                 #debug
@@ -746,7 +747,7 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
             #we need e.g. C:\Nyan\Dwight Recolor\Game\Characters
             #\Slashers\Bear\Textures\Outfit01\T_BEHead01_BC
             #using pathtool.texture_file_type_enum because it may be ".tga" or ".png"
-            complete_path = user_tex_folder + tex_location + pathtool.texture_file_type_enum
+            complete_path = "".join((user_tex_folder, tex_location, pathtool.texture_file_type_enum))
 
             #If the texture is listed in the 
             #props.txt file and it is one of the
@@ -1349,7 +1350,9 @@ def roman_noodles_shader_map(material, props_txt_path, pathtool):
             #the texture
             #we need e.g. C:\Nyan\Dwight Recolor\Game\Characters
             #\Slashers\Bear\Textures\Outfit01\T_BEHead01_BC
-            complete_path = user_tex_folder + tex_location + ".tga"
+            #using join because it's faster
+            #also join requires a tuple so there are two circle brackets used
+            complete_path = "".join((user_tex_folder, tex_location, ".tga"))
 
             #If the texture is listed in the 
             #props.txt file and it is one of the

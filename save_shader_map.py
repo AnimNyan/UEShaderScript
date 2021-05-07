@@ -1646,7 +1646,7 @@ def json_string_to_presets_append(json_string):
                 while preset_name_exist_in_folder(
                         new_folder.folder_name,
                         new_name):
-                    new_name = new_name + " copy"
+                    new_name = "".join((new_name, " copy"))
                 new_preset.name = new_name
 
                 #content will be stored as a string
