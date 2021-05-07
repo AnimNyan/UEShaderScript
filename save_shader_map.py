@@ -1691,7 +1691,7 @@ def report_error(self, message):
 class ShowMessageOperator(bpy.types.Operator):
     bl_idname = "ueshaderscript.show_message"
     bl_label = ""
-    bl_description = "Show Message for Node Kit"
+    bl_description = "Show Message for UEShaderScript"
     bl_options = {'REGISTER'}
     message: bpy.props.StringProperty(default="Message Dummy")
     called: bpy.props.BoolProperty(default=False)
@@ -1713,7 +1713,7 @@ class ShowMessageOperator(bpy.types.Operator):
         if not self.called:
             wm = context.window_manager
             self.called = True
-            return wm.invoke_props_dialog(self, width=600)
+            return wm.invoke_props_dialog(self, width=700)
         return {'FINISHED'}
 
 

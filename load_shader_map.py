@@ -38,7 +38,7 @@ NOT_TO_HANDLE_ATTRS_NODES = [
 #define all user input properties
 class PathProperties(bpy.types.PropertyGroup):
     props_txt_path: bpy.props.StringProperty(name="Select PropsTxt File*", description="Select a props.txt file", subtype="FILE_PATH")
-    skin_map_path: bpy.props.StringProperty(name="Select Skin Map File", description="Select a skin map image file", subtype="FILE_PATH")
+    skin_map_path: bpy.props.StringProperty(name="Select Skin Map File (Roman Noodles Skin Only)", description="Select a skin map image file", subtype="FILE_PATH")
     material_folder_path: bpy.props.StringProperty(name="Select Materials Folder", description="Select a Materials folder", subtype="DIR_PATH")
     export_folder_path: bpy.props.StringProperty(name="Select Exported Game Folder*", description="Select a Game folder", subtype="DIR_PATH")
     is_replace_nodes: bpy.props.BoolProperty(name="Replace Existing Shader Maps", default= True)
@@ -307,7 +307,9 @@ def create_basic_all_shader_maps(context, pathtool):
                 #show an error message and ignore the material
                 #do not create a shader map for it
                 if props_txt_path == "":
-                    bpy.ueshaderscript.show_message(" ".join(("Error: the props.txt file for the material", material.name, "was not found in the Game Folder so it was ignored")))
+                    warning_message = " ".join(("Warning: the props.txt file for object", active_obj.name, "material", material.name, "was not found in the Game Folder so it was ignored!"))
+                    bpy.ops.ueshaderscript.show_message(message = warning_message)
+                    log(warning_message)
                     is_props_txt_exist_for_material = False
                 
             
@@ -338,7 +340,9 @@ def get_value_in_gen_obj(gen_obj_match):
     #because we are matching one specific file
     #so if more matches then one print an error
     if match > 1:
-        bpy.ops.ueshaderscript.show_message(message = "Error: More than one match for the props_txt_path for rglob")
+        error_message = "Error: More than one match for the props_txt_path for rglob"
+        bpy.ops.ueshaderscript.show_message(message = error_message)
+        log(error_message)
     
     return props_txt_path
 
@@ -397,7 +401,7 @@ def load_preset(context, material, abs_props_txt_path, pathtool):
     if nodes_dict["editor_type"] == SHADER_EDITOR:
         if (bpy.context.object is not None and bpy.context.object.type != "MESH" and bpy.context.object.type != "LIGHT") or bpy.context.object is None:
             bpy.ops.ueshaderscript.show_message(
-                message="Selected object canot be restored, please choose a Mesh or a Lamp to restore.")
+                message = "Selected object canot be restored, please choose a Mesh or a Lamp to restore.")
             return {'FINISHED'}
         # if "shader_type" in nodes_dict:
         #     shader_type_value = nodes_dict["shader_type"]
@@ -415,7 +419,7 @@ def load_preset(context, material, abs_props_txt_path, pathtool):
         elif shader_type == "OBJECT":
             if bpy.context.object is None:
                 bpy.ops.ueshaderscript.show_message(
-                    message="Please choose an object in View 3D to restore.")
+                    message = "Please choose an object in View 3D to restore.")
                 return {'FINISHED'}
             #mat = add_material_to_active_object()
             mat = material
@@ -430,7 +434,7 @@ def load_preset(context, material, abs_props_txt_path, pathtool):
         dict_to_textures(nodes_dict["img_textures_list"], material, node_tree, abs_props_txt_path, pathtool)
     else:
          bpy.ops.ueshaderscript.show_message(
-                    message="Only Shader Editor Restores are supported currently not Compositor editor restores.")
+                    message = "Only Shader Editor Restores are supported currently not Compositor editor restores.")
 
 
     # elif nodes_dict["editor_type"] == COMPOSITOR_EDITOR:
@@ -499,7 +503,7 @@ def get_json_from_selected_preset():
     index = selected_folder_presets.preset_index
     if index < 0:
         bpy.ops.ueshaderscript.show_message(
-            message="Please choose a nodes preset to restore.")
+            message = "Please choose a nodes preset to restore.")
         return {'FINISHED'}
     JSON = selected_folder_presets.presets[index].content
     return JSON
@@ -808,7 +812,9 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
                             material.blend_method = "HASHED"
                             material.shadow_method = "HASHED"
                         else:
-                            bpy.ops.ueshaderscript.show_message(message = "Error could not find clipping method")
+                            error_message = "Error: could not find clipping method"
+                            bpy.ops.ueshaderscript.show_message(message = error_message)
+                            log(error_message)
 
                     #special case if the node loaded was a Normal Map _N or Packed RGB ARM _ORM
                     #change colour interpolation to non-colour
@@ -941,9 +947,10 @@ def change_emission_strength_principled_bsdf(node_tree, node_type, emission_stre
             node.inputs["Emission Strength"] = emission_strength
     
     if count > 1:
-        bpy.ops.ueshaderscript.show_message(message="Warning changed all Principled BSDF nodes Emission Strength to 5")
+        warning_message = "Warning: More than one P BSDF so changed all P BSDF node Emission Strengths to 5!"
+        bpy.ops.ueshaderscript.show_message(message = warning_message)
+        log(warning_message)
         
-
 
 def get_input_by_name(inputs, name, index):
     for i, input in enumerate(inputs):
