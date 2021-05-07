@@ -156,7 +156,6 @@ class LOADUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
         #create box for all related boxes adding shader map to selected material
         box.label(text = "ADD SHADER MAP TO SELECTED MATERIAL (ONE MATERIAL)",)
         box.label(text = "Select a mesh and a material and add a shader map to the selected material")
-        box.label(text = "* - marks required fields")
         box.prop(pathtool, "props_txt_path")
         box.prop(pathtool, "export_folder_path")
         box.prop(pathtool, "skin_map_path")
@@ -168,7 +167,6 @@ class LOADUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
         box = layout.box()
         box.label(text = "ADD SHADER MAP TO ALL MATERIALS ON SELECTED MESHES (ALL MATERIALS)")
         box.label(text = "Select multiple meshes and add shader maps to all the materials on the selected meshes")
-        box.label(text = "* - marks required fields")
         box.prop(pathtool, "material_folder_path")
         box.prop(pathtool, "export_folder_path")
         box.prop(pathtool, "skin_map_path")
@@ -289,6 +287,7 @@ def create_basic_all_shader_maps(context, pathtool):
             
             props_txt_path = get_value_in_gen_obj(gen_obj_match)
             
+            is_props_txt_exist_for_material = True
             #debug
             #print("props_txt_path:", props_txt_path)
             #if can't find the propstxt file in the material folder do a recursive glob search
@@ -303,14 +302,23 @@ def create_basic_all_shader_maps(context, pathtool):
                 #debug
                 #print("refind props_txt_path:", props_txt_path)
                 
+                #if the props_txt_path is still null
+                #after second search in the game folder
+                #show an error message and ignore the material
+                #do not create a shader map for it
+                if props_txt_path == "":
+                    bpy.ueshaderscript.show_message(" ".join(("Error: the props.txt file for the material", material.name, "was not found in the Game Folder so it was ignored")))
+                    is_props_txt_exist_for_material = False
+                
             
             
             #not needed any more
             #get the current material's name to concatenate
             #a string the path to the props.txt file
             #props_txt_path = abs_mat_folder_path + material.name + ".props.txt"
-    
-            create_one_shader_map(context, material, props_txt_path, pathtool)
+
+            if (is_props_txt_exist_for_material):
+                create_one_shader_map(context, material, props_txt_path, pathtool)
             
     return {"FINISHED"}  
 
@@ -370,7 +378,7 @@ def clear_links(tree):
     links.clear()
 
 
-def load_preset(context, material, props_txt_path, pathtool):
+def load_preset(context, material, abs_props_txt_path, pathtool):
     area = context.area
     #editor_type = area.ui_type
   
@@ -419,7 +427,7 @@ def load_preset(context, material, props_txt_path, pathtool):
         #print("nodes_dict", nodes_dict)
         nodes = dict_to_nodes(nodes_dict["nodes_list"], node_tree)
         list_to_links(nodes_dict["links_list"], node_tree, nodes)
-        dict_to_textures(nodes_dict["img_textures_list"], material, node_tree, props_txt_path, pathtool)
+        dict_to_textures(nodes_dict["img_textures_list"], material, node_tree, abs_props_txt_path, pathtool)
     else:
          bpy.ops.ueshaderscript.show_message(
                     message="Only Shader Editor Restores are supported currently not Compositor editor restores.")
@@ -659,13 +667,13 @@ def list_to_links(links_list, tree, nodes):
         links.new(from_socket, to_socket)
 
 
-def dict_to_textures(img_textures_list, material, node_tree, props_txt_path, pathtool):
-    print("\nprops_txt_path", props_txt_path)
+def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path, pathtool):
+    print("\nabs_props_txt_path", abs_props_txt_path)
     
     #open the propstxt file for the material and find the
     #texture locations from it
     #with just means open and close file
-    with open(props_txt_path, 'r') as f:
+    with open(abs_props_txt_path, 'r') as f:
         #read entire file to one string
         data = f.read()
         #find all matches through regex to the string Texture2D' with capture group 
