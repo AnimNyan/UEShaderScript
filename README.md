@@ -10,14 +10,16 @@ for giving me permission to release UEShaderscript. Please have a look at his pl
 
 ## Permissions
 UEShaderScript is under the GPL Licence that means you have permission to use part or the whole of this plugin for free or commercial purposes free of charge.
-This add on is completely free what I want is for the most people to benefit from this and that's enough to make me smile. I promise continued support and updates to this the add on for free!
+This add on is completely free what I want is for the most people to benefit from this and that's enough to make me smile. 
+I promise continued support and updates to this the add on for free!
 
 ## What does UEShaderScript do?
 UEShaderScript is a free Blender Plugin designed to be used with UModel: https://www.gildor.org/en/projects/umodel#files and Befzz's psk/psa importer: https://github.com/Befzz/blender3d_import_psk_psa
 The plugin allows for one click bulk texturing for all selected meshes and is built for all 3d assets exported from Unreal Engine. 
 
 UEShaderScript does three things:
-1. Comes with default shader map presets for Dead By Daylight and Home Sweet Home Survive. We are still looking for shader maps to add to the default presets for other games! 
+1. Comes with default shader map presets for Dead By Daylight and Home Sweet Home Survive. 
+We are still looking for shader maps to add to the default presets for other games! 
 Again find me on my discord here: https://discord.gg/rkkWSH2EMz to send me screenshots of shader maps you want to be included in the default presets!
 
 2. Adds the ability to save shader maps and mark which image texture nodes should load an image and dynamically load image textures to them.
@@ -34,20 +36,35 @@ To install:
 3. In the Add-Ons search, search for UE Shader Maps and enable the Add On to complete the installation.
 
 ### Prerequisite software
-UModel/UE Viewer: https://www.gildor.org/en/projects/umodel (Download and unzip)
-Befzz's psk importer: https://github.com/Befzz/blender3d_import_psk_psa (Right Click on the Stable (branch latest) 280 direct link > Save Link As)
-Pak files of an Unreal Engine Game you are trying to unpack (for Steam Games select the game in your library > press the cog > 
+- UModel/UE Viewer: https://www.gildor.org/en/projects/umodel (Download and unzip)
+- Befzz's psk importer: https://github.com/Befzz/blender3d_import_psk_psa (Right Click on the Stable (branch latest) 280 direct link > Save Link As)
+- Pak files of an Unreal Engine Game you are trying to unpack (for Steam Games select the game in your library > press the cog icon > 
 browse local files > a file explorer should have opened with your game folder > look for a Content Folder with pak files in folders)
 
 ## Usage
 ### Using Prerequisite Software to setup for UEShaderScript
+#### Installing Prequisite Software
 1. Download the latest version of [UModel/UE Viewer](https://www.gildor.org/en/projects/umodel#files) for your operating system, 
 right click on the umodel zip file > Extract All which will create an unzipped folder.
-2. I suggest if you have the space making a copy of the Pak files into the unzipped folder of UModel.
-3. Next go to [Befzz's psk importer](https://github.com/Befzz/blender3d_import_psk_psa), and right click on the Stable (branch latest) 280 direct link > Save Link As and save it somewhere.
-4. To install Befzz's psk importer, open a blender file > click Edit > Preferences > Add-Ons > Install > in the file explorer find "io_import_scene_unreal_psa_psk_280.py" and select and install it.
-5. In the unzipped UModel open the umodel.exe file this will open up a window, now you'll need to know what settings to use for your game which you'll likely find on the Gildor Forums for UModel: https://www.gildor.org/smf/ . 
-6. For Dead By Daylight check the box labelled override game detection and as of DBD version 4.7.0 click the 1st Dropdown for "Unreal Engine 4" and second for "Unreal Engine 4.25"
+2. We have to find the path to the Unreal Engine Game For Steam Games select the game in your library > press the cog icon >
+browse local files > a file explorer should have opened with your game folder > look for a Content Folder with pak files in folders
+3. I suggest if you have the space making a copy of the Pak files you found in step 2 into the unzipped folder of UModel. 
+4. Remember the path
+4. Next go to [Befzz's psk importer](https://github.com/Befzz/blender3d_import_psk_psa), 
+and right click on the Stable (branch latest) 280 direct link > Save Link As and save it somewhere.
+5. To install Befzz's psk importer, open a blender file > click Edit > Preferences > Add-Ons > Install > 
+in the file explorer find "io_import_scene_unreal_psa_psk_280.py" and select and install it.
+6. 
+
+#### Using UModel
+1. In the unzipped UModel open the umodel.exe file this will open up a window, now you'll 
+need to know what settings to use for your game which you'll likely find on the Gildor Forums for UModel: https://www.gildor.org/smf/ . 
+2. For Dead By Daylight check the box labelled override game detection and as of DBD version 4.7.0 click the 
+1st Dropdown for "Unreal Engine 4" and second for "Unreal Engine 4.25"
+3. Now once you're in UModel you want to find the folder for the character you are interested in. 
+For Dead By Daylight this will be in /Game/Characters/Campers for survivors and /Game/Characters/Slashers for the Killers.
+For this example I will try and find the Kate model from Dead By Daylight in the /Game/Characters/Campers/Guam/
+4. 
  
 ### Loading Preset Shader Maps
 1. Go to the 3D View and press n > you should see a panel called "UE Shaders" > click on UE Shaders to open the panel.
@@ -61,13 +78,14 @@ So to load a single preset for all materials on all selected objects we want to 
 "ADD SHADER MAP TO ALL MATERIALS ON SELECTED MESHES (ALL MATERIALS)"
 
 ### Loading a Preset for one selected material
-
-Most of the time we don't want to use this, this is just in case we have one or two materials which should have a different shader map preset.
+Most of the time we don't want to use this, because it only adds a preset to one selected material. 
+This is just in case we have one material which should have a different shader map preset.
 So to load a single preset for one material we want to look at the box labelled "ADD SHADER MAP TO SELECTED MATERIAL (ONE MATERIAL)"
-1.
+1. 
 
 ### Advanced Options Loading Preset Shader Maps
 
 ### Saving Preset Shader Maps
 ### Rules when Saving presets
-1. The "X Node Name" refere
+1. The "X Node Name" input box refers to an image texture node on your current node tree.
+You can think of the "X Node Name" marking an image texture node that we wish to dynamically load with an image texture.
