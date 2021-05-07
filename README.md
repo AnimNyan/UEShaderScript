@@ -18,7 +18,7 @@ UEShaderScript is a free Blender Plugin designed to be used with UModel: https:/
 The plugin allows for one click bulk texturing for all selected meshes and is built for all 3d assets exported from Unreal Engine. 
 
 UEShaderScript does three things:
-1. Comes with default shader map presets for Dead By Daylight and Home Sweet Home Survive. 
+1. Comes with default shader map presets for Dead By Daylight. 
 We are still looking for shader maps to add to the default presets for other games! 
 Again find me on my discord here: https://discord.gg/rkkWSH2EMz to send me screenshots of shader maps you want to be included in the default presets!
 
@@ -43,7 +43,7 @@ browse local files > a file explorer should have opened with your game folder > 
 
 ## Usage
 ### Using Prerequisite Software to setup for UEShaderScript
-#### Installing Prequisite Software
+### Installing Prequisite Software
 1. Download the latest version of [UModel/UE Viewer](https://www.gildor.org/en/projects/umodel#files) for your operating system, 
 right click on the umodel zip file > Extract All which will create an unzipped folder.
 2. We have to find the path to the Unreal Engine Game For Steam Games select the game in your library > press the cog icon >
@@ -56,7 +56,7 @@ and right click on the Stable (branch latest) 280 direct link > Save Link As and
 in the file explorer find "io_import_scene_unreal_psa_psk_280.py" and select and install it.
 6. 
 
-#### Using UModel
+### Using UModel
 1. In the unzipped UModel open the umodel.exe file this will open up a window, now you'll 
 need to know what settings to use for your game which you'll likely find on the Gildor Forums for UModel: https://www.gildor.org/smf/ . 
 2. For Dead By Daylight check the box labelled override game detection and as of DBD version 4.7.0 click the 
@@ -87,5 +87,13 @@ So to load a single preset for one material we want to look at the box labelled 
 
 ### Saving Preset Shader Maps
 ### Rules when Saving presets
-1. The "X Node Name" input box refers to an image texture node on your current node tree.
-You can think of the "X Node Name" marking an image texture node that we wish to dynamically load with an image texture.
+1. The X Node Name input box refers to an image texture node on your current node tree.
+You can think of the X Node Name marking an image texture node that we wish to dynamically load with an image texture.
+
+#### How do we mark an image texture node you ask? 
+So we make sure what is inside the X Node Name is the same as the image texture node name. e.g. inside the Diffuse Node Name box: "Diffuse Node" 
+so we select an image texture node > press n to open up Properties > Items > Now change the Node Name: to "Diffuse Node". And you're done!
+
+2. The X Suffix input box refers to what is of the texture inside the files. So you'll have to check what textures are in charge of diffuse. e.g. 
+for Dead By Daylight the diffuse textures are named "_BC", "_BC_01", ""_BC_02", "_BC_03" and "_BC_04". So we put each of those in the input box separated by spaces
+like so: "_BC _BC_01 _BC_02 _BC_03 _BC_04"
