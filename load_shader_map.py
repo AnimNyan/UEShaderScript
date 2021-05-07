@@ -698,12 +698,12 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
         #and create image texture nodes + 
         #load all images for image textures
         for tex_location in match_list:
-            
-            #fetch last 6 characters in path which will tell you what
+            #unused since now we use .endswith otherwise some might have really long suffixes
+            #fetch last 10 characters in path which will tell you what
             #the current texture is in charge of e.g slice _BC off
             #/Game/Characters/Slashers/Bear/Textures/Outfit01/T_BEHead01_BC
-            #longest id is _ORM or _BDE 4 characters 
-            tex_id = tex_location[-6:]
+            #longest id is _TintBC 7 characters
+            #tex_id = tex_location[-10:]
             
             #if the folder path is a relative path
             #turn it into an absolute one
@@ -757,7 +757,7 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
             #via reading the img_textures_list
             #recorded in the node_dict when the dictionary is saved
             for textures in img_textures_list:
-                suffix = textures["suffix"]
+                suffix_list = textures["suffix_list"]
                 node_name = textures["node_name"]
 
                 #special case if the node is a skin texture node
@@ -765,83 +765,23 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
                 #because it doesn't come from the props.txt file
                 #it is externally added from skin_map_path
                 #and the skin_map path is not empty
+                #so do not need to check the suffix for a match against the propstxt file
+                #always load
                 if textures["texture"] == "skin" and abs_skin_map_path !="":
                     node_to_load = node_tree.nodes[node_name]
                     #bpy.data.images.load(abs_skin_map_path)
-                    node_to_load.image = load_image_texture(node_to_load, abs_skin_map_path, pathtool)
+                    load_image_texture(node_to_load, abs_skin_map_path, pathtool)
                     #add to whitelist
                     not_delete_img_texture_node_list.append(node_to_load)
                     #continue and skip the rest of this loop because there is no need to check 
                     #whether this one should be loaded since we have loaded it already
                     continue
-
-                #check what the last two/three characters are of the id
-                #and look for the specific ids we are interested in
-                #identifier
-                #tex_id is from the props txt file comparing against 
-                #suffix which is what is recorded from the node_dict
-                if tex_id.endswith(suffix):
-                    #looks like this normally
-                    #node_to_load = bpy.context.active_object.active_material.node_tree.nodes["Diffuse Node"]
-                    #node_to_load.image = bpy.data.images.load("C:\Seabrook\Dwight Recolor\Game\Characters\Campers\Dwight\Textures\Outfit01\T_DFHair01_BC.tga")
-
-                    #use node_tree which is the current node tree
-                    #we're trying to texture
-                    #and node_name which is the Node Name in the Items panel in the shader editor
-                    #this will uniquely identify a single node
-                    node_to_load = node_tree.nodes[node_name]
-                    #node_to_load.image = bpy.data.images.load(complete_path)
-                    node_to_load.image = load_image_texture(node_to_load, complete_path, pathtool)
-
-                    #special case if the node that was loaded was a transparency node _M
-                    #we need to set the material blend_method to alpha clip
-                    #and set the alpha threshold to 0 which looks best
-                    #with the least clipped
-                    if textures["texture"] == "transparency":
-                        #change to non-colour based on user settings
-                        if(pathtool.is_m_non_colour):
-                            node_to_load.image.colorspace_settings.name = "Non-Color"
-                        
-                        #change clipping method + threshold to clip
-                        clipping_method = pathtool.clipping_method_enum
-                        if clipping_method == "CLIP":
-                            material.blend_method = "CLIP"
-                            material.shadow_method = "CLIP"
-                            material.alpha_threshold = 0
-                        elif clipping_method == "HASHED":
-                            material.blend_method = "HASHED"
-                            material.shadow_method = "HASHED"
-                        else:
-                            error_message = "Error: could not find clipping method"
-                            bpy.ops.ueshaderscript.show_message(message = error_message)
-                            log(error_message)
-
-                    #special case if the node loaded was a Normal Map _N or Packed RGB ARM _ORM
-                    #change colour interpolation to non-colour
-                    elif textures["texture"] == "normal":
-                        if(pathtool.is_normal_non_colour):
-                            node_to_load.image.colorspace_settings.name = "Non-Color"
-                    
-                    elif textures["texture"] == "packed_orm":
-                        if(pathtool.is_orm_non_colour):
-                            node_to_load.image.colorspace_settings.name = "Non-Color"
-
-                    #special case if the node loaded was an emissive BDE
-                    #find the principled BSDF node
-                    #and turn the emission strength to 5
-                    elif textures["texture"] == "emissive":
-                        #only change the emission strength if the bool checkbox is checked
-                        if (pathtool.is_change_principle_bsdf_emission_strength):
-                            change_emission_strength_principled_bsdf(node_tree, "BSDF_PRINCIPLED", pathtool.principled_bsdf_emission_strength_float)
-                        
-                        
-                    #if a image texture node has been loaded
-                    #and the option to delete image texture nodes who
-                    #have not had an image loaded to them is True
-                    #then we will add it to a whitelist
-                    #so it does not get deleted
-                    if pathtool.is_delete_unused_img_texture_nodes:
-                        not_delete_img_texture_node_list.append(node_to_load)
+                
+                #we must check a match against all the suffixes in the suffix list
+                #one texture may have one to many suffixes e.g. transparency might have "_M", "_A"
+                for suffix in suffix_list:
+                    check_match_propstxt_tex_location_vs_preset_img_textures_list_suffix(tex_location, suffix, node_tree, node_name, 
+                            complete_path, pathtool, textures, material, not_delete_img_texture_node_list)
         
 
 
@@ -885,7 +825,79 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
                         if node_name.startswith(prefix):
                             #print("node:", node, "has been deleted.")
                             nodes.remove(node)
-                
+
+
+def check_match_propstxt_tex_location_vs_preset_img_textures_list_suffix(tex_location, suffix, node_tree, node_name, complete_path, pathtool, textures, material, not_delete_img_texture_node_list):
+    #check what the last two/three characters are of the id
+    #and look for the specific ids we are interested in
+    #identifier
+    #tex_location is from the props txt file comparing against 
+    #suffix which is what is recorded from the node_dict
+    if tex_location.endswith(suffix):
+        #looks like this normally
+        #node_to_load = bpy.context.active_object.active_material.node_tree.nodes["Diffuse Node"]
+        #node_to_load.image = bpy.data.images.load("C:\Seabrook\Dwight Recolor\Game\Characters\Campers\Dwight\Textures\Outfit01\T_DFHair01_BC.tga")
+
+        #use node_tree which is the current node tree
+        #we're trying to texture
+        #and node_name which is the Node Name in the Items panel in the shader editor
+        #this will uniquely identify a single node
+        node_to_load = node_tree.nodes[node_name]
+        load_image_texture(node_to_load, complete_path, pathtool)
+
+        img_textures_special_handler(textures, pathtool, material, node_to_load, node_tree)
+            
+            
+        #if an image texture node has been loaded
+        #and the option to delete image texture nodes who
+        #have not had an image loaded to them is True
+        #then we will add it to a whitelist
+        #so it does not get deleted
+        if pathtool.is_delete_unused_img_texture_nodes:
+            not_delete_img_texture_node_list.append(node_to_load)
+
+def img_textures_special_handler(textures, pathtool, material, node_to_load, node_tree):
+    #special case if the node that was loaded was a transparency node _M
+    #we need to set the material blend_method to alpha clip
+    #and set the alpha threshold to 0 which looks best
+    #with the least clipped
+    if textures["texture"] == "transparency":
+        #change to non-colour based on user settings
+        if(pathtool.is_m_non_colour):
+            node_to_load.image.colorspace_settings.name = "Non-Color"
+        
+        #change clipping method + threshold to clip
+        clipping_method = pathtool.clipping_method_enum
+        if clipping_method == "CLIP":
+            material.blend_method = "CLIP"
+            material.shadow_method = "CLIP"
+            material.alpha_threshold = 0
+        elif clipping_method == "HASHED":
+            material.blend_method = "HASHED"
+            material.shadow_method = "HASHED"
+        else:
+            error_message = "Error: could not find clipping method"
+            bpy.ops.ueshaderscript.show_message(message = error_message)
+            log(error_message)
+
+    #special case if the node loaded was a Normal Map _N or Packed RGB ARM _ORM
+    #change colour interpolation to non-colour
+    elif textures["texture"] == "normal":
+        if(pathtool.is_normal_non_colour):
+            node_to_load.image.colorspace_settings.name = "Non-Color"
+    
+    elif textures["texture"] == "packed_orm":
+        if(pathtool.is_orm_non_colour):
+            node_to_load.image.colorspace_settings.name = "Non-Color"
+
+    #special case if the node loaded was an emissive BDE
+    #find the principled BSDF node
+    #and turn the emission strength to 5
+    elif textures["texture"] == "emissive":
+        #only change the emission strength if the bool checkbox is checked
+        if (pathtool.is_change_principle_bsdf_emission_strength):
+            change_emission_strength_principled_bsdf(node_tree, "BSDF_PRINCIPLED", pathtool.principled_bsdf_emission_strength_float)
+
 
 def load_image_texture(node_to_load, complete_path_to_image, pathtool):
     #if the user has chosen to reuse node groups we must check 
@@ -896,8 +908,6 @@ def load_image_texture(node_to_load, complete_path_to_image, pathtool):
         #else if the user has chosen not to reuse node groups create new node groups
         #whether or not they already exist
         create_a_new_img_texture(node_to_load, complete_path_to_image)
-
-    return node_to_load.image
 
     
     
@@ -930,12 +940,10 @@ def check_if_should_reuse_img_texture(node_to_load, complete_path_to_image):
 
 def create_a_new_img_texture(node_to_load, complete_path_to_image):
     node_to_load.image = bpy.data.images.load(complete_path_to_image)
-    #return node_to_load.image
 
 
 def reuse_the_img_texture(node_to_load, img_texture_file_name):
     node_to_load.image = bpy.data.images[img_texture_file_name]
-    #return node_to_load.image
 
 
 #returns first principled bsdf in case of two

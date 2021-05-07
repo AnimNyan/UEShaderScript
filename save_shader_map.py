@@ -555,6 +555,7 @@ def textures_to_list(savetool, nodes):
     suffix_and_node_name_to_list("Not/Applicable", savetool.skin_node_name, img_textures_list, "skin", nodes)
     suffix_and_node_name_to_list(savetool.cust1_suffix, savetool.cust1_node_name, img_textures_list, "cust1", nodes)
     suffix_and_node_name_to_list(savetool.cust2_suffix, savetool.cust2_node_name, img_textures_list, "cust2", nodes)
+    suffix_and_node_name_to_list(savetool.cust3_suffix, savetool.cust3_node_name, img_textures_list, "cust3", nodes)
 
    
     #if the img_textures list is empty
@@ -602,10 +603,20 @@ def suffix_and_node_name_to_list(suffix, node_name, img_textures_list, texture, 
         #only record in the img_textures_dict and img_textures_list if the node exists
         #in the current shader setup
         if is_node_with_node_name_exist:
-            #texture is just for debugging purposes so can check JSON file
+            #texture is for debugging purposes so can check JSON file
+            #but it is also used to uniquely identify a 
+            #specific marked image texture node
+            #this is because both suffix and node_name can be changed
+            #but texture is always the same
             img_textures_dict["texture"] = texture
-            img_textures_dict["suffix"] = suffix
             img_textures_dict["node_name"] = node_name
+            #for the suffix property the rules are 
+            #every suffix should be separated by a space
+            #so we are separating every suffix with .split()
+            #.split generates a list so no need for extra square brackets
+            #around suffix.split(" ")
+            suffix_list = suffix.split(" ")
+            img_textures_dict["suffix_list"] = suffix_list
     
 
     #if an entry was added into the img_textures_dict 
@@ -619,13 +630,13 @@ def suffix_and_node_name_to_list(suffix, node_name, img_textures_list, texture, 
 #define all user input properties
 class SaveProperties(bpy.types.PropertyGroup):
     cust_map_name: bpy.props.StringProperty(name="Name of Shader Map", description="Name of your custom shader map")
-    bc_suffix: bpy.props.StringProperty(name="Diffuse Suffix", description="Suffix of Diffuse", default="_BC")
+    bc_suffix: bpy.props.StringProperty(name="Diffuse Suffix", description="Suffix of Diffuse", default="_BC _BC_02")
     bc_node_name: bpy.props.StringProperty(name="Diffuse Node Name", description="Diffuse image texture node name", default="Diffuse Node")
     orm_suffix: bpy.props.StringProperty(name="Packed RGB ARM Suffix", description="Suffix of Packed RGB (AO, Rough, Metallic)", default="_ORM")
     orm_node_name: bpy.props.StringProperty(name="Packed RGB Node Name", description="Packed RGB image texture node name", default="Packed RGB Node")
     n_suffix: bpy.props.StringProperty(name="Normal Map Suffix", description="Suffix of Normal Map", default="_N")
     n_node_name: bpy.props.StringProperty(name="Normal Map Node Name", description="Normal Map image texture node name", default="Normal Map Node")
-    m_suffix: bpy.props.StringProperty(name="Alpha Map Suffix", description="Suffix of Alpha (Transparency) Map", default="_M")
+    m_suffix: bpy.props.StringProperty(name="Alpha Map Suffix", description="Suffix of Alpha (Transparency) Map", default="_M _A")
     m_node_name: bpy.props.StringProperty(name="Alpha Map Node Name", description="Alpha Map image texture node name", default="Transparency Map Node")
     bde_suffix: bpy.props.StringProperty(name="Emissions Map Suffix", description="Suffix of Emissions Map", default="_BDE")
     bde_node_name: bpy.props.StringProperty(name="Emissions Map Node Name", description="Emissions Map image texture node name", default="Emissions Map Node")
@@ -635,6 +646,8 @@ class SaveProperties(bpy.types.PropertyGroup):
     cust1_node_name: bpy.props.StringProperty(name="Custom1 Node Name", description="Custom1 image texture node name", default="")
     cust2_suffix: bpy.props.StringProperty(name="Custom2 Suffix", description="Suffix of Custom2 Texture", default="")
     cust2_node_name: bpy.props.StringProperty(name="Custom2 Node Name", description="Custom2 image texture node name", default="")
+    cust3_suffix: bpy.props.StringProperty(name="Custom3 Suffix", description="Suffix of Custom3 Texture", default="")
+    cust3_node_name: bpy.props.StringProperty(name="Custom3 Node Name", description="Custom3 image texture node name", default="")
 
     #skin only needs a node name as it is not from the game files
     #rather it is externally added by the user themself
@@ -708,6 +721,7 @@ class SAVEUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
             box.label(text = "Image Texture Suffixes and Node Names")
             box.label(text = "(leave suffix OR node name empty if you do NOT want to load the specific image texture)")
             box.label(text = "Node Names can be found/changed by selecting an image texture node > Press n > Item > Name")
+            box.label(text = "Separate different suffixes with a single space")
             box.prop(savetool, "bc_suffix")
             box.prop(savetool, "bc_node_name")
             box.prop(savetool, "orm_suffix")
@@ -724,6 +738,8 @@ class SAVEUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
             box.prop(savetool, "cust1_node_name")
             box.prop(savetool, "cust2_suffix")
             box.prop(savetool, "cust2_node_name")
+            box.prop(savetool, "cust3_suffix")
+            box.prop(savetool, "cust3_node_name")
 
             row = box.row()
 
