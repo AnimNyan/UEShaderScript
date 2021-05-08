@@ -121,8 +121,8 @@ class SAVEUESHADERSCRIPT_OT_save_shader_map(bpy.types.Operator):
 
 
 
-
-def nodes_to_dict(tree, savetool):
+#by default not in a node group
+def nodes_to_dict(tree, savetool, is_in_node_group = False):
     """ Actually, we construct and return a List """
     if tree is not None:
         nodes = tree.nodes
@@ -215,13 +215,17 @@ def nodes_to_dict(tree, savetool):
     
     #if the option to load image textures is true then record
     #what image texture suffixes and node names the user has written 
-    if(savetool.is_add_img_textures == True):
+    #only record textures to list if not in a node group
+    if(savetool.is_add_img_textures == True and not is_in_node_group):
         nodes = tree.nodes
         img_textures_list = textures_to_list(savetool, nodes)
     else:
         img_textures_list = []
-    
-    return (nodes_list, links_list, img_textures_list)
+
+    if(is_in_node_group):
+        return (nodes_list, links_list)
+    else:
+        return (nodes_list, links_list, img_textures_list)
 
 def socket_to_dict_output(output):
     return socket_to_dict_input(output)
@@ -486,6 +490,7 @@ def get_default_attrs():
             'codeEffects'
             ]
 
+#this is to handle node groups
 def nodes_to_dict_handle_shader_node_group(node, savetool):
     node_tree_of_node_group = node.node_tree
     inputs = node_tree_of_node_group.inputs
@@ -493,8 +498,10 @@ def nodes_to_dict_handle_shader_node_group(node, savetool):
     node_tree_dict = {}
     node_tree_dict["interface_inputs"] = interface_inputs_list
     node_tree_dict["name"] = node_tree_of_node_group.name
-    #img_textures list is unused here but that is okay
-    nodes_list, links_list, img_textures_list = nodes_to_dict(node_tree_of_node_group, savetool)
+    
+    #set in node group bool to true
+    is_in_node_group = True
+    nodes_list, links_list = nodes_to_dict(node_tree_of_node_group, savetool, is_in_node_group)
     node_tree_dict["nodes_list"] = nodes_list
     node_tree_dict["links_list"] = links_list
     return node_tree_dict
@@ -595,7 +602,7 @@ def suffix_and_node_name_to_list(suffix, node_name, img_textures_list, texture, 
             #notify user if their
             #Shader Map did not have a Node with the correctly named Node Name
             #two brackets inner brackets converts to tuple .join needs a tuple
-            warning_message = " ".join(("A node with Node Name: \"", node_name, "\" does not exist so no texture was recorded to load!"))
+            warning_message = "".join(("A node with Node Name: \"", node_name, "\" does not exist so the ", texture, " texture was not recorded to load!"))
             bpy.ops.ueshaderscript.show_message(message = warning_message)
         
         #only record in the img_textures_dict and img_textures_list if the node exists
@@ -615,7 +622,23 @@ def suffix_and_node_name_to_list(suffix, node_name, img_textures_list, texture, 
             #around suffix.split(" ")
             suffix_list = suffix.split(" ")
             img_textures_dict["suffix_list"] = suffix_list
+
+    #if node name is missing but suffix is there
+    elif suffix != "" and node_name == "":
+        #notify user if they
+        #did not fill in both the suffix and the node name
+        warning_message = "".join(("The Node Name input is missing for texture: \"", texture, "\" so the texture was not recorded to load!"))
+        bpy.ops.ueshaderscript.show_message(message = warning_message)
     
+    #if suffix is missing but node name is there
+    elif suffix == "" and node_name != "":
+        #notify user if they
+        #did not fill in both the suffix and the node name
+        warning_message = "".join(("The Suffix input is missing for texture: \"", texture, "\" so the texture was not recorded to load!"))
+        bpy.ops.ueshaderscript.show_message(message = warning_message)
+
+    #if the suffix and node name is missing then this is the default state
+    #so no warning message needs to be shown
 
     #if an entry was added into the img_textures_dict 
     #append it to the list
@@ -719,7 +742,7 @@ class SAVEUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
         if (savetool.is_add_img_textures == True):
             box = layout.box()
             box.label(text = "Image Texture Suffixes and Node Names")
-            box.label(text = "(leave suffix OR node name empty if you do NOT want to load the specific image texture)")
+            box.label(text = "(leave suffix and node name empty if you do NOT want to load the specific image texture)")
             box.label(text = "Node Names can be found/changed by selecting an image texture node > Press n > Item > Name")
             box.label(text = "Separate different suffixes with a single space")
             box.prop(savetool, "bc_suffix")
