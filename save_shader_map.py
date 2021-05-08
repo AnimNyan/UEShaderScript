@@ -1255,23 +1255,28 @@ def dict_to_string(d):
 
 
 
-DEFAULT_JSON_FILE = "ue_shader_script_default_json.json"
+
 
 
 def get_default_json_paths():
+    DEFAULT_PRESETS_JSON_FILE = "ue_shader_script_default_presets_json.json"
+    CURRENT_PRESETS_JSON_FILE = "ue_shader_script_current_presets_json.json"
     path_lib = pathlib.Path(__file__).parent.absolute()
     home = os.path.expanduser("~")
-    home_full_path = os.path.join(home, DEFAULT_JSON_FILE)
-    current_directory_full_path = os.path.join(path_lib, DEFAULT_JSON_FILE)
+    #the current presets file always stores the current presets that the user has
+    home_full_path = os.path.join(home, CURRENT_PRESETS_JSON_FILE)
+
+    #so default presets json file always stores the default presets that come with the plugin
+    plugin_directory_full_path = os.path.join(path_lib, DEFAULT_PRESETS_JSON_FILE)
     #debug
     #print("home_full_path: ", home_full_path)
     #print("home_full_path: ", home_full_path)
-    return home_full_path, current_directory_full_path
+    return home_full_path, plugin_directory_full_path
 
 
 def import_default_json():
     """Use this to import default json file in ~/node_kit_default_json"""
-    home_full_path, current_directory_full_path = get_default_json_paths()
+    home_full_path, plugin_directory_full_path = get_default_json_paths()
     # try:
     #     with open(full_path) as f:
     #         json_string = f.read()
@@ -1280,7 +1285,7 @@ def import_default_json():
     #     print(full_path, ": file not accessible")
     
     home_json_file = pathlib.Path(home_full_path)
-    current_directory_json_file = pathlib.Path(current_directory_full_path)
+    plugin_directory_json_file = pathlib.Path(plugin_directory_full_path)
     #first try to import home_full_path
     #this is because if the user created presets but deleted the add on
     #this json file in the home_full_path will still be there
@@ -1297,13 +1302,14 @@ def import_default_json():
         #if the json file in the home directory does not exist 
         #this may be a first install of the program
         #so check the plugin folder for a file
-        if(current_directory_json_file.exists()):
-            with open(current_directory_full_path) as f:
+        #and load the default presets that come with the plugin
+        if(plugin_directory_json_file.exists()):
+            with open(plugin_directory_full_path) as f:
                 json_string = f.read()
                 #json_string_to_presets will delete any existing presets
                 json_string_to_presets(json_string, skip_autosave=True)
         else:
-            log("Error no JSON File was found in the Home or Plugin Folder, please send a screenshot of the error to the developer.")
+            log("Error: no JSON File was found in the Home or Plugin Folder, please send a screenshot of the error to the developer.")
 
 
 
@@ -1577,17 +1583,14 @@ def redraw_all():
 
 def export_to_default_json():
     """Use this to export to default json file in ~/node_kit_default_json"""
-    home_full_path, current_directory_full_path = get_default_json_paths()
+    #we don't use the plugin directory full path as we don't want to save 
+    #over the default presets that come with the plugin
+    #they should always stay the same
+    home_full_path, plugin_directory_full_path = get_default_json_paths()
     #reason why we write to both is the json file at home_full_path is used for backup
     #in case the plugin folder is deleted
     #write to the json file in the home directory
     f = open(home_full_path, "w+")
-    json_string = presets_to_json_string()
-    f.write(json_string)
-    f.close()
-
-    #write to the json file in the plugin folder
-    f = open(current_directory_full_path, "w+")
     json_string = presets_to_json_string()
     f.write(json_string)
     f.close()
