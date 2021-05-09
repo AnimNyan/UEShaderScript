@@ -42,8 +42,8 @@ from bpy.types import (
     NodeSocketVectorTranslation, NodeSocketVectorVelocity, NodeSocketVectorXYZ, NodeSocketVirtual
 )
 
-#import pathlib for finding current working direction for get_default_json_paths()
-#and .exists in import_default_json()
+#import pathlib for finding current working direction for get_default_and_current_json_paths()
+#and .exists in import_current_or_default_json()
 import pathlib
 
 #define globals
@@ -734,6 +734,7 @@ class SAVEUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
         
         layout.operator("nodekit.import_append_presets")
         layout.operator("nodekit.export_presets")
+        layout.operator("ueshaderscript.reset_update_default_presets")
         layout.label(text = "Save a Custom Shader Map")
         
         layout.prop(savetool, "cust_map_name")
@@ -1255,28 +1256,25 @@ def dict_to_string(d):
 
 
 
-
-
-
-def get_default_json_paths():
+def get_default_and_current_json_paths():
     DEFAULT_PRESETS_JSON_FILE = "ue_shader_script_default_presets_json.json"
     CURRENT_PRESETS_JSON_FILE = "ue_shader_script_current_presets_json.json"
     path_lib = pathlib.Path(__file__).parent.absolute()
     home = os.path.expanduser("~")
     #the current presets file always stores the current presets that the user has
-    home_full_path = os.path.join(home, CURRENT_PRESETS_JSON_FILE)
+    current_presets_full_path = os.path.join(home, CURRENT_PRESETS_JSON_FILE)
 
     #so default presets json file always stores the default presets that come with the plugin
-    plugin_directory_full_path = os.path.join(path_lib, DEFAULT_PRESETS_JSON_FILE)
+    default_presets_full_path = os.path.join(path_lib, DEFAULT_PRESETS_JSON_FILE)
     #debug
-    #print("home_full_path: ", home_full_path)
-    #print("home_full_path: ", home_full_path)
-    return home_full_path, plugin_directory_full_path
+    #print("current_presets_full_path: ", current_presets_full_path)
+    #print("default_presets_full_path: ", default_presets_full_path)
+    return current_presets_full_path, default_presets_full_path
 
 
-def import_default_json():
-    """Use this to import default json file in ~/node_kit_default_json"""
-    home_full_path, plugin_directory_full_path = get_default_json_paths()
+def import_current_or_default_json():
+    """Use this to import the current or default json file in ~/ue_shader_script_default_json or the plugin directory respectively"""
+    current_presets_full_path, default_presets_full_path = get_default_and_current_json_paths()
     # try:
     #     with open(full_path) as f:
     #         json_string = f.read()
@@ -1284,27 +1282,27 @@ def import_default_json():
     # except IOError:
     #     print(full_path, ": file not accessible")
     
-    home_json_file = pathlib.Path(home_full_path)
-    plugin_directory_json_file = pathlib.Path(plugin_directory_full_path)
-    #first try to import home_full_path
+    current_presets_json_file = pathlib.Path(current_presets_full_path)
+    default_presets_json_file = pathlib.Path(default_presets_full_path)
+    #first try to import current_presets_full_path which will be in the home directory
     #this is because if the user created presets but deleted the add on
-    #this json file in the home_full_path will still be there
+    #this json file in the current_presets_full_path will still be there
     #however, the json file in the plugin folder will have been deleted
     #when the plugin was uninstalled
     
-    if(home_json_file.exists()):
-        with open(home_full_path) as f:
+    if(current_presets_json_file.exists()):
+        with open(current_presets_full_path) as f:
             json_string = f.read()
             #json_string_to_presets will delete any existing presets
             json_string_to_presets(json_string, skip_autosave=True)
     else:
-        log("Home directory default JSON File not accessible.")
-        #if the json file in the home directory does not exist 
+        log("Home directory current presets JSON File not accessible.")
+        #if the current presets json file in the home directory does not exist 
         #this may be a first install of the program
-        #so check the plugin folder for a file
+        #so check the plugin folder for the default presets json file
         #and load the default presets that come with the plugin
-        if(plugin_directory_json_file.exists()):
-            with open(plugin_directory_full_path) as f:
+        if(default_presets_json_file.exists()):
+            with open(default_presets_full_path) as f:
                 json_string = f.read()
                 #json_string_to_presets will delete any existing presets
                 json_string_to_presets(json_string, skip_autosave=True)
@@ -1373,6 +1371,19 @@ def json_string_to_presets(json_string, skip_autosave=False):
                 #print("preset[k]", preset[k])
     #import_10_most_used_presets()
     save_pref(skip_autosave=skip_autosave)
+
+def json_string_to_update_default_presets(json_string, skip_autosave=False):
+    json_dict = json_to_dict(json_string)
+    #debug
+    print("json_dict['Default'][0] ", json_dict["Default"][0])
+    preferences = get_preferences()
+    # folders_presets = pref.folders_presets
+    # #clear all presets in folder
+    # folders_presets.clear()
+    # for preset in preferences.all_presets:
+    #     preset.preset_name
+    # save_pref()
+
 
 # def import_10_last_used_presets(presets_list):
 #     pref = get_preferences()
@@ -1565,12 +1576,12 @@ def get_preferences(isOverridePackage = False, package=__package__, context=None
 
 def save_pref(skip_autosave=False):
     #save_userpref will not work for 
-    #import_default_json()
+    #import_current_or_default_json()
     #when the blender has just started as blender cannot allow
     #to access ops when file starts
     bpy.ops.wm.save_userpref()
     if not skip_autosave:
-        export_to_default_json()
+        export_to_current_json()
 
 
 def redraw_all():
@@ -1581,16 +1592,14 @@ def redraw_all():
                 region.tag_redraw()
 
 
-def export_to_default_json():
+def export_to_current_json():
     """Use this to export to default json file in ~/node_kit_default_json"""
     #we don't use the plugin directory full path as we don't want to save 
     #over the default presets that come with the plugin
     #they should always stay the same
-    home_full_path, plugin_directory_full_path = get_default_json_paths()
-    #reason why we write to both is the json file at home_full_path is used for backup
-    #in case the plugin folder is deleted
-    #write to the json file in the home directory
-    f = open(home_full_path, "w+")
+    current_presets_full_path, default_presets_full_path = get_default_and_current_json_paths()
+
+    f = open(current_presets_full_path, "w+")
     json_string = presets_to_json_string()
     f.write(json_string)
     f.close()
@@ -1611,6 +1620,40 @@ def presets_to_json_string():
         JSON[folder_presets.folder_name] = presets
     #JSON[_10_LAST_USED_PRESETS_KEY] = _10_last_used_presets_to_json()
     return dict_to_string(JSON)
+
+
+#button to reset and update default presets
+class ResetAndUpdateDefaultPresetsOperator(bpy.types.Operator):
+    bl_idname = "ueshaderscript.reset_update_default_presets"
+    bl_label = "Reset & Update Default Presets"
+    bl_description = "Reset & Update Default Presets"
+
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def execute(self, context):
+        reset_and_update_default_presets()
+        redraw_all()
+        return {'FINISHED'}
+
+
+def reset_and_update_default_presets():
+    #only use the default_presets_full_path don't use current presets full path because we don't need it
+    current_presets_full_path, default_presets_full_path = get_default_and_current_json_paths()
+
+    default_presets_json_file = pathlib.Path(default_presets_full_path)
+    if(default_presets_json_file.exists()):
+        with open(default_presets_full_path) as f:
+            json_string = f.read()
+            json_string_to_update_default_presets(json_string)
+            #use different code to json_string_to_presets
+            #for each in the list of the json file check for the default ones and update only those
+            #json_string_to_presets will delete any existing presets
+            #json_string_to_presets(json_string, skip_autosave=True)
+    else:
+        log("Error: no default JSON File was found in the Plugin Folder, please send a screenshot of the error to the developer.")
+
 
 #--------------------------------------------import and export json files code
 class ImportAndAppendPresetsOperator(bpy.types.Operator):
@@ -1811,7 +1854,7 @@ class SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel(bpy.types.Operator):
 
 classes = [SaveProperties, PresetCollection, FolderPresetsCollection, AllPresetsCollection, SavePreferences, 
 
-    ImportAndAppendPresetsOperator, ExportPresetsOperator,
+    ResetAndUpdateDefaultPresetsOperator, ImportAndAppendPresetsOperator, ExportPresetsOperator,
     
      SHADER_PRESETS_UL_items, SAVEUESHADERSCRIPT_PT_main_panel, 
 Shader_ShowFolderActionsOperator, SHADER_MT_FolderActionsMenu, Shader_NewFolderOperator, 

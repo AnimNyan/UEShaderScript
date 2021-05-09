@@ -47,9 +47,9 @@ def register():
     save_shader_map.register()
     load_shader_map.register()
     try:
-        save_shader_map.import_default_json()
+        save_shader_map.import_current_or_default_json()
     except Exception as e:
-        print("import_default_json() exception because blender is not ready yet. :", e)
+        print("import_current_or_default_json() exception because blender is not ready yet. :", e)
 
 def unregister():
     save_shader_map.unregister()
