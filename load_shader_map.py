@@ -73,7 +73,7 @@ class PathProperties(bpy.types.PropertyGroup):
     is_delete_unused_related_nodes: bpy.props.BoolProperty(name="Delete Unused Image AND Related Texture Nodes (Slows down adding shaders)", default= False)
 
     is_change_principle_bsdf_emission_strength: bpy.props.BoolProperty(name="Change Principled BSDF Strength", default= True)
-    principled_bsdf_emission_strength_float: bpy.props.FloatProperty(name="Principled BSDF Emission Strength", default = 5)
+    principled_bsdf_emission_strength_float: bpy.props.FloatProperty(name="Principled BSDF Emission Strength", default = 5.0)
 
     #options to allow reuse of node groups and image textures
     is_reuse_node_group_with_same_name: bpy.props.BoolProperty(name="Reuse Node Group With Same Name", default= True)
@@ -961,12 +961,14 @@ def reuse_the_img_texture(node_to_load, img_texture_file_name):
 def change_emission_strength_principled_bsdf(node_tree, node_type, emission_strength):
     count = 0
     for node in node_tree.nodes:
-        if (node.type == "BSDF_PRINCIPLED"):
+        if (node.type == node_type):
             count = count + 1
-            node.inputs["Emission Strength"] = emission_strength
+            #print("node:", node)
+            #print("dir(node):", dir(node))
+            node.inputs["Emission Strength"].default_value = emission_strength
     
     if count > 1:
-        warning_message = "Warning: More than one P BSDF so changed all P BSDF node Emission Strengths to 5!"
+        warning_message = " ".join(("Warning: More than one Principled BSDF so changed all P BSDF node Emission Strengths to", emission_strength, "!"))
         bpy.ops.ueshaderscript.show_message(message = warning_message)
         log(warning_message)
         

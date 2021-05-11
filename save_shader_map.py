@@ -624,7 +624,10 @@ def suffix_and_node_name_to_list(suffix, node_name, img_textures_list, texture, 
             img_textures_dict["suffix_list"] = suffix_list
 
     #if node name is missing but suffix is there
-    elif suffix != "" and node_name == "":
+    #special case to avoid skin texture because
+    #the default is always missing the Node Name
+    #since it only needs a Node Name
+    elif suffix != "" and node_name == "" and texture != "skin":
         #notify user if they
         #did not fill in both the suffix and the node name
         warning_message = "".join(("The Node Name input is missing for texture: \"", texture, "\" so the texture was not recorded to load!"))
@@ -699,7 +702,6 @@ class SAVEUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
         savetool = scene.save_tool
 
         preferences = get_preferences()
-
         #make folder section
         box = layout.box()
         row = box.row()
@@ -775,6 +777,7 @@ class SAVEUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
             box.operator("SAVEUESHADERSCRIPT.reset_inputs_main_panel_operator")
         
         layout.operator("SAVEUESHADERSCRIPT.saveshadermap_operator")
+
 
 #this class is the list to be displayed in the main panel
 class SHADER_PRESETS_UL_items(bpy.types.UIList):
@@ -1345,7 +1348,7 @@ def json_string_to_presets(json_string, skip_autosave=False):
             #print("preset:", preset)
             #.add is method to add an instance of a class
             new_preset = new_folder_presets.add()
-            new_preset.used = 0
+            #new_preset.used = 0
             for k in preset:
                 #content will be stored as a string
                 #like this: "DBD Roman Noodles Skin": "{\n    \"nodes_list\": [\n        {\n ..."
@@ -1373,16 +1376,93 @@ def json_string_to_presets(json_string, skip_autosave=False):
     save_pref(skip_autosave=skip_autosave)
 
 def json_string_to_update_default_presets(json_string, skip_autosave=False):
-    json_dict = json_to_dict(json_string)
+    default_presets_json_dict = json_to_dict(json_string)
     #debug
-    print("json_dict['Default'][0] ", json_dict["Default"][0])
+    #print("json_dict['Default'][0] ", json_dict["Default"][0])
+    #to get {"DBD Roman Noodles Basic": "{\n    \"nodes_list\"...."}
+    
+    #json_dict look like this
+    # {
+    #     "Default": [
+    #         {
+    #             "DBD Roman Noodles Basic": "{\n    \"nodes_list\"...."
+    #         },
+    #         {
+    #             "DBD Roman Noodles Skin": "{\n    \"nodes_list\"...."
+    #         }
+    #     ],
+    #     "folder 1:"[
+    #         {
+    #              "DBD Roman Noodles Basic": "{\n    \"nodes_list\"...."
+    #         },
+    #         {
+    #              "DBD Roman Noodles Skin": "{\n    \"nodes_list\"...."
+    #         }
+    #     ]
+    # }
+    
     preferences = get_preferences()
-    # folders_presets = pref.folders_presets
-    # #clear all presets in folder
-    # folders_presets.clear()
-    # for preset in preferences.all_presets:
-    #     preset.preset_name
-    # save_pref()
+    folders_presets = preferences.folders_presets
+
+    #this is iterating over the json file containing all the default presets
+    #NOT the preferences in userprefs.blend these are two very different things 
+    #iterating over folders
+    for key in default_presets_json_dict:
+        presets = default_presets_json_dict[key]
+        if folder_name_exist(key):
+            #if the folder exists get the existing folder
+            #saved in the userprefs.blend file
+            #need to get_folder_presets_by_name because
+            #need to retrieve the stored folder collection in userprefs.blend
+            new_folder = get_folder_presets_by_name(key)
+        else:
+            #if the folder doesn't exist create a new one
+            new_folder = folders_presets.add()
+            new_folder.folder_name = key
+        
+        new_folder_presets = new_folder.presets
+        #iterate over all the presets in the folder
+        for preset in presets:
+            #iterate over all values within one preset 
+            #{
+            #    "DBD Roman Noodles Basic": "{\n    \"nodes_list\"...."
+            #}
+            #this one
+            for k in preset:
+                #content will be stored as a string
+                #like this: "DBD Roman Noodles Skin": "{\n    \"nodes_list\": [\n        {\n ..."
+                #it looks bad, but we must store it this way with \n characters because
+                #it must be in a single string
+                #a single string is the easiest to store in the Blender add on Preferences
+                #as as bpy.types.StringProperty
+                content = preset[k]
+
+                new_name = k
+                #need to get_preset_by_name_if_exist_in_folder 
+                #because need to get the preset instance from the 
+                #user preferences stored inuserprefs.blend
+                is_preset_name_exist_in_folder, preset_from_preferences = get_preset_by_name_if_exist_in_folder(new_folder.folder_name, new_name)
+
+                if is_preset_name_exist_in_folder:
+                    updated_preset = preset_from_preferences
+                    updated_preset.content = content
+                    message = " ".join(("Preset", preset_from_preferences.name, "exists and was updated!"))
+                    log(message)
+                else:
+                    new_preset = new_folder_presets.add()
+                    new_preset.name = new_name
+                    new_preset.content = content
+                    message = " ".join(("Preset", new_name, "does not exist and was created!"))
+                    log(message)
+    ui_message = "All presets were reset and updated successfully!"
+    bpy.ops.ueshaderscript.show_message(message = ui_message)
+    log(ui_message)
+    save_pref()
+
+    
+    
+
+    
 
 
 # def import_10_last_used_presets(presets_list):
@@ -1396,15 +1476,15 @@ def json_string_to_update_default_presets(json_string, skip_autosave=False):
 # def import_10_most_used_presets():
 #     update_10_most_used_presets()
 
-def is_preset_added(folder_name, preset_name):
-    preferences = get_preferences()
-    # for preset in preferences.ten_most_used_presets:
-    #go through all presets recorded in the plugin
-    for preset in preferences.all_presets:
-        if preset.folder_name == folder_name and \
-                preset.preset_name == preset_name:
-            return True
-    return False
+# def is_preset_added(folder_name, preset_name):
+#     preferences = get_preferences()
+#     # for preset in preferences.ten_most_used_presets:
+#     #go through all presets recorded in the plugin
+#     for preset in preferences.all_presets:
+#         if preset.folder_name == folder_name and \
+#                 preset.preset_name == preset_name:
+#             return True
+#     return False
 
 # def update_10_most_used_presets():
 #     pref = get_preferences()
@@ -1432,25 +1512,28 @@ def is_preset_added(folder_name, preset_name):
 #     if len(pref.ten_most_used_presets) >= 0:
 #         pref.ten_most_used_presets_index = 0
 
-#on import update all presets
-def update_all_presets():
-    pref = get_preferences()
-    all_presets = pref.all_presets
+#on import but also on blender start update all presets
+# def update_all_presets():
+#     pref = get_preferences()
+#     all_presets = pref.all_presets
 
-    #reset all presets list so can check
-    #what presets are present before
-    #recording all currently present
-    all_presets.clear()
-    folders = pref.folders_presets
-    for folder in folders:
-        for preset in folder.presets:
-            #add a new collection item to the all_presets list
-            #.add is a built in blender function for preferences 
-            #record all presets in preferences the preferences all_presets list
-            new_preset = pref.all_presets.add()
-            new_preset.folder_name = folder.folder_name
-            new_preset.preset_name = preset.name
+#     #reset all presets list so can check
+#     #what presets are present before
+#     #recording all currently present
+#     all_presets.clear()
+#     folders = pref.folders_presets
+#     for folder in folders:
+#         for preset in folder.presets:
+#             #add a new collection item to the all_presets list
+#             #.add is a built in blender function for preferences 
+#             #record all presets in preferences the preferences all_presets list
+#             new_preset = pref.all_presets.add()
+#             new_preset.folder_name = folder.folder_name
+#             new_preset.preset_name = preset.name
 
+    #debug
+    # for preset in pref.all_presets:
+    #     print("preset.preset_name:", preset.preset_name, "preset.folder_name:", preset.folder_name)
 
 def get_selected_folder_presets(isOverridePackage = False):
     #getting preferences for add on
@@ -1481,7 +1564,7 @@ class PresetCollection(PropertyGroup):
     #a single string is the easiest to store in the Blender add on Preferences
     #as as bpy.types.StringProperty
     content: StringProperty()
-    used: IntProperty(default=0)
+    #used: IntProperty(default=0)
 
 
 class FolderPresetsCollection(PropertyGroup):
@@ -1499,9 +1582,9 @@ class FolderPresetsCollection(PropertyGroup):
 #     folder_name: StringProperty()
 #     preset_name: StringProperty()
 
-class AllPresetsCollection(PropertyGroup):
-    folder_name: StringProperty()
-    preset_name: StringProperty()
+# class AllPresetsCollection(PropertyGroup):
+#     folder_name: StringProperty()
+#     preset_name: StringProperty()
 
 def update_folders(self, context):
     redraw_all()    
@@ -1516,7 +1599,7 @@ class SavePreferences(bpy.types.AddonPreferences):
                           update=update_folders,
                           default=None)
     #all_presets is a list that records all the presets present in the plugin
-    all_presets: CollectionProperty(type=AllPresetsCollection)
+    # all_presets: CollectionProperty(type=AllPresetsCollection)
     #----not using last used or most used functionality
     # ten_last_used_presets: CollectionProperty(type=TenLastUsedPresetsCollection)
     # ten_last_used_presets_index: IntProperty()
@@ -1647,10 +1730,6 @@ def reset_and_update_default_presets():
         with open(default_presets_full_path) as f:
             json_string = f.read()
             json_string_to_update_default_presets(json_string)
-            #use different code to json_string_to_presets
-            #for each in the list of the json file check for the default ones and update only those
-            #json_string_to_presets will delete any existing presets
-            #json_string_to_presets(json_string, skip_autosave=True)
     else:
         log("Error: no default JSON File was found in the Plugin Folder, please send a screenshot of the error to the developer.")
 
@@ -1699,7 +1778,7 @@ def json_string_to_presets_append(json_string):
         new_folder_presets = new_folder.presets
         for preset in presets:
             new_preset = new_folder_presets.add()
-            new_preset.used = 0
+            #new_preset.used = 0
             for k in preset:
                 # if k == USED_KEY:
                 #     new_preset.used = preset[USED_KEY]
@@ -1730,8 +1809,6 @@ def json_string_to_presets_append(json_string):
                 content = preset[k]
                 new_preset.content = content
     #import_10_most_used_presets()
-    #on importing the default json update the all presets list
-    update_all_presets()
     save_pref()
 
 def get_folder_presets_by_name(name):
@@ -1741,6 +1818,17 @@ def get_folder_presets_by_name(name):
         if folder_preset.folder_name == name:
             return folder_preset
     return None
+
+
+def get_preset_by_name_if_exist_in_folder(folder_name, preset_name):
+    pref = get_preferences()
+    folders_presets = pref.folders_presets
+    for folder in folders_presets:
+        if folder.folder_name == folder_name:
+            for preset in folder.presets:
+                if preset.name == preset_name:
+                    return True, preset
+    return False, None
 
 class ExportPresetsOperator(bpy.types.Operator):
     bl_idname = "nodekit.export_presets"
@@ -1852,7 +1940,7 @@ class SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel(bpy.types.Operator):
         return {'FINISHED'}
 
 
-classes = [SaveProperties, PresetCollection, FolderPresetsCollection, AllPresetsCollection, SavePreferences, 
+classes = [SaveProperties, PresetCollection, FolderPresetsCollection, SavePreferences, 
 
     ResetAndUpdateDefaultPresetsOperator, ImportAndAppendPresetsOperator, ExportPresetsOperator,
     
