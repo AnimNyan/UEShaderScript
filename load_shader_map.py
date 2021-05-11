@@ -64,26 +64,25 @@ class PathProperties(bpy.types.PropertyGroup):
         ]
         
     )
+
     is_normal_non_colour: bpy.props.BoolProperty(name="Normal Map Textures Non Colour", default= True)
     is_m_non_colour: bpy.props.BoolProperty(name="Transparency Map Textures Non Colour", default= True)
     is_orm_non_colour: bpy.props.BoolProperty(name="Packed ARM Textures Non Colour (True for Roman Noodles)", default= False)
 
-    is_add_img_textures: bpy.props.BoolProperty(name="Add Image Textures", default= True)
+    is_load_img_textures: bpy.props.BoolProperty(name="Load Image Textures", default= True)
     is_delete_unused_img_texture_nodes: bpy.props.BoolProperty(name="Delete Unused Image Texture Nodes", default= True)
-    is_delete_unused_related_nodes: bpy.props.BoolProperty(name="Delete Unused Image AND Related Texture Nodes (Slows down adding shaders)", default= False)
+    is_delete_unused_related_nodes: bpy.props.BoolProperty(name="Delete Unused Image Texture Nodes AND Related Nodes (Slows down adding shaders)", default= False)
 
-    is_change_principle_bsdf_emission_strength: bpy.props.BoolProperty(name="Change Principled BSDF Strength", default= True)
-    principled_bsdf_emission_strength_float: bpy.props.FloatProperty(name="Principled BSDF Emission Strength", default = 5.0)
+    is_change_principle_bsdf_emission_strength: bpy.props.BoolProperty(name="Change Principled BSDF Strength if Emissions Texture Loaded", default= True)
+    principled_bsdf_emission_strength_float: bpy.props.FloatProperty(name="Principled BSDF Emission Strength if Emissions Texture Loaded", default = 5.0)
+    material_alpha_threshold: bpy.props.FloatProperty(name="Material Clip Threshold if Transparency Texture Loaded", default = 0.0)
 
     #options to allow reuse of node groups and image textures
     is_reuse_node_group_with_same_name: bpy.props.BoolProperty(name="Reuse Node Group With Same Name", default= True)
     is_reuse_img_texture_with_same_name: bpy.props.BoolProperty(name="Reuse Image Textures With Same Name", default= True)
     
-    #for roman noodles
+    #for roman noodles shader maps
     is_add_skin_map: bpy.props.BoolProperty(name="Add Height Map Skin Texture (True for Roman Noodles Skin)", default= False)
-
-    # is_material_skin: bpy.props.BoolProperty(name="Add Skin Related Nodes", default= False)
-    # is_add_height_map: bpy.props.BoolProperty(name="Add Height Map Skin Texture", default= False)
 
 
 #code for drawing main panel in the 3D View
@@ -124,33 +123,37 @@ class LOADUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
         layout.template_list("SHADER_PRESETS_UL_items", "", selected_folders_presets,
                                "presets", selected_folders_presets, "preset_index", rows=5)
 
+        layout.prop(pathtool, "is_load_img_textures")
+
         #option to replace or keep existing nodes in materials
         layout.prop(pathtool, "is_replace_nodes")
 
         #option to delete image texture nodes which have not had a texture
         #loaded into them
         layout.prop(pathtool, "is_delete_unused_img_texture_nodes")
-        #only show this option if delete unused_img_texture_nodes is checked
-        if(pathtool.is_delete_unused_img_texture_nodes):
-            layout.prop(pathtool, "is_delete_unused_related_nodes")
+        if(pathtool.is_load_img_textures):
+            #only show this option if delete unused_img_texture_nodes is checked
+            if(pathtool.is_delete_unused_img_texture_nodes):
+                layout.prop(pathtool, "is_delete_unused_related_nodes")
 
-        layout.prop(pathtool, "texture_file_type_enum")
-        layout.prop(pathtool, "clipping_method_enum")
+            layout.prop(pathtool, "texture_file_type_enum")
+            layout.prop(pathtool, "clipping_method_enum")
 
-        layout.prop(pathtool, "is_reuse_node_group_with_same_name")
-        layout.prop(pathtool, "is_reuse_img_texture_with_same_name")
+            layout.prop(pathtool, "is_reuse_node_group_with_same_name")
+            layout.prop(pathtool, "is_reuse_img_texture_with_same_name")
 
-        layout.prop(pathtool, "is_normal_non_colour")
-        layout.prop(pathtool, "is_m_non_colour")
-        
-        layout.prop(pathtool, "is_change_principle_bsdf_emission_strength")
+            layout.prop(pathtool, "is_normal_non_colour")
+            layout.prop(pathtool, "is_m_non_colour")
+            
+            layout.prop(pathtool, "is_change_principle_bsdf_emission_strength")
 
-        if(pathtool.is_change_principle_bsdf_emission_strength):
-            layout.prop(pathtool, "principled_bsdf_emission_strength_float")
+            if(pathtool.is_change_principle_bsdf_emission_strength):
+                layout.prop(pathtool, "principled_bsdf_emission_strength_float")
+            layout.prop(pathtool, "material_alpha_threshold")
 
-        #Roman Noodles related settings
-        layout.prop(pathtool, "is_orm_non_colour")
-        layout.prop(pathtool, "is_add_skin_map")
+            #Roman Noodles related settings
+            layout.prop(pathtool, "is_orm_non_colour")
+            layout.prop(pathtool, "is_add_skin_map")
 
         layout.operator("loadueshaderscript.reset_settings_main_panel_operator")
         
@@ -163,10 +166,11 @@ class LOADUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
         #create box for all related boxes adding shader map to selected material
         box.label(text = "ADD SHADER MAP TO SELECTED MATERIAL (ONE MATERIAL)",)
         box.label(text = "Select a mesh and a material and add a shader map to the selected material")
-        box.prop(pathtool, "props_txt_path")
-        box.prop(pathtool, "export_folder_path")
-        if(pathtool.is_add_skin_map):
-            box.prop(pathtool, "skin_map_path")
+        if(pathtool.is_load_img_textures):
+            box.prop(pathtool, "props_txt_path")
+            box.prop(pathtool, "export_folder_path")
+            if(pathtool.is_add_skin_map):
+                box.prop(pathtool, "skin_map_path")
         box.operator("loadueshaderscript.addbasic_operator")
                 
         #Create a box for adding shader maps to all materials
@@ -175,10 +179,11 @@ class LOADUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
         box = layout.box()
         box.label(text = "ADD SHADER MAP TO ALL MATERIALS ON SELECTED MESHES (ALL MATERIALS)")
         box.label(text = "Select multiple meshes and add shader maps to all the materials on the selected meshes")
-        box.prop(pathtool, "material_folder_path")
-        box.prop(pathtool, "export_folder_path")
-        if(pathtool.is_add_skin_map):
-            box.prop(pathtool, "skin_map_path")
+        if(pathtool.is_load_img_textures):
+            box.prop(pathtool, "material_folder_path")
+            box.prop(pathtool, "export_folder_path")
+            if(pathtool.is_add_skin_map):
+                box.prop(pathtool, "skin_map_path")
         box.operator("loadueshaderscript.addbasicall_operator" )
         
         
@@ -278,61 +283,67 @@ def create_basic_all_shader_maps(context, pathtool):
             #this is because if you don't have use nodes
             #enabled, the material and material.name will not work properly
             material.use_nodes = True
-            
-            #returns a generator object with the matching
-            #absolute path to the props txt file
-            #rglob is a globbing function (match and return a pattern)
-            #and Path is a path type object, used for easy manipulation of paths
-            
-            #we use rglob and search for the
-            #props.txt file because the file we are looking for
-            #might be in a subdirectory such as Outfit01
-            #and the user might have selected the material folder path
-            #C:\Nyan\Dwight Recolor\Game\Characters\Slashers\Nurse\Materials\
-            #instead of C:\Nyan\Dwight Recolor\Game\Characters\Slashers\Nurse\Materials\Outfit01
-            #this allows for extra redundancy
-            #so the props.txt file can be either in the current directory, or its subdirectories
-            props_txt_name = "".join((material.name, ".props.txt"))
-            gen_obj_match = Path(abs_mat_folder_path).rglob(props_txt_name)
-            
-            props_txt_path = get_value_in_gen_obj(gen_obj_match)
-            
-            is_props_txt_exist_for_material = True
-            #debug
-            #print("props_txt_path:", props_txt_path)
-            #if can't find the propstxt file in the material folder do a recursive glob search
-            #in the exported Game folder which costs more time since many folders
-            #because it might be somewhere else like this instead
-            #\Game\Characters\Campers\CommonAcc\Materials\Top\MI_CMMHair019_TAA.props.txt
-            if props_txt_path == "":
-                abs_export_folder_path = bpy.path.abspath(pathtool.export_folder_path)
-                gen_obj_match = Path(abs_export_folder_path).rglob(props_txt_name)
-                #get the new props_txt_path in the new generator object
-                props_txt_path = get_value_in_gen_obj(gen_obj_match)
-                #debug
-                #print("refind props_txt_path:", props_txt_path)
-                
-                #if the props_txt_path is still null
-                #after second search in the game folder
-                #show an error message and ignore the material
-                #do not create a shader map for it
-                if props_txt_path == "":
-                    warning_message = " ".join(("Warning: the props.txt file for object", active_obj.name, "material", material.name, "was not found in the Game Folder so it was ignored!"))
-                    bpy.ops.ueshaderscript.show_message(message = warning_message)
-                    log(warning_message)
-                    is_props_txt_exist_for_material = False
-                
-            
-            
-            #not needed any more
-            #get the current material's name to concatenate
-            #a string the path to the props.txt file
-            #props_txt_path = abs_mat_folder_path + material.name + ".props.txt"
-
-            if (is_props_txt_exist_for_material):
+            if(pathtool.is_load_img_textures):
+                find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, active_obj, context)
+            else:
+                props_txt_path = "Not/Applicable"
                 create_one_shader_map(context, material, props_txt_path, pathtool)
             
-    return {"FINISHED"}  
+            
+    return {"FINISHED"}
+
+def find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, active_obj, context):
+    #returns a generator object with the matching
+    #absolute path to the props txt file
+    #rglob is a globbing function (match and return a pattern)
+    #and Path is a path type object, used for easy manipulation of paths
+    
+    #we use rglob and search for the
+    #props.txt file because the file we are looking for
+    #might be in a subdirectory such as Outfit01
+    #and the user might have selected the material folder path
+    #C:\Nyan\Dwight Recolor\Game\Characters\Slashers\Nurse\Materials\
+    #instead of C:\Nyan\Dwight Recolor\Game\Characters\Slashers\Nurse\Materials\Outfit01
+    #this allows for extra redundancy
+    #so the props.txt file can be either in the current directory, or its subdirectories
+    props_txt_name = "".join((material.name, ".props.txt"))
+    gen_obj_match = Path(abs_mat_folder_path).rglob(props_txt_name)
+    
+    props_txt_path = get_value_in_gen_obj(gen_obj_match)
+    
+    is_props_txt_exist_for_material = True
+    #debug
+    #print("props_txt_path:", props_txt_path)
+    #if can't find the propstxt file in the material folder do a recursive glob search
+    #in the exported Game folder which costs more time since many folders
+    #because it might be somewhere else like this instead
+    #\Game\Characters\Campers\CommonAcc\Materials\Top\MI_CMMHair019_TAA.props.txt
+    if props_txt_path == "":
+        abs_export_folder_path = bpy.path.abspath(pathtool.export_folder_path)
+        gen_obj_match = Path(abs_export_folder_path).rglob(props_txt_name)
+        #get the new props_txt_path in the new generator object
+        props_txt_path = get_value_in_gen_obj(gen_obj_match)
+        #debug
+        #print("refind props_txt_path:", props_txt_path)
+        
+        #if the props_txt_path is still null
+        #after second search in the game folder
+        #show an error message and ignore the material
+        #do not create a shader map for it
+        if props_txt_path == "":
+            warning_message = " ".join(("Warning: the props.txt file for object", active_obj.name, "material", material.name, 
+                        "was not found in the Game Folder so the material was ignored!"))
+            bpy.ops.ueshaderscript.show_message(message = warning_message)
+            log(warning_message)
+            is_props_txt_exist_for_material = False
+        
+    #not needed any more
+    #get the current material's name to concatenate
+    #a string the path to the props.txt file
+    #props_txt_path = abs_mat_folder_path + material.name + ".props.txt"
+
+    if (is_props_txt_exist_for_material):
+        create_one_shader_map(context, material, props_txt_path, pathtool)
 
 
 def get_value_in_gen_obj(gen_obj_match):
@@ -360,17 +371,23 @@ def get_value_in_gen_obj(gen_obj_match):
 def create_one_shader_map(context, material, props_txt_path, pathtool):
     #makes sure use_nodes is turned on
     #for just imported meshes from the psk importer
+    #this is done one more time just in case
+    #it is coming from the button "Add ONE shader map"
     material.use_nodes = True
 
-    #convert windows path to string
-    props_txt_path = str(props_txt_path)
+    #only needed if the user selects to load image textures
+    if(pathtool.is_load_img_textures):
+        #convert windows path to string
+        props_txt_path = str(props_txt_path)
 
-    #if the folder path is a relative path
-    #turn it into an absolute one
-    #as relative paths cause problems
-    #when trying to load an image
-    #absolute paths will stay as absolute paths
-    abs_props_txt_path =  bpy.path.abspath(props_txt_path)
+        #if the folder path is a relative path
+        #turn it into an absolute one
+        #as relative paths cause problems
+        #when trying to load an image
+        #absolute paths will stay as absolute paths
+        abs_props_txt_path =  bpy.path.abspath(props_txt_path)
+    else:
+        abs_props_txt_path = "Not/Applicable"
 
     #if bool is checked delete all nodes to create a clean slate 
     #for the new node map to be loaded
@@ -441,7 +458,8 @@ def load_preset(context, material, abs_props_txt_path, pathtool):
         #print("nodes_dict", nodes_dict)
         nodes = dict_to_nodes(nodes_dict["nodes_list"], node_tree)
         list_to_links(nodes_dict["links_list"], node_tree, nodes)
-        dict_to_textures(nodes_dict["img_textures_list"], material, node_tree, abs_props_txt_path, pathtool)
+        if pathtool.is_load_img_textures:
+            dict_to_textures(nodes_dict["img_textures_list"], material, node_tree, abs_props_txt_path, pathtool)
     else:
          bpy.ops.ueshaderscript.show_message(
                     message = "Only Shader Editor Restores are supported currently not Compositor editor restores.")
@@ -695,104 +713,102 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
         #also store capture groups into a list variable
         match_list = re.findall("Texture2D\'(.*)\.", data)
 
-
     #---------------------add image texture nodes 
-    if pathtool.is_add_img_textures:
-        #turn the path to the skin map to an absolute path instead of a relative one
-        #to avoid errors
-        abs_skin_map_path = bpy.path.abspath(pathtool.skin_map_path)
+    #turn the path to the skin map to an absolute path instead of a relative one
+    #to avoid errors
+    abs_skin_map_path = bpy.path.abspath(pathtool.skin_map_path)
 
-        not_delete_img_texture_node_list = []
-        #use loop to go through all locations
-        #specified in props.txt file
-        #and create image texture nodes + 
-        #load all images for image textures
-        for tex_location in match_list:
-            #unused since now we use .endswith otherwise some might have really long suffixes
-            #fetch last 10 characters in path which will tell you what
-            #the current texture is in charge of e.g slice _BC off
-            #/Game/Characters/Slashers/Bear/Textures/Outfit01/T_BEHead01_BC
-            #longest id is _TintBC 7 characters
-            #tex_id = tex_location[-10:]
-            
-            #if the folder path is a relative path
-            #turn it into an absolute one
-            #as relative paths cause problems
-            #when trying to load an image
-            abs_export_folder_path = bpy.path.abspath(pathtool.export_folder_path)
-            
-            # Returns user specified export game folder path
-            # with first character removed
-            # reason why is there would be double up of \/ when 
-            #concatenating strings
-            user_tex_folder = abs_export_folder_path[:-1]
-            
-            #replace forward slash with backslash reason why is
-            # when concatenating complete path looks like this
-            #if no replace path looks like e.g. C:\Nyan\Dwight Recolor\Game/Characters/Slashers/Bear/Textures/Outfit01/T_BEHead01_BC
-            #which is weird
+    not_delete_img_texture_node_list = []
+    #use loop to go through all locations
+    #specified in props.txt file
+    #and create image texture nodes + 
+    #load all images for image textures
+    for tex_location in match_list:
+        #unused since now we use .endswith otherwise some might have really long suffixes
+        #fetch last 10 characters in path which will tell you what
+        #the current texture is in charge of e.g slice _BC off
+        #/Game/Characters/Slashers/Bear/Textures/Outfit01/T_BEHead01_BC
+        #longest id is _TintBC 7 characters
+        #tex_id = tex_location[-10:]
+        
+        #if the folder path is a relative path
+        #turn it into an absolute one
+        #as relative paths cause problems
+        #when trying to load an image
+        abs_export_folder_path = bpy.path.abspath(pathtool.export_folder_path)
+        
+        # Returns user specified export game folder path
+        # with first character removed
+        # reason why is there would be double up of \/ when 
+        #concatenating strings
+        user_tex_folder = abs_export_folder_path[:-1]
+        
+        #replace forward slash with backslash reason why is
+        # when concatenating complete path looks like this
+        #if no replace path looks like e.g. C:\Nyan\Dwight Recolor\Game/Characters/Slashers/Bear/Textures/Outfit01/T_BEHead01_BC
+        #which is weird
+        #backslash is used to escape backslash character
+        tex_location = tex_location.replace("/","\\")
+        
+        #if the user selects the game folder instead of the
+        #parent folder, the first 5 characters of 
+        #the user input box: user_tex_folder will be "Game"
+        #so we remove "Game\" from the tex_location
+        #to avoid a double up
+        #this is extra redundancy so if the
+        #user chooses either the Game folder or
+        #the parent folder of the Game folder
+        #both options will work
+        if user_tex_folder[-4:] == "Game":
             #backslash is used to escape backslash character
-            tex_location = tex_location.replace("/","\\")
-            
-            #if the user selects the game folder instead of the
-            #parent folder, the first 5 characters of 
-            #the user input box: user_tex_folder will be "Game"
-            #so we remove "Game\" from the tex_location
-            #to avoid a double up
-            #this is extra redundancy so if the
-            #user chooses either the Game folder or
-            #the parent folder of the Game folder
-            #both options will work
-            if user_tex_folder[-4:] == "Game":
-                #backslash is used to escape backslash character
-                tex_location = tex_location.replace("\\Game","")
-     
-            #must string concatenate the user specified texture location path to 
-            #the texture location
-            #as the tex_location will only be 
-            #e.g /Game/Characters/Slashers/Bear/Textures/Outfit01/T_BEHead01_BC
-            #this does not provide a complete path to where the user exported
-            #the texture
-            #we need e.g. C:\Nyan\Dwight Recolor\Game\Characters
-            #\Slashers\Bear\Textures\Outfit01\T_BEHead01_BC
-            #using pathtool.texture_file_type_enum because it may be ".tga" or ".png"
-            complete_path = "".join((user_tex_folder, tex_location, pathtool.texture_file_type_enum))
+            tex_location = tex_location.replace("\\Game","")
+    
+        #must string concatenate the user specified texture location path to 
+        #the texture location
+        #as the tex_location will only be 
+        #e.g /Game/Characters/Slashers/Bear/Textures/Outfit01/T_BEHead01_BC
+        #this does not provide a complete path to where the user exported
+        #the texture
+        #we need e.g. C:\Nyan\Dwight Recolor\Game\Characters
+        #\Slashers\Bear\Textures\Outfit01\T_BEHead01_BC
+        #using pathtool.texture_file_type_enum because it may be ".tga" or ".png"
+        complete_path = "".join((user_tex_folder, tex_location, pathtool.texture_file_type_enum))
 
-            #If the texture is listed in the 
-            #props.txt file and it is one of the
-            #image textures we are interested in we will
-            #load the corresponding image
-            
-            #this for loop will load all image textures
-            #via reading the img_textures_list
-            #recorded in the node_dict when the dictionary is saved
-            for textures in img_textures_list:
-                suffix_list = textures["suffix_list"]
-                node_name = textures["node_name"]
+        #If the texture is listed in the 
+        #props.txt file and it is one of the
+        #image textures we are interested in we will
+        #load the corresponding image
+        
+        #this for loop will load all image textures
+        #via reading the img_textures_list
+        #recorded in the node_dict when the dictionary is saved
+        for textures in img_textures_list:
+            suffix_list = textures["suffix_list"]
+            node_name = textures["node_name"]
 
-                #special case if the node is a skin texture node
-                #always load skin height map texture regardless
-                #because it doesn't come from the props.txt file
-                #it is externally added from skin_map_path
-                #and the skin_map path is not empty
-                #so do not need to check the suffix for a match against the propstxt file
-                #always load
-                #also require that is_add_skin_map is checked by the user to add a skin map
-                if textures["texture"] == "skin" and abs_skin_map_path !="" and pathtool.is_add_skin_map:
-                    node_to_load = node_tree.nodes[node_name]
-                    #bpy.data.images.load(abs_skin_map_path)
-                    load_image_texture(node_to_load, abs_skin_map_path, pathtool)
-                    #add to whitelist
-                    not_delete_img_texture_node_list.append(node_to_load)
-                    #continue and skip the rest of this loop because there is no need to check 
-                    #whether this one should be loaded since we have loaded it already
-                    continue
-                
-                #we must check a match against all the suffixes in the suffix list
-                #one texture may have one to many suffixes e.g. transparency might have "_M", "_A"
-                for suffix in suffix_list:
-                    check_match_propstxt_tex_location_vs_preset_img_textures_list_suffix(tex_location, suffix, node_tree, node_name, 
-                            complete_path, pathtool, textures, material, not_delete_img_texture_node_list)
+            #special case if the node is a skin texture node
+            #always load skin height map texture regardless
+            #because it doesn't come from the props.txt file
+            #it is externally added from skin_map_path
+            #and the skin_map path is not empty
+            #so do not need to check the suffix for a match against the propstxt file
+            #always load
+            #also require that is_add_skin_map is checked by the user to add a skin map
+            if textures["texture"] == "skin" and abs_skin_map_path !="" and pathtool.is_add_skin_map:
+                node_to_load = node_tree.nodes[node_name]
+                #bpy.data.images.load(abs_skin_map_path)
+                load_image_texture(node_to_load, abs_skin_map_path, pathtool)
+                #add to whitelist
+                not_delete_img_texture_node_list.append(node_to_load)
+                #continue and skip the rest of this loop because there is no need to check 
+                #whether this one should be loaded since we have loaded it already
+                continue
+            
+            #we must check a match against all the suffixes in the suffix list
+            #one texture may have one to many suffixes e.g. transparency might have "_M", "_A"
+            for suffix in suffix_list:
+                check_match_propstxt_tex_location_vs_preset_img_textures_list_suffix(tex_location, suffix, node_tree, node_name, 
+                        complete_path, pathtool, textures, material, not_delete_img_texture_node_list)
         
 
 
@@ -882,7 +898,7 @@ def img_textures_special_handler(textures, pathtool, material, node_to_load, nod
         if clipping_method == "CLIP":
             material.blend_method = "CLIP"
             material.shadow_method = "CLIP"
-            material.alpha_threshold = 0
+            material.alpha_threshold = pathtool.material_alpha_threshold
         elif clipping_method == "HASHED":
             material.blend_method = "HASHED"
             material.shadow_method = "HASHED"
@@ -1214,7 +1230,7 @@ def set_values_for_ImageUser(image_user, value_dict):
     image_user.use_auto_refresh = value_dict["use_auto_refresh"]
 
 
-#unused but good example of how to implement a shader map manually
+#Now UNUSED but good example of how to implement a shader map manually
 #making each node and linking each node by hand
 def roman_noodles_shader_map(material, props_txt_path, pathtool):
     #store new link function to variable
@@ -1288,7 +1304,7 @@ def roman_noodles_shader_map(material, props_txt_path, pathtool):
     
     #only add image textures nodes if Include Image Textures
     #in panel is true
-    if pathtool.is_add_img_textures:
+    if pathtool.is_load_img_textures:
         #---------------add image texture nodes    
         #example loading image
         #texImage.image = bpy.dat.images.load(
@@ -1299,7 +1315,7 @@ def roman_noodles_shader_map(material, props_txt_path, pathtool):
         #add the height map image texture and load the user defined
         #height map image
         
-        if pathtool.is_add_img_textures == True and pathtool.is_material_skin == True and pathtool.is_add_height_map == True:
+        if pathtool.is_load_img_textures == True and pathtool.is_material_skin == True and pathtool.is_add_height_map == True:
             height_map_path = pathtool.height_map_path
             
             height_map_node = new_node('ShaderNodeTexImage')
@@ -1441,11 +1457,12 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
         pathtool.property_unset("is_normal_non_colour")
         pathtool.property_unset("is_m_non_colour")
         pathtool.property_unset("is_orm_non_colour")
-        pathtool.property_unset("is_add_img_textures")
+        pathtool.property_unset("is_load_img_textures")
         pathtool.property_unset("is_delete_unused_img_texture_nodes")
         pathtool.property_unset("is_delete_unused_related_nodes")
         pathtool.property_unset("is_change_principle_bsdf_emission_strength")
         pathtool.property_unset("principled_bsdf_emission_strength_float")
+        pathtool.property_unset("material_alpha_threshold")
         pathtool.property_unset("is_reuse_node_group_with_same_name")
         pathtool.property_unset("is_reuse_img_texture_with_same_name")
         pathtool.property_unset("is_add_skin_map")
