@@ -15,6 +15,7 @@ I promise continued support and updates to this the add on for free!
 
 ## What does UEShaderScript do?
 UEShaderScript is a free Blender Plugin designed to be used with UModel: https://www.gildor.org/en/projects/umodel#files and Befzz's psk/psa importer: https://github.com/Befzz/blender3d_import_psk_psa
+
 The plugin allows for one click bulk texturing for all selected meshes and is built for all 3d assets exported from Unreal Engine. 
 
 UEShaderScript does three things:
@@ -48,23 +49,30 @@ browse local files > a file explorer should have opened with your game folder > 
 right click on the umodel zip file > Extract All which will create an unzipped folder.
 2. We have to find the path to the Unreal Engine Game For Steam Games select the game in your library > press the cog icon >
 browse local files > a file explorer should have opened with your game folder > look for a Content Folder with pak files in folders
-3. I suggest if you have the space making a copy of the Pak files you found in step 2 into the unzipped folder of UModel. 
-4. Remember the path
-4. Next go to [Befzz's psk importer](https://github.com/Befzz/blender3d_import_psk_psa), 
+3. I suggest if you have the space making a copy of the Pak folder you found in step 2 into the unzipped folder of UModel. 
+4. Once you are in the directory where the PAK files are > click on an empty space in the address bar of the file 
+explorer to select the path > press Ctrl + c to copy the path to the PAK files we will need this later.
+5. Next go to [Befzz's psk importer](https://github.com/Befzz/blender3d_import_psk_psa), 
 and right click on the Stable (branch latest) 280 direct link > Save Link As and save it somewhere.
-5. To install Befzz's psk importer, open a blender file > click Edit > Preferences > Add-Ons > Install > 
-in the file explorer find "io_import_scene_unreal_psa_psk_280.py" and select and install it.
-6. 
+6. To install Befzz's psk importer, open a Blender file > click Edit > Preferences > Add-Ons > Install > 
+in the Blender file explorer find the file "io_import_scene_unreal_psa_psk_280.py" you downloaded and select and install it.
 
 ### Using UModel
-1. In the unzipped UModel open the umodel.exe file this will open up a window, now you'll 
+1. In the unzipped UModel open the "umodel.exe" file this will open up a window, now you'll 
 need to know what settings to use for your game which you'll likely find on the Gildor Forums for UModel: https://www.gildor.org/smf/ . 
 2. For Dead By Daylight check the box labelled override game detection and as of DBD version 4.7.0 click the 
-1st Dropdown for "Unreal Engine 4" and second for "Unreal Engine 4.25"
-3. Now once you're in UModel you want to find the folder for the character you are interested in. 
+1st Dropdown for "Unreal Engine 4" and second for "Unreal Engine 4.25", it will be different for other games so ask around on the Gildor
+Forums or search up what version of Unreal Engine your game is using.
+3. In the "Path to Game Files:" input box you want to paste the path to the PAK files copied 
+in step 4. of Installing Prequisite Software by pressing Ctrl + v. 
+OR
+If you copied the PAK into the UModel folder as in step 2. of Installing Prerequisite software press the "..." button > 
+go into the PAK folder in the file explorer > press Select Folder.
+4. Press OK to open the PAK files in UModel.
+5. Now once you're in UModel you want to find the folder for the character you are interested in. 
 For Dead By Daylight this will be in /Game/Characters/Campers for survivors and /Game/Characters/Slashers for the Killers.
-For this example I will try and find the Kate model from Dead By Daylight in the /Game/Characters/Campers/Guam/
-4. 
+For this example I will try and find the Kate model from Dead By Daylight in the /Game/Characters/Campers/Guam/Models folder.
+6.
  
 ### Loading Preset Shader Maps
 1. Go to the 3D View and press n > you should see a panel called "UE Shaders" > click on UE Shaders to open the panel.

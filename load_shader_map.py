@@ -255,13 +255,13 @@ def create_basic_all_shader_maps(context, pathtool):
     #bpy.context.selected_objects[0].data.materials[0]
     
     #this makes a list of all selected objects (can be multiple)
-    objects_list = bpy.context.selected_objects
+    selected_objects_list = bpy.context.selected_objects
     
     
     #go through each selected object
     #and in every selected object
     #go through all of the selected object's materials
-    for active_obj in objects_list: 
+    for selected_obj in selected_objects_list: 
         
         #shade smooth on the all selected meshes
         #inside loop
@@ -269,22 +269,22 @@ def create_basic_all_shader_maps(context, pathtool):
         #as part of bpy.ops
         #as bpy.ops.object.shade_smooth() as part of bpy.ops
         #not bpy.data
-        mesh = active_obj.data
+        mesh = selected_obj.data
         for f in mesh.polygons:
             f.use_smooth = True
         
-        #fetch all materials of the current active_object in a list
-        active_obj_materials_list = active_obj.data.materials[:]
+        #fetch all materials of the current selected object in a list
+        selected_obj_materials_list = selected_obj.data.materials[:]
     
         #create a shader map for each material in the materials list
         #in a loop
-        for material in active_obj_materials_list:
+        for material in selected_obj_materials_list:
             #make sure to use nodes before anything else
             #this is because if you don't have use nodes
             #enabled, the material and material.name will not work properly
             material.use_nodes = True
             if(pathtool.is_load_img_textures):
-                find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, active_obj, context)
+                find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, selected_obj, context)
             else:
                 props_txt_path = "Not/Applicable"
                 create_one_shader_map(context, material, props_txt_path, pathtool)
@@ -292,7 +292,7 @@ def create_basic_all_shader_maps(context, pathtool):
             
     return {"FINISHED"}
 
-def find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, active_obj, context):
+def find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, selected_obj, context):
     #returns a generator object with the matching
     #absolute path to the props txt file
     #rglob is a globbing function (match and return a pattern)
@@ -331,7 +331,7 @@ def find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool
         #show an error message and ignore the material
         #do not create a shader map for it
         if props_txt_path == "":
-            warning_message = " ".join(("Warning: the props.txt file for object", active_obj.name, "material", material.name, 
+            warning_message = " ".join(("Warning: the props.txt file for object", selected_obj.name, "material", material.name, 
                         "was not found in the Game Folder so the material was ignored!"))
             bpy.ops.ueshaderscript.show_message(message = warning_message)
             log(warning_message)
@@ -369,11 +369,6 @@ def get_value_in_gen_obj(gen_obj_match):
 
 
 def create_one_shader_map(context, material, props_txt_path, pathtool):
-    #makes sure use_nodes is turned on
-    #for just imported meshes from the psk importer
-    #this is done one more time just in case
-    #it is coming from the button "Add ONE shader map"
-    material.use_nodes = True
 
     #only needed if the user selects to load image textures
     if(pathtool.is_load_img_textures):
@@ -448,6 +443,8 @@ def load_preset(context, material, abs_props_txt_path, pathtool):
                 bpy.ops.ueshaderscript.show_message(
                     message = "Please choose an object in View 3D to restore.")
                 return {'FINISHED'}
+            #this is from node kit use own method of loading shader map
+            #later
             #mat = add_material_to_active_object()
             mat = material
             node_tree = mat.node_tree
@@ -513,17 +510,17 @@ def get_active_world():
     return new_world
 
 
-def add_material_to_active_object():
-    obj_data = bpy.context.object.data
-    obj = bpy.context.object
-    if obj.active_material:
-        obj.active_material.use_nodes = True
-        return obj.active_material
-    new_mat = bpy.data.materials.new("Material")
-    new_mat.use_nodes = True
-    obj_data.materials.append(new_mat)
-    obj.active_material = new_mat
-    return new_mat
+# def add_material_to_active_object():
+#     obj_data = bpy.context.object.data
+#     obj = bpy.context.object
+#     if obj.active_material:
+#         obj.active_material.use_nodes = True
+#         return obj.active_material
+#     new_mat = bpy.data.materials.new("Material")
+#     new_mat.use_nodes = True
+#     obj_data.materials.append(new_mat)
+#     obj.active_material = new_mat
+#     return new_mat
 
 def get_json_from_selected_preset():
     isOverridePackage = True
