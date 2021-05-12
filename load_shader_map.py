@@ -78,7 +78,7 @@ class PathProperties(bpy.types.PropertyGroup):
     material_alpha_threshold: bpy.props.FloatProperty(name="Material Clip Threshold if Transparency Texture Loaded", default = 0.0)
 
     #options to allow reuse of node groups and image textures
-    is_reuse_node_group_with_same_name: bpy.props.BoolProperty(name="Reuse Node Group With Same Name", default= True)
+    is_reuse_node_group_with_same_name: bpy.props.BoolProperty(name="Reuse Node Groups With Same Name", default= True)
     is_reuse_img_texture_with_same_name: bpy.props.BoolProperty(name="Reuse Image Textures With Same Name", default= True)
     
     #for roman noodles shader maps
@@ -697,6 +697,84 @@ def list_to_links(links_list, tree, nodes):
 
 
 def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path, pathtool):
+    #nested function so that don't have to copy all 
+    #attributes
+    def check_should_load_image():
+        #nested function inside nested function so that don't have to copy all 
+        #attributes
+        def if_tex_location_suffix_match_load_image():
+            #by default assume no image has been loaded
+            is_img_loaded = False
+            #check what the last two/three characters are of the id
+            #and look for the specific ids we are interested in
+            #identifier
+            #tex_location is from the props txt file comparing against 
+            #suffix which is what is recorded from the node_dict
+            if tex_location.endswith(suffix):
+                #looks like this normally
+                #node_to_load = bpy.context.active_object.active_material.node_tree.nodes["Diffuse Node"]
+                #node_to_load.image = bpy.data.images.load("C:\Seabrook\Dwight Recolor\Game\Characters\Campers\Dwight\Textures\Outfit01\T_DFHair01_BC.tga")
+
+                #use node_tree which is the current node tree
+                #we're trying to texture
+                #and node_name which is the Node Name in the Items panel in the shader editor
+                #this will uniquely identify a single node
+                node_to_load = node_tree.nodes[node_name]
+                load_image_texture(node_to_load, complete_path, pathtool)
+
+                #this handles special nodes e.g.
+                #a Transparency node has been loaded 
+                #we might need to set it to Non-colour or 
+                #make the material Alpha Clip or Alpha hashed
+                #special handler does that
+                img_textures_special_handler(textures, pathtool, material, node_to_load, node_tree)
+                    
+                    
+                #if an image texture node has been loaded
+                #and the option to delete image texture nodes who
+                #have not had an image loaded to them is True
+                #then we will add it to a whitelist
+                #so it does not get deleted
+                if pathtool.is_delete_unused_img_texture_nodes:
+                    not_delete_img_texture_node_name_list.append(node_to_load.name)
+                
+                is_img_loaded = True
+            return is_img_loaded
+
+            
+        
+        complete_path = get_complete_path_to_texture_file(pathtool, tex_location)
+            
+
+        #If the texture is listed in the 
+        #props.txt file and it is one of the
+        #image textures we are interested in we will
+        #load the corresponding image
+        
+        #this for loop will load all image textures
+        #via reading the img_textures_list
+        #recorded in the node_dict when the dictionary is saved
+        for textures in img_textures_list:
+            suffix_list = textures["suffix_list"]
+            node_name = textures["node_name"]
+
+            #we must check a match against all the suffixes in the suffix list
+            #one texture may have one to many suffixes e.g. transparency might have "_M", "_A"
+            for suffix in suffix_list:
+                is_img_loaded = if_tex_location_suffix_match_load_image()
+                #break out of current loop of for tex_location in match_list 
+                #because the image for the tex_location has been found
+                #there is no need to check against the next suffixes
+                #e.g for tex_location '/Game/Characters/Slashers/Doctor/Textures/Outfit011/T_DOStraps011_BC'
+                #in the suffix_list 'suffix_list': ['_BC', '_BC_01', '_BC_02', '_BC_03', '_BC_04'], '_BC' was a
+                #match, thus, the image was T_DOStraps011_BC.tga/png was loaded to the image texture node
+                if is_img_loaded:
+                    return is_img_loaded
+
+
+
+
+
     print("\nabs_props_txt_path", abs_props_txt_path)
     
     #open the propstxt file for the material and find the
@@ -711,174 +789,106 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
         match_list = re.findall("Texture2D\'(.*)\.", data)
 
     #---------------------add image texture nodes 
-    #turn the path to the skin map to an absolute path instead of a relative one
-    #to avoid errors
-    abs_skin_map_path = bpy.path.abspath(pathtool.skin_map_path)
+    
 
-    not_delete_img_texture_node_list = []
+    #-------used if delete unused image texture nodes is true
+    #list of the possible nodes that may be deleted
+    #use this because we only want delete image texture nodes
+    #that might have had something loaded to them but didn't
+    #not random image texture nodes
+    interested_node_name_list = []
+    #whitelist for image texture nodes that have been loaded
+    not_delete_img_texture_node_name_list = []
+
     #use loop to go through all locations
     #specified in props.txt file
     #and create image texture nodes + 
     #load all images for image textures
-    for tex_location in match_list:
-        #unused since now we use .endswith otherwise some might have really long suffixes
-        #fetch last 10 characters in path which will tell you what
-        #the current texture is in charge of e.g slice _BC off
-        #/Game/Characters/Slashers/Bear/Textures/Outfit01/T_BEHead01_BC
-        #longest id is _TintBC 7 characters
-        #tex_id = tex_location[-10:]
-        
-        #if the folder path is a relative path
-        #turn it into an absolute one
-        #as relative paths cause problems
-        #when trying to load an image
-        abs_export_folder_path = bpy.path.abspath(pathtool.export_folder_path)
-        
-        # Returns user specified export game folder path
-        # with first character removed
-        # reason why is there would be double up of \/ when 
-        #concatenating strings
-        user_tex_folder = abs_export_folder_path[:-1]
-        
-        #replace forward slash with backslash reason why is
-        # when concatenating complete path looks like this
-        #if no replace path looks like e.g. C:\Nyan\Dwight Recolor\Game/Characters/Slashers/Bear/Textures/Outfit01/T_BEHead01_BC
-        #which is weird
-        #backslash is used to escape backslash character
-        tex_location = tex_location.replace("/","\\")
-        
-        #if the user selects the game folder instead of the
-        #parent folder, the first 5 characters of 
-        #the user input box: user_tex_folder will be "Game"
-        #so we remove "Game\" from the tex_location
-        #to avoid a double up
-        #this is extra redundancy so if the
-        #user chooses either the Game folder or
-        #the parent folder of the Game folder
-        #both options will work
-        if user_tex_folder[-4:] == "Game":
-            #backslash is used to escape backslash character
-            tex_location = tex_location.replace("\\Game","")
+    #debug
+    #print("match_list:", match_list, "\n")
+    #print("img_textures_list:", img_textures_list, "\n")
     
-        #must string concatenate the user specified texture location path to 
-        #the texture location
-        #as the tex_location will only be 
-        #e.g /Game/Characters/Slashers/Bear/Textures/Outfit01/T_BEHead01_BC
-        #this does not provide a complete path to where the user exported
-        #the texture
-        #we need e.g. C:\Nyan\Dwight Recolor\Game\Characters
-        #\Slashers\Bear\Textures\Outfit01\T_BEHead01_BC
-        #using pathtool.texture_file_type_enum because it may be ".tga" or ".png"
-        complete_path = "".join((user_tex_folder, tex_location, pathtool.texture_file_type_enum))
-
-        #If the texture is listed in the 
-        #props.txt file and it is one of the
-        #image textures we are interested in we will
-        #load the corresponding image
-        
-        #this for loop will load all image textures
-        #via reading the img_textures_list
-        #recorded in the node_dict when the dictionary is saved
+    #if either of these conditions is true we must iterate 
+    #through the image textures list
+    #once
+    if (pathtool.is_delete_unused_img_texture_nodes or pathtool.is_add_skin_map):
+        #go through the textures list once to load all the node_names to interested_node_name_list
+        #we are interested in that might have something loaded to them
+        #if nothing is loaded to the nodes from interested_node_name_list
+        #we know they should be deleted
+        #also go through textures list to load the skin texture if it is needed
         for textures in img_textures_list:
-            suffix_list = textures["suffix_list"]
             node_name = textures["node_name"]
-
-            #special case if the node is a skin texture node
-            #always load skin height map texture regardless
-            #because it doesn't come from the props.txt file
-            #it is externally added from skin_map_path
-            #and the skin_map path is not empty
-            #so do not need to check the suffix for a match against the propstxt file
-            #always load
-            #also require that is_add_skin_map is checked by the user to add a skin map
-            if textures["texture"] == "skin" and abs_skin_map_path !="" and pathtool.is_add_skin_map:
-                node_to_load = node_tree.nodes[node_name]
-                #bpy.data.images.load(abs_skin_map_path)
-                load_image_texture(node_to_load, abs_skin_map_path, pathtool)
-                #add to whitelist
-                not_delete_img_texture_node_list.append(node_to_load)
-                #continue and skip the rest of this loop because there is no need to check 
-                #whether this one should be loaded since we have loaded it already
-                continue
+            texture_id = textures["texture"]
+            #list of the possible nodes that may be deleted
+            #use this because we only want delete image texture nodes
+            #that could have had something in them
+            #not random image texture nodes
+            if pathtool.is_delete_unused_img_texture_nodes:
+                interested_node_name_list.append(node_name)
             
-            #we must check a match against all the suffixes in the suffix list
-            #one texture may have one to many suffixes e.g. transparency might have "_M", "_A"
-            for suffix in suffix_list:
-                check_match_propstxt_tex_location_vs_preset_img_textures_list_suffix(tex_location, suffix, node_tree, node_name, 
-                        complete_path, pathtool, textures, material, not_delete_img_texture_node_list)
-        
+            if (pathtool.is_add_skin_map):
+                load_skin_texture_if_needed(node_tree, pathtool, img_textures_list, not_delete_img_texture_node_name_list, node_name, texture_id)
+
+    #iterate through texture locations
+    #reminder match list looks like
+    #match_list ['/Game/Characters/Slashers/Doctor/Textures/Outfit011/T_DOStraps011_BC', 
+    #'/Game/Characters/Slashers/Doctor/Textures/Outfit011/T_DOStraps011_ORM', 
+    # '/Game/Characters/Slashers/Doctor/Textures/Outfit011/T_DOStraps011_N']
+    for tex_location in match_list:
+        check_should_load_image()
+    
+    #will delete img_texture_nodes if needed
+    delete_unused_img_texture_nodes_and_related_nodes(not_delete_img_texture_node_name_list, 
+            interested_node_name_list, pathtool, node_tree)
+       
 
 
-        #check through the whole tree for image
-        #texture nodes and delete any 
-        #that are not on the whitelist
-        if pathtool.is_delete_unused_img_texture_nodes:
-            #debug
-            #print("\nnot_delete_img_texture_node_list (the whitelist):", not_delete_img_texture_node_list)
-            
-            #initialise and clear blacklist to delete related nodes
-            prefix_of_related_nodes_to_delete = []
-            nodes = node_tree.nodes
-            for node in nodes:
-                #debug to find what the node.type is for 
-                #image texture nodes
-                #print("node.type:", node.type)
-                #if it's not in the whitelist which means 
-                #an image wasn't loaded to the node, delete the image texture node
-                if node.type == "TEX_IMAGE" and not(node in not_delete_img_texture_node_list): 
-                    #delete node and mark all related nodes to delete list
-                    #that is mark all nodes which starts with the same name
-                    prefix_of_related_nodes_to_delete.append(node.name)
-                    nodes.remove(node) 
+def get_complete_path_to_texture_file(pathtool, tex_location):
+    #if the folder path is a relative path
+    #turn it into an absolute one
+    #as relative paths cause problems
+    #when trying to load an image
+    abs_export_folder_path = bpy.path.abspath(pathtool.export_folder_path)
+    
+    # Returns user specified export game folder path
+    # with first character removed
+    # reason why is there would be double up of \/ when 
+    #concatenating strings
+    user_tex_folder = abs_export_folder_path[:-1]
+    
+    #replace forward slash with backslash reason why is
+    # when concatenating complete path looks like this
+    #if no replace path looks like e.g. C:\Nyan\Dwight Recolor\Game/Characters/Slashers/Bear/Textures/Outfit01/T_BEHead01_BC
+    #which is weird
+    #backslash is used to escape backslash character
+    tex_location = tex_location.replace("/","\\")
+    
+    #if the user selects the game folder instead of the
+    #parent folder, the first 5 characters of 
+    #the user input box: user_tex_folder will be "Game"
+    #so we remove "Game\" from the tex_location
+    #to avoid a double up
+    #this is extra redundancy so if the
+    #user chooses either the Game folder or
+    #the parent folder of the Game folder
+    #both options will work
+    if user_tex_folder[-4:] == "Game":
+        #backslash is used to escape backslash character
+        tex_location = tex_location.replace("\\Game","")
 
-            
-            #do one more loop through all nodes to check for related nodes
-            #to delete if option is checked
-            if pathtool.is_delete_unused_related_nodes:
-                #debug
-                #print("prefix_of_related_nodes_to_delete:", prefix_of_related_nodes_to_delete)
+    #must string concatenate the user specified texture location path to 
+    #the texture location
+    #as the tex_location will only be 
+    #e.g /Game/Characters/Slashers/Bear/Textures/Outfit01/T_BEHead01_BC
+    #this does not provide a complete path to where the user exported
+    #the texture
+    #we need e.g. C:\Nyan\Dwight Recolor\Game\Characters
+    #\Slashers\Bear\Textures\Outfit01\T_BEHead01_BC
+    #using pathtool.texture_file_type_enum because it may be ".tga" or ".png"
+    complete_path = "".join((user_tex_folder, tex_location, pathtool.texture_file_type_enum))
+    return complete_path
 
-                #go back through all the nodes and now delete all nodes 
-                #that start with the prefix
-                for node in nodes:
-                    #print("node:", node)
-                    #the line below must not be int he loop otherwise the loop fails
-                    node_name = node.name
-                    #for every node check against every prefix that is on the blacklist
-                    for prefix in prefix_of_related_nodes_to_delete:
-                        if node_name.startswith(prefix):
-                            #print("node:", node, "has been deleted.")
-                            nodes.remove(node)
-
-
-def check_match_propstxt_tex_location_vs_preset_img_textures_list_suffix(tex_location, suffix, node_tree, node_name, complete_path, pathtool, textures, material, not_delete_img_texture_node_list):
-    #check what the last two/three characters are of the id
-    #and look for the specific ids we are interested in
-    #identifier
-    #tex_location is from the props txt file comparing against 
-    #suffix which is what is recorded from the node_dict
-    if tex_location.endswith(suffix):
-        #looks like this normally
-        #node_to_load = bpy.context.active_object.active_material.node_tree.nodes["Diffuse Node"]
-        #node_to_load.image = bpy.data.images.load("C:\Seabrook\Dwight Recolor\Game\Characters\Campers\Dwight\Textures\Outfit01\T_DFHair01_BC.tga")
-
-        #use node_tree which is the current node tree
-        #we're trying to texture
-        #and node_name which is the Node Name in the Items panel in the shader editor
-        #this will uniquely identify a single node
-        node_to_load = node_tree.nodes[node_name]
-        load_image_texture(node_to_load, complete_path, pathtool)
-
-        img_textures_special_handler(textures, pathtool, material, node_to_load, node_tree)
-            
-            
-        #if an image texture node has been loaded
-        #and the option to delete image texture nodes who
-        #have not had an image loaded to them is True
-        #then we will add it to a whitelist
-        #so it does not get deleted
-        if pathtool.is_delete_unused_img_texture_nodes:
-            not_delete_img_texture_node_list.append(node_to_load)
 
 def img_textures_special_handler(textures, pathtool, material, node_to_load, node_tree):
     #special case if the node that was loaded was a transparency node _M
@@ -933,8 +943,79 @@ def load_image_texture(node_to_load, complete_path_to_image, pathtool):
         #whether or not they already exist
         create_a_new_img_texture(node_to_load, complete_path_to_image)
 
-    
-    
+
+def delete_unused_img_texture_nodes_and_related_nodes(not_delete_img_texture_node_name_list, interested_node_name_list, pathtool, node_tree):
+    #debug
+    print("not_delete_img_texture_node_name_list:", not_delete_img_texture_node_name_list)
+    print("interested_node_name_list:", interested_node_name_list)
+
+    #only start deleting nodes after all textures have been
+    #loaded for one shader map
+    #check through the whole tree for image
+    #texture nodes and delete any 
+    #that are not on the whitelist
+    if pathtool.is_delete_unused_img_texture_nodes:
+        #debug
+        #print("\nnot_delete_img_texture_node_list (the whitelist):", not_delete_img_texture_node_list)
+        
+        #initialise and clear blacklist to delete related nodes
+        prefix_of_related_nodes_to_delete = []
+        nodes = node_tree.nodes
+        for node in nodes:
+            #debug to find what the node.type is for 
+            #image texture nodes
+            #print("node.type:", node.type)
+            node_name = node.name
+            #if it's not in the whitelist and it's in our interested nodes list which means 
+            #an image wasn't loaded to the interested image texture node, delete the image texture node
+            if node.type == "TEX_IMAGE" and not(node_name in not_delete_img_texture_node_name_list) and (node_name in interested_node_name_list): 
+                #delete node and mark all related nodes to delete list
+                #that is mark all nodes which starts with the same name
+                prefix_of_related_nodes_to_delete.append(node.name)
+                nodes.remove(node) 
+
+        
+        #do one more loop through all nodes to check for related nodes
+        #to delete if option is checked
+        if pathtool.is_delete_unused_related_nodes:
+            #debug
+            #print("prefix_of_related_nodes_to_delete:", prefix_of_related_nodes_to_delete)
+
+            #go back through all the nodes and now delete all nodes 
+            #that start with the prefix
+            for node in nodes:
+                #print("node:", node)
+                #the line below must not be int he loop otherwise the loop fails
+                node_name = node.name
+                #for every node check against every prefix that is on the blacklist
+                for prefix in prefix_of_related_nodes_to_delete:
+                    if node_name.startswith(prefix):
+                        #print("node:", node, "has been deleted.")
+                        nodes.remove(node)
+
+
+
+def load_skin_texture_if_needed(node_tree, pathtool, img_textures_list, not_delete_img_texture_node_name_list, node_name, texture_id):
+    #turn the path to the skin map to an absolute path instead of a relative one
+    #to avoid errors
+    abs_skin_map_path = bpy.path.abspath(pathtool.skin_map_path)
+    #if the node is a skin texture node
+    #always load skin height map texture regardless
+    #because it doesn't come from the props.txt file
+    #it is externally added from skin_map_path
+    #and the skin_map path is not empty
+    #so do not need to check the suffix for a match against the propstxt file
+    #always load
+    #also require that is_add_skin_map is checked by the user to add a skin map
+    if  texture_id == "skin" and abs_skin_map_path !="" and pathtool.is_add_skin_map:
+        node_to_load = node_tree.nodes[node_name]
+        #bpy.data.images.load(abs_skin_map_path)
+        load_image_texture(node_to_load, abs_skin_map_path, pathtool)
+        #add to whitelist
+        if pathtool.is_delete_unused_img_texture_nodes:
+            not_delete_img_texture_node_name_list.append(node_to_load.name)
+
+
 
 def check_if_should_reuse_img_texture(node_to_load, complete_path_to_image):
     #reminder complete_path_to_image will look like
