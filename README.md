@@ -9,7 +9,7 @@ UEShaderScript copies a huge amount of code from Node Kit and I want to thank Aa
 for giving me permission to release UEShaderscript. Please have a look at his plugin and his work here: https://blendermarket.com/products/node-kit
 
 ## Permissions
-UEShaderScript is under the GPL Licence that means you have permission to use part or the whole of this plugin for free or commercial purposes free of charge.
+UEShaderScript is under the MIT Licence that means you have permission to use part or the whole of this plugin for free or commercial purposes free of charge.
 This add on is completely free what I want is for the most people to benefit from this and that's enough to make me smile. 
 I promise continued support and updates to this the add on for free!
 
@@ -31,7 +31,7 @@ Again find me on my discord here: https://discord.gg/rkkWSH2EMz to send me scree
 [![UEShaderScript v1.0.3 demo](https://i.ytimg.com/vi/sGY5rCJW5ZQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=sGY5rCJW5ZQ&lc=UgyelgrzDH2_XMyxoBB4AaABAg "UEShaderScript v1.0.3 demo")
 
 ## Installation
-To install:
+### To install:
 1. Download the "UEShaderScript_v.X.X.X.zip" file do NOT unzip it. 
 2. Open Blender and click Edit > Preferences > Add-Ons > Install > in the file explorer find "UEShaderScript_v.X.X.X.zip" and select it.
 3. In the Add-Ons search, search for UE Shader Maps and enable the Add On to complete the installation.
@@ -43,7 +43,7 @@ To install:
 browse local files > a file explorer should have opened with your game folder > look for a Content Folder with pak files in folders)
 
 ## Usage
-### Using Prerequisite Software to setup for UEShaderScript
+## Using Prerequisite Software to setup for UEShaderScript
 ### Installing Prequisite Software
 1. Download the latest version of [UModel/UE Viewer](https://www.gildor.org/en/projects/umodel#files) for your operating system, 
 right click on the umodel zip file > Extract All which will create an unzipped folder.
@@ -74,7 +74,7 @@ For Dead By Daylight this will be in /Game/Characters/Campers for survivors and 
 For this example I will try and find the Kate model from Dead By Daylight in the /Game/Characters/Campers/Guam/Models folder.
 6.
  
-### Loading Preset Shader Maps
+## Loading Preset Shader Maps
 1. Go to the 3D View and press n > you should see a panel called "UE Shaders" > click on UE Shaders to open the panel.
 2. You may need to hover your mouse over the left edge of the panel > click and drag to the left to expand the window to see the text.
 3. At the very top of the of the Panel you should see a list of Preset Shader Maps > click on one of these Presets to highlight and select it.
@@ -93,7 +93,7 @@ So to load a single preset for one material we want to look at the box labelled 
 
 ### Advanced Options Loading Preset Shader Maps
 
-### Saving Preset Shader Maps
+## Saving Preset Shader Maps
 ### Rules when Saving presets
 1. The X Node Name input box refers to an image texture node on your current node tree.
 You can think of the X Node Name marking an image texture node that we wish to dynamically load with an image texture.
