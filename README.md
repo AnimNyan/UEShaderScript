@@ -9,7 +9,7 @@ UEShaderScript copies a huge amount of code from Node Kit and I want to thank Aa
 for giving me permission to release UEShaderscript. Please have a look at his plugin and his work here: https://blendermarket.com/products/node-kit
 
 ## Permissions
-UEShaderScript is under the MIT Licence that means you have permission to use part or the whole of this plugin for free or commercial purposes free of charge.
+UEShaderScript is under the GPL Licence that means you have permission to use part or the whole of this plugin for free or commercial purposes free of charge.
 This add on is completely free what I want is for the most people to benefit from this and that's enough to make me smile. 
 I promise continued support and updates to this the add on for free!
 
@@ -64,16 +64,28 @@ need to know what settings to use for your game which you'll likely find on the 
 1st Dropdown for "Unreal Engine 4" and second for "Unreal Engine 4.25", it will be different for other games so ask around on the Gildor
 Forums or search up what version of Unreal Engine your game is using.
 3. In the "Path to Game Files:" input box you want to paste the path to the PAK files copied 
-in step 4. of Installing Prequisite Software by pressing Ctrl + v. 
+in step 4. of Installing Prequisite Software by pressing Ctrl + v 
 OR
-If you copied the PAK into the UModel folder as in step 2. of Installing Prerequisite software press the "..." button > 
+if you copied the PAK into the UModel folder as in step 2. of Installing Prerequisite software press the "..." button > 
 go into the PAK folder in the file explorer > press Select Folder.
 4. Press OK to open the PAK files in UModel.
 5. Now once you're in UModel you want to find the folder for the character you are interested in. 
 For Dead By Daylight this will be in /Game/Characters/Campers for survivors and /Game/Characters/Slashers for the Killers.
 For this example I will try and find the Kate model from Dead By Daylight in the /Game/Characters/Campers/Guam/Models folder.
-6.
- 
+7. There are two ways of exporting meshes from UModel either Tag and Export Meshes or Export Folder Content.
+
+### Tag and Export Meshes from UModel
+1. So in the left hand folder tree you want to right click on the /Game/Characters/Campers/Guam/Models folder > Open Folder Content.
+2. Make sure to Enable the setting Navigate > Include Meshes to see only meshes and not materials,
+Press Ctrl + g to disable the glow effect, press PgUp and PgDown to preview the next mesh, press Ctrl + t to tag the meshes that you want.
+3. Once you have tagged all the meshes you want, press Ctrl + x to export the current object, choose an export folder
+I suggest creating a new folder and exporting into there as it is cleaner.
+
+### Export Folder Content from UModel
+1. So in the left hand folder tree you want to right click on the /Game/Characters/Campers/Guam/Models folder > Export Folder Content
+to export all meshes in the Models folder.
+2. Choose an export folder, I suggest creating a new folder and exporting into there as it is cleaner.
+
 ## Loading Preset Shader Maps
 1. Go to the 3D View and press n > you should see a panel called "UE Shaders" > click on UE Shaders to open the panel.
 2. You may need to hover your mouse over the left edge of the panel > click and drag to the left to expand the window to see the text.
