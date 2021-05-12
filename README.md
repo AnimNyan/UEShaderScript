@@ -31,7 +31,7 @@ Again find me on my discord here: https://discord.gg/rkkWSH2EMz to send me scree
 [![UEShaderScript v1.0.3 demo](https://i.ytimg.com/vi/sGY5rCJW5ZQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=sGY5rCJW5ZQ&lc=UgyelgrzDH2_XMyxoBB4AaABAg "UEShaderScript v1.0.3 demo")
 
 ## Installation
-### To install:
+### To install UEShaderScript:
 1. Download the "UEShaderScript_v.X.X.X.zip" file do NOT unzip it. 
 2. Open Blender and click Edit > Preferences > Add-Ons > Install > in the file explorer find "UEShaderScript_v.X.X.X.zip" and select it.
 3. In the Add-Ons search, search for UE Shader Maps and enable the Add On to complete the installation.
@@ -108,12 +108,22 @@ So to load a single preset for one material we want to look at the box labelled 
 ## Saving Preset Shader Maps
 ### Rules when Saving presets
 1. The X Node Name input box refers to an image texture node on your current node tree.
-You can think of the X Node Name marking an image texture node that we wish to dynamically load with an image texture.
+You can think of the X Node Name input box marking an image texture node that we wish to dynamically load with an image texture.
 
 #### How do we mark an image texture node you ask? 
 So we make sure what is inside the X Node Name is the same as the image texture node name. e.g. inside the Diffuse Node Name box: "Diffuse Node" 
 so we select an image texture node > press n to open up Properties > Items > Now change the Node Name: to "Diffuse Node". And you're done!
 
-2. The X Suffix input box refers to what is of the texture inside the files. So you'll have to check what textures are in charge of diffuse. e.g. 
-for Dead By Daylight the diffuse textures are named "_BC", "_BC_01", ""_BC_02", "_BC_03" and "_BC_04". So we put each of those in the input box separated by spaces
-like so: "_BC _BC_01 _BC_02 _BC_03 _BC_04"
+2. The X Suffix input box refers to the name of the image textures. So you'll have to check 
+what textures are in charge of diffuse and what suffix they end with in the file name. e.g. 
+for Dead By Daylight the diffuse textures are named "_BC", "_BC_01", ""_BC_02", "_BC_03" and "_BC_04". 
+So we put each different suffix in the Diffuse Suffix input box separated by spaces like so: "_BC _BC_01 _BC_02 _BC_03 _BC_04"
+
+3. It is important that you rename every Node Group you wish to save as a preset, do NOT leave it as the default name NodeGroup,
+please rename it to something relevant like EmissiveMapNodeGroup because by default the option to "Reuse Node Groups with Same Name" is enabled.
+This means if you already had a Node Group named "NodeGroup" in your blender file before importing it, it would reuse the Node Group with the same name.
+Renaming it to something relevant usually prevents reusing the wrong node group.
+
+4. If you wish to make use of the "Delete Unused Image Texture Nodes AND Related Nodes" option which is disabled by default because it slows down
+adding shader maps, change the Node Name: of related nodes to the image texture node to <Node Name><add a number>, for example: "Diffuse Node2", 
+"Diffuse Node3", "Diffuse Node4", ... . Now when an image texture node is deleted it will delete these extra nodes labelled "Diffuse Node2", "Diffuse Node3", ... .
