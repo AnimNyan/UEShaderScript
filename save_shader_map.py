@@ -691,6 +691,16 @@ class SAVEUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
     bl_region_type = 'UI'
     bl_category = "Save UE Shaders"
 
+    #so poll only allows the draw
+    #and execute function to work if
+    #poll function returns True
+    #so in this case only draw a panel
+    #if the current window is the Shader Editor window
+    #NOT the compositor view
+    @classmethod
+    def poll(self, context):
+        return context.area.ui_type == "ShaderNodeTree"
+
     def draw(self, context):
         layout = self.layout
         
@@ -712,7 +722,7 @@ class SAVEUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
         left.prop(preferences, 'folders', expand=False)
         right = row.column()
         right.alignment = "LEFT"
-        right.operator("nodekit.folder_actions", text="", icon="MENU_PANEL")
+        right.operator("ueshaderscript.folder_actions", text="", icon="MENU_PANEL")
 
         selected_folders_presets = get_selected_folder_presets()
         layout.label(text = "Your presets")
@@ -722,26 +732,32 @@ class SAVEUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
         left.template_list("SHADER_PRESETS_UL_items", "", selected_folders_presets,
                                "presets", selected_folders_presets, "preset_index", rows=5)
         col1 = right.row().column(align=True)
-        col1.operator("nodekit.remove_preset",
+        col1.operator("ueshaderscript.remove_preset",
                         text="Remove", icon="REMOVE")
-        col1.operator("nodekit.rename_preset",
+        col1.operator("ueshaderscript.rename_preset",
                           text="Rename", icon="GREASEPENCIL")
-        col1.operator("nodekit.move_preset",
+        col1.operator("ueshaderscript.move_preset",
                         text="Move To...", icon="FILE_FOLDER")
         col2 = right.row().column(align=True)
-        col2.operator("nodekit.move_preset_up",
+        col2.operator("ueshaderscript.move_preset_up",
                         icon='TRIA_UP', text="Move Up")
-        col2.operator("nodekit.move_preset_down",
+        col2.operator("ueshaderscript.move_preset_down",
                         icon='TRIA_DOWN', text="Move Down")
         
-        layout.operator("nodekit.import_append_presets")
-        layout.operator("nodekit.export_presets")
+        layout.operator("ueshaderscript.import_append_presets")
+        layout.operator("ueshaderscript.export_presets")
         layout.operator("ueshaderscript.reset_update_default_presets")
         layout.label(text = "Save a Custom Shader Map")
         
         layout.prop(savetool, "cust_map_name")
         
         layout.prop(savetool, "is_add_img_textures")
+        
+        #formatting
+        #layout.use_property_split means that it will try and display 
+        #the property fully
+        layout.use_property_split = True
+        
         if (savetool.is_add_img_textures == True):
             box = layout.box()
             box.label(text = "Image Texture Suffixes and Node Names")
@@ -800,17 +816,17 @@ class SHADER_MT_FolderActionsMenu(bpy.types.Menu):
         # This fix below operators not working properly
         layout.operator_context = 'INVOKE_DEFAULT'
         row = layout.row()
-        row.operator("nodekit.new_folder", text="Add New Folder", icon="ADD")
+        row.operator("ueshaderscript.new_folder", text="Add New Folder", icon="ADD")
         row = layout.row()
-        row.operator("nodekit.remove_folder",
+        row.operator("ueshaderscript.remove_folder",
                      text="Remove Selected Folder", icon="REMOVE")
         row = layout.row()
-        row.operator("nodekit.rename_folder",
+        row.operator("ueshaderscript.rename_folder",
                      text="Rename Selected Folder", icon="EVENT_R")
 
 
 class Shader_ShowFolderActionsOperator(bpy.types.Operator):
-    bl_idname = "nodekit.folder_actions"
+    bl_idname = "ueshaderscript.folder_actions"
     bl_label = ""
     bl_description = "Show Message for Node Kit"
     bl_options = {'REGISTER'}
@@ -825,7 +841,7 @@ class Shader_ShowFolderActionsOperator(bpy.types.Operator):
 
 
 class Shader_NewFolderOperator(bpy.types.Operator):
-    bl_idname = "nodekit.new_folder"
+    bl_idname = "ueshaderscript.new_folder"
     bl_label = "New Folder"
     bl_description = "New Folder"
     folder_name: bpy.props.StringProperty(name="")
@@ -864,7 +880,7 @@ class Shader_NewFolderOperator(bpy.types.Operator):
 #buttons for changing preset order renaming and moving presets between folders
 
 class RenamePresetOperator(bpy.types.Operator):
-    bl_idname = "nodekit.rename_preset"
+    bl_idname = "ueshaderscript.rename_preset"
     bl_label = "Rename Preset"
     bl_description = "Rename Preset"
     bl_options = {'REGISTER'}
@@ -910,7 +926,7 @@ class RenamePresetOperator(bpy.types.Operator):
 
 
 class MovePresetUpOperator(bpy.types.Operator):
-    bl_idname = "nodekit.move_preset_up"
+    bl_idname = "ueshaderscript.move_preset_up"
     bl_label = "Move Selected Preset Up"
     bl_description = "Move Selected Preset Up"
     bl_options = {'REGISTER'}
@@ -937,7 +953,7 @@ def exchange_preset(a, b):
     selected_folder_presets.presets.move(a, b)
 
 class MovePresetDownOperator(bpy.types.Operator):
-    bl_idname = "nodekit.move_preset_down"
+    bl_idname = "ueshaderscript.move_preset_down"
     bl_label = "Move Selected Preset Down"
     bl_description = "Move Selected Preset Down"
     bl_options = {'REGISTER'}
@@ -969,7 +985,7 @@ def get_folders_items(self, context):
 
 
 class MovePresetOperator(bpy.types.Operator):
-    bl_idname = "nodekit.move_preset"
+    bl_idname = "ueshaderscript.move_preset"
     bl_label = "Move Selected Preset to Folder"
     bl_description = "Move Selected Preset to Folder"
     bl_options = {'REGISTER'}
@@ -1076,7 +1092,7 @@ def suggested_folder_name():
 
 
 class Shader_RemoveFolderOperator(bpy.types.Operator):
-    bl_idname = "nodekit.remove_folder"
+    bl_idname = "ueshaderscript.remove_folder"
     bl_label = "Do you really want to remove selected folder?"
     bl_description = "Remove Folder"
 
@@ -1107,7 +1123,7 @@ def remove_folder(selected_folder_index):
             break
 
 class Shader_RenameFolderOperator(bpy.types.Operator):
-    bl_idname = "nodekit.rename_folder"
+    bl_idname = "ueshaderscript.rename_folder"
     bl_label = "Rename Folder"
     bl_description = "Rename Folder"
     bl_options = {'REGISTER'}
@@ -1182,7 +1198,7 @@ def layout_split(layout, factor=0.0, align=False):
 
 #remove preset button
 class SAVEUESHADERSCRIPT_OT_remove_preset(bpy.types.Operator):
-    bl_idname = "nodekit.remove_preset"
+    bl_idname = "ueshaderscript.remove_preset"
     bl_label = "Do you really want to remove selected preset?"
     bl_description = "Remove Preset"
     bl_options = {'REGISTER'}
@@ -1737,7 +1753,7 @@ def reset_and_update_default_presets():
 
 #--------------------------------------------import and export json files code
 class ImportAndAppendPresetsOperator(bpy.types.Operator):
-    bl_idname = "nodekit.import_append_presets"
+    bl_idname = "ueshaderscript.import_append_presets"
     bl_label = "Import & Append Presets"
     bl_description = "Import & Append Presets"
 
@@ -1832,7 +1848,7 @@ def get_preset_by_name_if_exist_in_folder(folder_name, preset_name):
     return False, None
 
 class ExportPresetsOperator(bpy.types.Operator):
-    bl_idname = "nodekit.export_presets"
+    bl_idname = "ueshaderscript.export_presets"
     bl_label = "Export Presets"
     bl_description = "Export Presets"
 
