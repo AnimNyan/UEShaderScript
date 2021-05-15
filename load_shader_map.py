@@ -71,7 +71,7 @@ class PathProperties(bpy.types.PropertyGroup):
 
     is_load_img_textures: bpy.props.BoolProperty(name="Load Image Textures", default= True)
     is_delete_unused_img_texture_nodes: bpy.props.BoolProperty(name="Delete Unused Image Texture Nodes", default= True)
-    is_delete_unused_related_nodes: bpy.props.BoolProperty(name="Delete Unused Image Texture Nodes AND Related Nodes (Slows down adding shaders)", default= False)
+    is_delete_unused_related_nodes: bpy.props.BoolProperty(name="Delete Unused Image Texture Nodes AND Related Nodes (Slower)", default= False)
 
     is_change_principle_bsdf_emission_strength: bpy.props.BoolProperty(name="Change Principled BSDF Strength if Emissions Texture Loaded", default= True)
     principled_bsdf_emission_strength_float: bpy.props.FloatProperty(name="Principled BSDF Emission Strength if Emissions Texture Loaded", default = 5.0)
@@ -160,11 +160,17 @@ class LOADUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
         #Create a box for all related inputs and operators 
         #for adding the shader maps one by one to
         #selected material
+
+        #formatting
+        #layout.use_property_split means that it will try and display 
+        #the property fully
+        layout.use_property_split = True
+
         box = layout.box()
         
         #--------------draw user input boxes
         #create box for all related boxes adding shader map to selected material
-        box.label(text = "ADD SHADER MAP TO SELECTED MATERIAL (ONE MATERIAL)",)
+        box.label(text = "ADD SHADER MAP TO SELECTED MATERIAL (ONE MATERIAL)")
         box.label(text = "Select a mesh and a material and add a shader map to the selected material")
         if(pathtool.is_load_img_textures):
             box.prop(pathtool, "props_txt_path")
@@ -452,7 +458,7 @@ def load_preset(context, material, abs_props_txt_path, pathtool):
             world = get_active_world()
             node_tree = world.node_tree
         #debug
-        #print("nodes_dict", nodes_dict)
+        print("nodes_dict", nodes_dict)
         nodes = dict_to_nodes(nodes_dict["nodes_list"], node_tree)
         list_to_links(nodes_dict["links_list"], node_tree, nodes)
         if pathtool.is_load_img_textures:
@@ -710,7 +716,8 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
             #identifier
             #tex_location is from the props txt file comparing against 
             #suffix which is what is recorded from the node_dict
-            if tex_location.endswith(suffix):
+            #the suffix also cannot be an accidental empty space
+            if tex_location.endswith(suffix) and suffix != "":
                 #looks like this normally
                 #node_to_load = bpy.context.active_object.active_material.node_tree.nodes["Diffuse Node"]
                 #node_to_load.image = bpy.data.images.load("C:\Seabrook\Dwight Recolor\Game\Characters\Campers\Dwight\Textures\Outfit01\T_DFHair01_BC.tga")
@@ -739,10 +746,11 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
                     not_delete_img_texture_node_name_list.append(node_to_load.name)
                 
                 is_img_loaded = True
+            if suffix == "":
+                warning_message = " ".join(("Warning:", node_name, "has an empty suffix that was ignored, likely from an extra space, please remake this shader map!"))
+                bpy.ops.ueshaderscript.show_message(message = warning_message)
             return is_img_loaded
 
-            
-        
         complete_path = get_complete_path_to_texture_file(pathtool, tex_location)
             
 
