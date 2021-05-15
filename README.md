@@ -7,6 +7,7 @@ First things first, I have a discord server for questions, support and bugs find
 A huge thank you to Aaron Elkins who designed Node Kit, a Blender plugin under the GPL Licence which was several years in the making. 
 UEShaderScript copies a huge amount of code from Node Kit and I want to thank Aaron Elkins for his kindness 
 for giving me permission to release UEShaderscript. Please have a look at his plugin and his work here: https://blendermarket.com/products/node-kit
+I also want to give credit to Roman Noodles, YanimaDBD, Pit Princess and Frutto for designing the presets that come with this plugin.
 
 ## Permissions
 UEShaderScript is under the GPL Licence that means you have permission to use part or the whole of this plugin for free or commercial purposes free of charge.
@@ -30,7 +31,7 @@ Again find me on my discord here: https://discord.gg/rkkWSH2EMz to send me scree
 ## Video Demo and Tutorial for UEShaderScript (Tutorial to be added)
 [![UEShaderScript v1.0.3 demo](https://i.ytimg.com/vi/sGY5rCJW5ZQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=sGY5rCJW5ZQ&lc=UgyelgrzDH2_XMyxoBB4AaABAg "UEShaderScript v1.0.3 demo")
 
-## Installation
+# Installation
 ### To install UEShaderScript:
 1. Download the "UEShaderScript_v.X.X.X.zip" file do NOT unzip it. 
 2. Open Blender and click Edit > Preferences > Add-Ons > Install > in the file explorer find "UEShaderScript_v.X.X.X.zip" and select it.
@@ -42,7 +43,7 @@ Again find me on my discord here: https://discord.gg/rkkWSH2EMz to send me scree
 - Pak files of an Unreal Engine Game you are trying to unpack (for Steam Games select the game in your library > press the cog icon > 
 browse local files > a file explorer should have opened with your game folder > look for a Content Folder with pak files in folders)
 
-## Usage
+# Usage
 ## Using Prerequisite Software to setup for UEShaderScript
 ### Installing Prequisite Software
 1. Download the latest version of [UModel/UE Viewer](https://www.gildor.org/en/projects/umodel#files) for your operating system, 
@@ -119,11 +120,11 @@ what textures are in charge of diffuse and what suffix they end with in the file
 for Dead By Daylight the diffuse textures are named "_BC", "_BC_01", ""_BC_02", "_BC_03" and "_BC_04". 
 So we put each different suffix in the Diffuse Suffix input box separated by spaces like so: "_BC _BC_01 _BC_02 _BC_03 _BC_04"
 
-3. It is important that you rename every Node Group you wish to save as a preset, do NOT leave it as the default name NodeGroup,
-please rename it to something relevant like EmissiveMapNodeGroup because by default the option to "Reuse Node Groups with Same Name" is enabled.
-This means if you already had a Node Group named "NodeGroup" in your blender file before importing it, it would reuse the Node Group with the same name.
+3. It is important that you rename every Node Group you wish to save as a preset, do NOT leave it as the default name "NodeGroup",
+please rename it to something relevant like "EmissiveMapNodeGroup" because by default the option to "Reuse Node Groups with Same Name" is enabled.
+This means if you already had a Node Group named "NodeGroup" in your blender file before importing it, it would reuse the Node Group with the same name "Node Group".
 Renaming it to something relevant usually prevents reusing the wrong node group.
 
 4. If you wish to make use of the "Delete Unused Image Texture Nodes AND Related Nodes" option which is disabled by default because it slows down
-adding shader maps, change the Node Name: of related nodes to the image texture node to <Node Name><add a number>, for example: "Diffuse Node2", 
-"Diffuse Node3", "Diffuse Node4", ... . Now when an image texture node is deleted it will delete these extra nodes labelled "Diffuse Node2", "Diffuse Node3", ... .
+adding shader maps, change the Node Name: of related nodes to the image texture node to "[Node Name][number]">, for example: "Diffuse Node2", 
+"Diffuse Node3", ... . Now when an image texture node is deleted it will delete these extra nodes labelled "Diffuse Node2", "Diffuse Node3", ... .
