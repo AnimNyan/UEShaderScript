@@ -1978,7 +1978,9 @@ def register():
  
  
 def unregister():
-    for cls in classes:
+    #unregister in reverse so classes relying on other classes
+    #will not lead to an error
+    for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
         
         #unregister save_tool as a type
