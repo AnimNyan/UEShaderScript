@@ -263,6 +263,7 @@ class LOADUESHADERSCRIPT_PT_load_shader_map_methods_main_panel_3(LOADUESHADERSCR
             box.operator("loadueshaderscript.add_to_one_material_operator")
 
 
+#---------------------------code for Operators in Main Panel
 
 class LOADUESHADERSCRIPT_OT_add_to_one_material(bpy.types.Operator):
     bl_label = "Add ONE Shader Map to Active Material"
@@ -295,13 +296,13 @@ class LOADUESHADERSCRIPT_OT_add_to_one_material(bpy.types.Operator):
             #if the active_object is not a mesh
             else:
                 warning_message = "Error: Active Object is not a mesh, please select a mesh before pressing Add ONE Shader Map to Active Material"
-                bpy.ops.ueshaderscript.show_messsage(message = warning_message)
+                bpy.ops.ueshaderscript.show_message(message = warning_message)
                 log(warning_message)
 
         #if active_object is None and does not exist
         else:
             warning_message = "Error: No Active Object, please select a mesh before pressing Add ONE Shader Map to Active Material"
-            bpy.ops.ueshaderscript.show_messsage(message = warning_message)
+            bpy.ops.ueshaderscript.show_message(message = warning_message)
             log(warning_message)
         
         
@@ -377,19 +378,29 @@ def create_multiple_materials_shader_maps(context, pathtool):
                 materials_indices_to_add_list = material_indices_list_string.split(" ")
 
                 #debug
-                print("materials_indices_to_add_list:", materials_indices_to_add_list)
-            
+                #print("materials_indices_to_add_list:", materials_indices_to_add_list)
+
                 #create a shader map for each material in the materials list
                 #in a loop
                 #enumerate creates an index to come along with the each material
-                for material, index in enumerate(active_object_materials_list):
-                    
+                for index, material in enumerate(active_object_materials_list):
+                    #debug
+                    #print("enumerate(active_object_materials_list)", enumerate(active_object_materials_list))
+                    #print("index:", index)
+                    #print("material", material)
+
                     #check if the material is one of the materials
                     #specified by the user to add a shader map to
                     #otherwise ignore it
                     #convert index to string because the indices list is
                     #made up of strings so compare strings to strings
-                    if str(index) in materials_indices_to_add_list:
+                    string_index = str(index)
+                    if string_index in materials_indices_to_add_list:
+                        #if the string of the index has been found
+                        #we will remove it from the list so we have less items
+                        #to search through
+                        materials_indices_to_add_list.remove(string_index)
+
                         #make sure to use nodes before anything else
                         #this is because if you don't have use nodes
                         #enabled, the material and material.name will not work properly
@@ -399,24 +410,34 @@ def create_multiple_materials_shader_maps(context, pathtool):
                         else:
                             props_txt_path = "Not/Applicable"
                             create_one_shader_map(context, material, props_txt_path, pathtool)
-        
+
+                #remaining material slots/indexes
+                #after all the found items have been 
+                #deleted from the materials_indices_to_add_list
+                #are the material slots/indexes that have not been found
+                #show warning message for material indexes not found
+                for not_found_material_index in materials_indices_to_add_list:
+                    warning_message = " ".join(("Warning: The", not_found_material_index, "material slot was not found, please note that indexes start from 0."))
+                    bpy.ops.ueshaderscript.show_message(message = warning_message)
+                    log(warning_message)
+            
             #if the active object type is not a mesh
             else:
                 warning_message = "Error: Active Object is not a mesh, please select a mesh before pressing Add Shader Maps to Multiple Materials"
-                bpy.ops.ueshaderscript.show_messsage(message = warning_message)
+                bpy.ops.ueshaderscript.show_message(message = warning_message)
                 log(warning_message)
         
         #if the material_indices_list_string is empty
         else:
             warning_message = "Error: Material Indices List is empty, please enter integers separated by one space before pressing Add Shader Maps to Multiple Materials"
-            bpy.ops.ueshaderscript.show_messsage(message = warning_message)
+            bpy.ops.ueshaderscript.show_message(message = warning_message)
             log(warning_message)
             
     
     #if the active object does not exist
     else:
         warning_message = "Error: No Active Object, please select a mesh before pressing Add Shader Maps to Multiple Materials"
-        bpy.ops.ueshaderscript.show_messsage(message = warning_message)
+        bpy.ops.ueshaderscript.show_message(message = warning_message)
         log(warning_message)
             
     return {"FINISHED"}
@@ -549,8 +570,8 @@ def find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool
         #show an error message and ignore the material
         #do not create a shader map for it
         if props_txt_path == "":
-            warning_message = " ".join(("Warning: the props.txt file for object", selected_obj.name, "material", material.name, 
-                        "was not found in the Game Folder so the material was ignored!"))
+            warning_message = "".join(("Warning: the props.txt file for object \"", selected_obj.name, "\" material \"", material.name, 
+                        "\" was not found in the Game Folder so the material was ignored!"))
             bpy.ops.ueshaderscript.show_message(message = warning_message)
             log(warning_message)
             is_props_txt_exist_for_material = False
@@ -670,7 +691,7 @@ def load_preset(context, material, abs_props_txt_path, pathtool):
             world = get_active_world()
             node_tree = world.node_tree
         #debug
-        print("nodes_dict", nodes_dict)
+        #print("nodes_dict", nodes_dict)
         nodes = dict_to_nodes(nodes_dict["nodes_list"], node_tree)
         list_to_links(nodes_dict["links_list"], node_tree, nodes)
         if pathtool.is_load_img_textures:
@@ -1166,8 +1187,8 @@ def load_image_texture(node_to_load, complete_path_to_image, pathtool):
 
 def delete_unused_img_texture_nodes_and_related_nodes(not_delete_img_texture_node_name_list, interested_node_name_list, pathtool, node_tree):
     #debug
-    print("not_delete_img_texture_node_name_list:", not_delete_img_texture_node_name_list)
-    print("interested_node_name_list:", interested_node_name_list)
+    #print("not_delete_img_texture_node_name_list:", not_delete_img_texture_node_name_list)
+    #print("interested_node_name_list:", interested_node_name_list)
 
     #only start deleting nodes after all textures have been
     #loaded for one shader map
