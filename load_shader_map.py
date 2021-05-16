@@ -93,6 +93,10 @@ class PathProperties(bpy.types.PropertyGroup):
     #for roman noodles shader maps
     is_add_skin_map: bpy.props.BoolProperty(name="Add Height Map Skin Texture (True for Roman Noodles Skin)", default = False)
 
+    #advanced settings
+    regex_pattern_in_props_txt_file:  bpy.props.StringProperty(name="Regex Pattern in props.txt (material) files:", 
+                description="Regex pattern used in files that describe materials ", default = "Texture2D\'(.*)\.")
+
 
 
 #------------code for drawing main panel in the 3D View
@@ -106,9 +110,9 @@ class LOADUESHADERSCRIPT_shared_main_panel:
 
 #main panel part 1
 #inheriting the shared panel's bl_space_type, bl_region_type and bl_category
-class LOADUESHADERSCRIPT_PT_select_preset_in_folder_main_panel_1(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
+class LOADUESHADERSCRIPT_PT_select_preset_main_panel_1(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
     bl_label = "Select Preset in Folder"
-    bl_idname = "LOADUESHADERSCRIPT_PT_select_preset_in_folder_main_panel_1"
+    bl_idname = "LOADUESHADERSCRIPT_PT_select_preset_main_panel_1"
 
     def draw(self, context):
         layout = self.layout
@@ -140,9 +144,9 @@ class LOADUESHADERSCRIPT_PT_select_preset_in_folder_main_panel_1(LOADUESHADERSCR
 
 #main panel part 2
 #inheriting the shared panel's bl_space_type, bl_region_type and bl_category
-class LOADUESHADERSCRIPT_PT_load_shader_map_settings_main_panel_2(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
+class LOADUESHADERSCRIPT_PT_load_settings_main_panel_2(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
     bl_label = "Load Shader Map Settings"
-    bl_idname = "LOADUESHADERSCRIPT_PT_sub_load_shader_map_settings_main_panel_2"
+    bl_idname = "LOADUESHADERSCRIPT_PT_load_settings_main_panel_2"
 
     def draw(self, context):
         layout = self.layout
@@ -188,11 +192,27 @@ class LOADUESHADERSCRIPT_PT_load_shader_map_settings_main_panel_2(LOADUESHADERSC
 
         layout.operator("loadueshaderscript.reset_settings_main_panel_operator")
 
+#main panel part 2 sub panel
+#inheriting the shared panel's bl_space_type, bl_region_type and bl_category
+class LOADUESHADERSCRIPT_PT_load_advanced_settings_main_panel_2_sub_1(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
+    bl_label = "Advanced Settings"
+    bl_parent_id = "LOADUESHADERSCRIPT_PT_load_settings_main_panel_2"
+
+    def draw(self, context):
+        layout = self.layout
+
+        scene = context.scene
+        #allow access to user inputted properties through pointer
+        #to properties
+        pathtool = scene.path_tool
+        layout.label(text = "Please only change these settings if you know what you are doing")
+
+
 #main panel part 3
 #inheriting the shared panel's bl_space_type, bl_region_type and bl_category
-class LOADUESHADERSCRIPT_PT_load_shader_map_methods_main_panel_3(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
+class LOADUESHADERSCRIPT_PT_load_methods_main_panel_3(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
     bl_label = "Load Shader Map Methods"
-    bl_idname = "LOADUESHADERSCRIPT_PT_main_panel_1"
+    bl_idname = "LOADUESHADERSCRIPT_PT_load_methods_main_panel_3"
 
     def draw(self, context):
         layout = self.layout
@@ -1027,7 +1047,8 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
         #find all matches through regex to the string Texture2D' with capture group 
         #any character zero to unlimited times and ending with '
         #also store capture groups into a list variable
-        match_list = re.findall("Texture2D\'(.*)\.", data)
+        #match_list = re.findall("Texture2D\'(.*)\.", data)
+        match_list = re.findall(pathtool.regex_pattern_in_props_txt_file, data)
 
     #---------------------add image texture nodes 
     
@@ -1797,9 +1818,9 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
 #something that is not a panel or bpy class will result in an error
 classes = [PathProperties, 
 
-LOADUESHADERSCRIPT_PT_select_preset_in_folder_main_panel_1,
-LOADUESHADERSCRIPT_PT_load_shader_map_settings_main_panel_2,
-LOADUESHADERSCRIPT_PT_load_shader_map_methods_main_panel_3,
+LOADUESHADERSCRIPT_PT_select_preset_main_panel_1,
+LOADUESHADERSCRIPT_PT_load_settings_main_panel_2, LOADUESHADERSCRIPT_PT_load_advanced_settings_main_panel_2_sub_1,
+LOADUESHADERSCRIPT_PT_load_methods_main_panel_3,
 
 LOADUESHADERSCRIPT_OT_add_to_one_material, LOADUESHADERSCRIPT_OT_add_to_multiple_materials, 
 LOADUESHADERSCRIPT_OT_add_to_selected_meshes, LOADUESHADERSCRIPT_OT_reset_settings_main_panel]
@@ -1808,18 +1829,18 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
         
-        #register path_tool as a type which has all
-        #the user input properties from the properties class 
-        bpy.types.Scene.path_tool = bpy.props.PointerProperty(type = PathProperties)
+    #register path_tool as a type which has all
+    #the user input properties from the properties class 
+    bpy.types.Scene.path_tool = bpy.props.PointerProperty(type = PathProperties)
  
 def unregister():
-    #unregister in reverse so classes relying on other classes
+    #unregister in reverse order to registered so classes relying on other classes
     #will not lead to an error
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
         
-        #unregister path_tool as a type
-        del bpy.types.Scene.path_tool
+    #unregister path_tool as a type
+    del bpy.types.Scene.path_tool
  
  
 if __name__ == "__main__":
