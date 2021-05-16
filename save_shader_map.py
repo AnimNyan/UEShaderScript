@@ -1972,19 +1972,19 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
         
-        #register save_tool as a type which has all
-        #the user input properties from the properties class 
-        bpy.types.Scene.save_tool = bpy.props.PointerProperty(type = SaveProperties)
+    #register save_tool as a type which has all
+    #the user input properties from the properties class 
+    bpy.types.Scene.save_tool = bpy.props.PointerProperty(type = SaveProperties)
  
  
 def unregister():
-    #unregister in reverse so classes relying on other classes
+    #unregister in reverse order to registered so classes relying on other classes
     #will not lead to an error
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
         
-        #unregister save_tool as a type
-        del bpy.types.Scene.save_tool
+    #unregister save_tool as a type
+    del bpy.types.Scene.save_tool
  
  
 if __name__ == "__main__":
