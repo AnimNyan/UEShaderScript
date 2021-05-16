@@ -122,9 +122,11 @@ So we put each different suffix in the Diffuse Suffix input box separated by spa
 
 3. It is important that you rename every Node Group you wish to save as a preset, do NOT leave it as the default name "NodeGroup",
 please rename it to something relevant like "EmissiveMapNodeGroup" because by default the option to "Reuse Node Groups with Same Name" is enabled.
-This means if you already had a Node Group named "NodeGroup" in your blender file before importing it, it would reuse the Node Group with the same name "Node Group".
-Renaming it to something relevant usually prevents reusing the wrong node group.
+This means if you already had a Node Group named "NodeGroup" in your blender file before loading a shader map, the loaded shader map would 
+reuse the Node Group with the same name "Node Group". Renaming it to something relevant like "EmissiveMapNodeGroup" before Saving a shader map preset
+usually prevents reusing the wrong node group.
 
 4. If you wish to make use of the "Delete Unused Image Texture Nodes AND Related Nodes" option which is disabled by default because it slows down
 adding shader maps, change the Node Name: of related nodes to the image texture node to "[Node Name][number]">, for example: "Diffuse Node2", 
-"Diffuse Node3", ... . Now when an image texture node is deleted it will delete these extra nodes labelled "Diffuse Node2", "Diffuse Node3", ... .
+"Diffuse Node3", ... . Now when an image texture node is deleted because it is unused and "Delete Unused Image Texture Nodes AND Related Nodes" 
+is enabled it will delete these extra nodes labelled "Diffuse Node2", "Diffuse Node3", ... .
