@@ -28,7 +28,7 @@ bl_info = {
     "author": "Anime Nyan",
     "version": (1, 0, 6),
     "blender": (2, 92, 0),
-    "location": "3D View > Properties > UE Shaders + Shader Editor > Properties > Save UE Shaders",
+    "location": "3D View > Properties > Load UE Shaders + Shader Editor > Properties > Save UE Shaders",
     "description": "Adds the ability to save and load shader maps for 3d Meshes exported from Unreal Engine games and adds default preset shader maps for your convenience ",
     "warning": "",
     "wiki_url": "https://github.com/AnimNyan/UEShaderScript/wiki",
