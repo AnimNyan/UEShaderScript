@@ -192,11 +192,13 @@ class LOADUESHADERSCRIPT_PT_load_settings_main_panel_2(LOADUESHADERSCRIPT_shared
 
         layout.operator("loadueshaderscript.reset_settings_main_panel_operator")
 
+
 #main panel part 2 sub panel
 #inheriting the shared panel's bl_space_type, bl_region_type and bl_category
 class LOADUESHADERSCRIPT_PT_load_advanced_settings_main_panel_2_sub_1(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
     bl_label = "Advanced Settings"
     bl_parent_id = "LOADUESHADERSCRIPT_PT_load_settings_main_panel_2"
+    bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
         layout = self.layout
@@ -205,7 +207,15 @@ class LOADUESHADERSCRIPT_PT_load_advanced_settings_main_panel_2_sub_1(LOADUESHAD
         #allow access to user inputted properties through pointer
         #to properties
         pathtool = scene.path_tool
+
+        #formatting
+        #layout.use_property_split means that it will try and display 
+        #the property fully
+        layout.use_property_split = True
+
         layout.label(text = "Please only change these settings if you know what you are doing")
+        layout.prop(pathtool, "regex_pattern_in_props_txt_file")
+
 
 
 #main panel part 3
@@ -289,14 +299,14 @@ class LOADUESHADERSCRIPT_OT_add_to_one_material(bpy.types.Operator):
     bl_label = "Add ONE Shader Map to Active Material"
     bl_idname = "loadueshaderscript.add_to_one_material_operator"
     def execute(self, context):
+        #time how long it takes to create all shader maps for all materials
+        #set start time
+        time_start = time.time()
+
         scene = context.scene 
         #allow access to user inputted properties through pointer
         #to properties
         pathtool = scene.path_tool
-        
-        #find the selected material and 
-        #create a basic shader on it
-        selected_mat = bpy.context.active_object.active_material
 
         #returns the active object, which means the last selected object
         #even if it is not selected at the current moment
@@ -310,8 +320,12 @@ class LOADUESHADERSCRIPT_OT_add_to_one_material(bpy.types.Operator):
                 mesh = active_object.data
                 for f in mesh.polygons:
                     f.use_smooth = True
+
+                #find the selected material and 
+                #create a basic shader on it
+                selected_mat = bpy.context.active_object.active_material
                 
-                create_one_shader_map(context, selected_mat, pathtool.props_txt_path, pathtool)
+                create_one_shader_map(selected_mat, pathtool.props_txt_path, pathtool)
             
             #if the active_object is not a mesh
             else:
@@ -325,6 +339,8 @@ class LOADUESHADERSCRIPT_OT_add_to_one_material(bpy.types.Operator):
             bpy.ops.ueshaderscript.show_message(message = warning_message)
             log(warning_message)
         
+        #don't use log so can use new line characterws
+        print("\n\n\n[UE Shader Script]: Finished create_one_shader_map in: %.4f sec" % (time.time() - time_start))
         
         return {"FINISHED"}
 
@@ -345,7 +361,7 @@ class LOADUESHADERSCRIPT_OT_add_to_multiple_materials(bpy.types.Operator):
         
         create_multiple_materials_shader_maps(context, pathtool)
         #don't use log so can use new line characterws
-        print("\n\n\n [UE Shader Script]: Finished create_multiple_materials_shader_maps in: %.4f sec" % (time.time() - time_start))
+        print("\n\n\n[UE Shader Script]: Finished create_multiple_materials_shader_maps in: %.4f sec" % (time.time() - time_start))
     
         return {"FINISHED"}
 
@@ -429,7 +445,7 @@ def create_multiple_materials_shader_maps(context, pathtool):
                             find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, active_object, context)
                         else:
                             props_txt_path = "Not/Applicable"
-                            create_one_shader_map(context, material, props_txt_path, pathtool)
+                            create_one_shader_map(material, props_txt_path, pathtool)
 
                 #remaining material slots/indexes
                 #after all the found items have been 
@@ -479,7 +495,7 @@ class LOADUESHADERSCRIPT_OT_add_to_selected_meshes(bpy.types.Operator):
         
         create_selected_meshes_shader_maps(context, pathtool)
         #don't use log so can use new line characterws
-        print("\n\n\n [UE Shader Script]: Finished create_selected_meshes_shader_maps in: %.4f sec" % (time.time() - time_start))
+        print("\n\n\n[UE Shader Script]: Finished create_selected_meshes_shader_maps in: %.4f sec" % (time.time() - time_start))
     
         return {"FINISHED"}
 
@@ -508,13 +524,16 @@ def create_selected_meshes_shader_maps(context, pathtool):
     #warning message if user has selected no meshes or objects
     if selected_objects_list == []:
         warning_message = "Warning: No meshes selected, please select one or more meshes before pressing Add Shader Maps to ALL Selected Meshes"
-        bpy.ueshaderscript.show_message(message = warning_message)
+        bpy.ops.ueshaderscript.show_message(message = warning_message)
         log(warning_message)
     
     #go through each selected object
     #and in every selected object
     #go through all of the selected object's materials
     for selected_obj in selected_objects_list: 
+        #debug
+        print("selected_obj.name", selected_obj.name)
+        print("selected_obj.type", selected_obj.type)
 
         #ignore any selected objects that are not meshes
         #because we can't shader maps to non-meshes
@@ -543,8 +562,12 @@ def create_selected_meshes_shader_maps(context, pathtool):
                     find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, selected_obj, context)
                 else:
                     props_txt_path = "Not/Applicable"
-                    create_one_shader_map(context, material, props_txt_path, pathtool)
-
+                    create_one_shader_map(material, props_txt_path, pathtool)
+        
+        #if it is not a mesh do not show a warning as if the user
+        #has a lot of non mesh objects this would issue many warnings
+        #which might be very annoying
+        #instead just ignore these non mesh objects
             
     return {"FINISHED"}
 
@@ -602,7 +625,7 @@ def find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool
     #props_txt_path = abs_mat_folder_path + material.name + ".props.txt"
 
     if (is_props_txt_exist_for_material):
-        create_one_shader_map(context, material, props_txt_path, pathtool)
+        create_one_shader_map(material, props_txt_path, pathtool)
 
 
 def get_value_in_gen_obj(gen_obj_match):
@@ -627,7 +650,7 @@ def get_value_in_gen_obj(gen_obj_match):
     return props_txt_path
 
 
-def create_one_shader_map(context, material, props_txt_path, pathtool):
+def create_one_shader_map(material, props_txt_path, pathtool):
 
     #only needed if the user selects to load image textures
     if(pathtool.is_load_img_textures):
@@ -650,7 +673,7 @@ def create_one_shader_map(context, material, props_txt_path, pathtool):
         clear_nodes(tree)
         clear_links(tree)
     
-    load_preset(context, material, abs_props_txt_path, pathtool)
+    load_preset(material, abs_props_txt_path, pathtool)
 
 
 def clear_nodes(tree):
@@ -663,8 +686,8 @@ def clear_links(tree):
     links.clear()
 
 
-def load_preset(context, material, abs_props_txt_path, pathtool):
-    area = context.area
+def load_preset(material, abs_props_txt_path, pathtool):
+    #area = context.area
     #editor_type = area.ui_type
   
     JSON = get_json_from_selected_preset()
@@ -680,24 +703,24 @@ def load_preset(context, material, abs_props_txt_path, pathtool):
     #         message="Selected preset can not be restored to this node editor.")
     #     return {'FINISHED'}
     if nodes_dict["editor_type"] == SHADER_EDITOR:
-        if (bpy.context.object is not None and bpy.context.object.type != "MESH" and bpy.context.object.type != "LIGHT") or bpy.context.object is None:
-            bpy.ops.ueshaderscript.show_message(
-                message = "Selected object canot be restored, please choose a Mesh or a Lamp to restore.")
-            return {'FINISHED'}
+        # if (bpy.context.object is not None and bpy.context.object.type != "MESH" and bpy.context.object.type != "LIGHT") or bpy.context.object is None:
+        #     bpy.ops.ueshaderscript.show_message(
+        #         message = "Selected object cannot be restored, please choose a Mesh to load a shader map to.")
+        #     return {'FINISHED'}
         # if "shader_type" in nodes_dict:
         #     shader_type_value = nodes_dict["shader_type"]
         #     area.spaces[0].shader_type = shader_type_value
         # Branch for shader type: Object or World
         # shader_type = area.spaces[0].shader_type
         shader_type = nodes_dict["shader_type"]
-        if bpy.context.object.type == "LIGHT" and shader_type == "OBJECT":
-            light = bpy.data.lights[bpy.context.object.name]
-            light.use_nodes = True
-            node_tree = light.node_tree
-        elif bpy.context.object.type == "LIGHT" and shader_type == "WORLD":
-            world = get_active_world()
-            node_tree = world.node_tree
-        elif shader_type == "OBJECT":
+        # if bpy.context.object.type == "LIGHT" and shader_type == "OBJECT":
+        #     light = bpy.data.lights[bpy.context.object.name]
+        #     light.use_nodes = True
+        #     node_tree = light.node_tree
+        # elif bpy.context.object.type == "LIGHT" and shader_type == "WORLD":
+        #     world = get_active_world()
+        #     node_tree = world.node_tree
+        if shader_type == "OBJECT":
             if bpy.context.object is None:
                 bpy.ops.ueshaderscript.show_message(
                     message = "Please choose an object in View 3D to restore.")
