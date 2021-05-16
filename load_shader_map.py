@@ -37,11 +37,20 @@ NOT_TO_HANDLE_ATTRS_NODES = [
 
 #define all user input properties
 class PathProperties(bpy.types.PropertyGroup):
-    props_txt_path: bpy.props.StringProperty(name="Select PropsTxt File*", description="Select a props.txt file", subtype="FILE_PATH")
+    #user input paths for textures and materials
+    props_txt_path: bpy.props.StringProperty(name="(!) Select PropsTxt File*", description="Select a props.txt file", subtype="FILE_PATH")
     skin_map_path: bpy.props.StringProperty(name="Select Skin Map File (Roman Noodles Skin Only)", description="Select a skin map image file", subtype="FILE_PATH")
     material_folder_path: bpy.props.StringProperty(name="Select Materials Folder", description="Select a Materials folder", subtype="DIR_PATH")
-    export_folder_path: bpy.props.StringProperty(name="Select Exported Game Folder*", description="Select a Game folder", subtype="DIR_PATH")
-    is_replace_nodes: bpy.props.BoolProperty(name="Replace Existing Shader Maps", default= True)
+    export_folder_path: bpy.props.StringProperty(name="(!) Select Exported Game Folder*", description="Select a Game folder", subtype="DIR_PATH")
+
+    #used to show the button and box to add a shader map to one material at a time
+    is_show_add_one_material_operator: bpy.props.BoolProperty(name="Show Add Shader Map to One Material Operator", default = False)
+
+    #used for the add shader maps to multiple materials operator
+    material_indices_list_string: bpy.props.StringProperty(name="(!) Indexes of Material Slots to be Loaded *", description="Enter the indices for the materials to be loaded", default = "0 1 2")
+
+    #--------------loading shader map settings
+    is_replace_nodes: bpy.props.BoolProperty(name="Replace Existing Shader Maps", default = True)
    
 
     texture_file_type_enum: bpy.props.EnumProperty(
@@ -65,43 +74,48 @@ class PathProperties(bpy.types.PropertyGroup):
         
     )
 
-    is_normal_non_colour: bpy.props.BoolProperty(name="Normal Map Textures Non Colour", default= True)
-    is_m_non_colour: bpy.props.BoolProperty(name="Transparency Map Textures Non Colour", default= True)
-    is_orm_non_colour: bpy.props.BoolProperty(name="Packed ARM Textures Non Colour (True for Roman Noodles)", default= False)
+    is_normal_non_colour: bpy.props.BoolProperty(name="Normal Map Textures Non Colour", default = True)
+    is_m_non_colour: bpy.props.BoolProperty(name="Transparency Map Textures Non Colour", default = True)
+    is_orm_non_colour: bpy.props.BoolProperty(name="Packed ARM Textures Non Colour (True for Roman Noodles)", default = False)
 
     is_load_img_textures: bpy.props.BoolProperty(name="Load Image Textures", default= True)
-    is_delete_unused_img_texture_nodes: bpy.props.BoolProperty(name="Delete Unused Image Texture Nodes", default= True)
-    is_delete_unused_related_nodes: bpy.props.BoolProperty(name="Delete Unused Image Texture Nodes AND Related Nodes (Slower)", default= False)
+    is_delete_unused_img_texture_nodes: bpy.props.BoolProperty(name="Delete Unused Image Texture Nodes", default = True)
+    is_delete_unused_related_nodes: bpy.props.BoolProperty(name="Delete Unused Image Texture Nodes AND Related Nodes (Slower)", default = False)
 
-    is_change_principle_bsdf_emission_strength: bpy.props.BoolProperty(name="Change Principled BSDF Strength if Emissions Texture Loaded", default= True)
+    is_change_principle_bsdf_emission_strength: bpy.props.BoolProperty(name="Change Principled BSDF Strength if Emissions Texture Loaded", default = True)
     principled_bsdf_emission_strength_float: bpy.props.FloatProperty(name="Principled BSDF Emission Strength if Emissions Texture Loaded", default = 5.0)
     material_alpha_threshold: bpy.props.FloatProperty(name="Material Clip Threshold if Transparency Texture Loaded", default = 0.0)
 
     #options to allow reuse of node groups and image textures
-    is_reuse_node_group_with_same_name: bpy.props.BoolProperty(name="Reuse Node Groups With Same Name", default= True)
-    is_reuse_img_texture_with_same_name: bpy.props.BoolProperty(name="Reuse Image Textures With Same Name", default= True)
+    is_reuse_node_group_with_same_name: bpy.props.BoolProperty(name="Reuse Node Groups With Same Name", default = True)
+    is_reuse_img_texture_with_same_name: bpy.props.BoolProperty(name="Reuse Image Textures With Same Name", default = True)
     
     #for roman noodles shader maps
-    is_add_skin_map: bpy.props.BoolProperty(name="Add Height Map Skin Texture (True for Roman Noodles Skin)", default= False)
+    is_add_skin_map: bpy.props.BoolProperty(name="Add Height Map Skin Texture (True for Roman Noodles Skin)", default = False)
 
 
-#code for drawing main panel in the 3D View
-class LOADUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
-    bl_label = "Load UE Shaders"
-    bl_idname = "LOADUESHADERSCRIPT_PT_main_panel"
+
+#------------code for drawing main panel in the 3D View
+class LOADUESHADERSCRIPT_shared_main_panel:
+    # bl_label = "Load UE Shaders"
+    # bl_idname = "LOADUESHADERSCRIPT_PT_main_panel"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = "UE Shaders"
-    
+    bl_category = "Load UE Shaders"
+
+
+#main panel part 1
+#inheriting the shared panel's bl_space_type, bl_region_type and bl_category
+class LOADUESHADERSCRIPT_PT_select_preset_in_folder_main_panel_1(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
+    bl_label = "Select Preset in Folder"
+    bl_idname = "LOADUESHADERSCRIPT_PT_select_preset_in_folder_main_panel_1"
+
     def draw(self, context):
         layout = self.layout
         
         #store active/selected scene to variable
         scene = context.scene
-        #allow access to user inputted properties through pointer
-        #to properties
-        pathtool = scene.path_tool
-
+        
         #set isOverridePackage to override __package__ variable as it does
         #not work for imported functions
         isOverridePackage = True
@@ -121,8 +135,25 @@ class LOADUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
 
         #create the list of current presets
         layout.template_list("SHADER_PRESETS_UL_items", "", selected_folders_presets,
-                               "presets", selected_folders_presets, "preset_index", rows=5)
+                                "presets", selected_folders_presets, "preset_index", rows=5)
 
+
+#main panel part 2
+#inheriting the shared panel's bl_space_type, bl_region_type and bl_category
+class LOADUESHADERSCRIPT_PT_load_shader_map_settings_main_panel_2(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
+    bl_label = "Load Shader Map Settings"
+    bl_idname = "LOADUESHADERSCRIPT_PT_sub_load_shader_map_settings_main_panel_2"
+
+    def draw(self, context):
+        layout = self.layout
+        
+        #store active/selected scene to variable
+        scene = context.scene
+        #allow access to user inputted properties through pointer
+        #to properties
+        pathtool = scene.path_tool
+
+        #--------make load shader map settings section
         layout.prop(pathtool, "is_load_img_textures")
 
         #option to replace or keep existing nodes in materials
@@ -156,28 +187,43 @@ class LOADUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
             layout.prop(pathtool, "is_add_skin_map")
 
         layout.operator("loadueshaderscript.reset_settings_main_panel_operator")
-        
-        #Create a box for all related inputs and operators 
-        #for adding the shader maps one by one to
-        #selected material
 
+#main panel part 3
+#inheriting the shared panel's bl_space_type, bl_region_type and bl_category
+class LOADUESHADERSCRIPT_PT_load_shader_map_methods_main_panel_3(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
+    bl_label = "Load Shader Map Methods"
+    bl_idname = "LOADUESHADERSCRIPT_PT_main_panel_1"
+
+    def draw(self, context):
+        layout = self.layout
+        
+        #store active/selected scene to variable
+        scene = context.scene
+        #allow access to user inputted properties through pointer
+        #to properties
+        pathtool = scene.path_tool
+
+        #--------------draw load shader map methods
         #formatting
         #layout.use_property_split means that it will try and display 
         #the property fully
         layout.use_property_split = True
 
-        box = layout.box()
         
-        #--------------draw user input boxes
-        #create box for all related boxes adding shader map to selected material
-        box.label(text = "ADD SHADER MAP TO SELECTED MATERIAL (ONE MATERIAL)")
-        box.label(text = "Select a mesh and a material and add a shader map to the selected material")
+        #create box for all related inputs adding shader map to multiple material
+        box = layout.box()
+        box.label(text = "ADD SHADER MAP TO MULTIPLE MATERIALS (MULTIPLE MATERIALS)")
+        box.label(text = "Select a mesh, enter material indexes separated by a space and add shader maps to multiple materials")
+        
         if(pathtool.is_load_img_textures):
-            box.prop(pathtool, "props_txt_path")
+            box.prop(pathtool, "material_folder_path")
+            box.prop(pathtool, "material_indices_list_string")
             box.prop(pathtool, "export_folder_path")
             if(pathtool.is_add_skin_map):
                 box.prop(pathtool, "skin_map_path")
-        box.operator("loadueshaderscript.addbasic_operator")
+        else:
+            box.prop(pathtool, "material_indices_list_string")
+        box.operator("loadueshaderscript.add_to_multiple_materials_operator")
                 
         #Create a box for adding shader maps to all materials
         #to the selected mesh with all
@@ -190,14 +236,37 @@ class LOADUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
             box.prop(pathtool, "export_folder_path")
             if(pathtool.is_add_skin_map):
                 box.prop(pathtool, "skin_map_path")
-        box.operator("loadueshaderscript.addbasicall_operator" )
-        
-        
+        box.operator("loadueshaderscript.add_to_selected_meshes_operator" )
+
+        layout.use_property_split = False
+
+        #create box for all related input adding shader map to one selected material
+        #should hide by default, but show if is_show_add_one_material_operator is checked
+        #use this because some props.txt files do not have the same name as their materials
+        layout.prop(pathtool, "is_show_add_one_material_operator")
+
+        #formatting
+        #layout.use_property_split means that it will try and display 
+        #the property fully
+        layout.use_property_split = True
+
+        if (pathtool.is_show_add_one_material_operator):
+            box = layout.box()
+            box.label(text = "ADD SHADER MAP TO SELECTED MATERIAL (ONE MATERIAL)")
+            box.label(text = "Select a mesh and a material and add a shader map to the selected material")
+            box.label(text = "Used for Materials which have different names to their props.txt files")
+            if(pathtool.is_load_img_textures):
+                box.prop(pathtool, "props_txt_path")
+                box.prop(pathtool, "export_folder_path")
+                if(pathtool.is_add_skin_map):
+                    box.prop(pathtool, "skin_map_path")
+            box.operator("loadueshaderscript.add_to_one_material_operator")
 
 
-class LOADUESHADERSCRIPT_OT_add_basic(bpy.types.Operator):
-    bl_label = "Add ONE Shader Map"
-    bl_idname = "loadueshaderscript.addbasic_operator"
+
+class LOADUESHADERSCRIPT_OT_add_to_one_material(bpy.types.Operator):
+    bl_label = "Add ONE Shader Map to Active Material"
+    bl_idname = "loadueshaderscript.add_to_one_material_operator"
     def execute(self, context):
         scene = context.scene 
         #allow access to user inputted properties through pointer
@@ -208,25 +277,41 @@ class LOADUESHADERSCRIPT_OT_add_basic(bpy.types.Operator):
         #create a basic shader on it
         selected_mat = bpy.context.active_object.active_material
 
-        #this makes a list of all selected objects (can be multiple)
-        active_obj = bpy.context.active_object
+        #returns the active object, which means the last selected object
+        #even if it is not selected at the current moment
+        active_object = bpy.context.active_object
+        if active_object != None:
+            if active_object.type == "MESH":
+                #shade smooth on the active object
+                #may already be shaded smooth if coming from the 
+                #create_all_shader_maps
+                #but this is just in case the user only runs create_one_shader_map
+                mesh = active_object.data
+                for f in mesh.polygons:
+                    f.use_smooth = True
+                
+                create_one_shader_map(context, selected_mat, pathtool.props_txt_path, pathtool)
+            
+            #if the active_object is not a mesh
+            else:
+                warning_message = "Error: Active Object is not a mesh, please select a mesh before pressing Add ONE Shader Map to Active Material"
+                bpy.ops.ueshaderscript.show_messsage(message = warning_message)
+                log(warning_message)
+
+        #if active_object is None and does not exist
+        else:
+            warning_message = "Error: No Active Object, please select a mesh before pressing Add ONE Shader Map to Active Material"
+            bpy.ops.ueshaderscript.show_messsage(message = warning_message)
+            log(warning_message)
         
-        #shade smooth on the active object
-        #may already be shaded smooth if coming from the 
-        #create_all_shader_maps
-        #but this is just in case the user only runs create_one_shader_map
-        mesh = active_obj.data
-        for f in mesh.polygons:
-            f.use_smooth = True
-        
-        create_one_shader_map(context, selected_mat, pathtool.props_txt_path, pathtool)
         
         return {"FINISHED"}
 
 
-class LOADUESHADERSCRIPT_OT_add_basic_all(bpy.types.Operator):
-    bl_label = "Add ALL Shader Maps"
-    bl_idname = "loadueshaderscript.addbasicall_operator"
+
+class LOADUESHADERSCRIPT_OT_add_to_multiple_materials(bpy.types.Operator):
+    bl_label = "Add Shader Maps to Multiple Materials"
+    bl_idname = "loadueshaderscript.add_to_multiple_materials_operator"
     def execute(self, context):
         #time how long it takes to create all shader maps for all materials
         #set start time
@@ -237,18 +322,134 @@ class LOADUESHADERSCRIPT_OT_add_basic_all(bpy.types.Operator):
         #to properties
         pathtool = scene.path_tool
         
-        create_basic_all_shader_maps(context, pathtool)
+        create_multiple_materials_shader_maps(context, pathtool)
         #don't use log so can use new line characterws
-        print("\n\n\n [UE Shader Script]: Finished create_basic_all_shader_maps in: %.4f sec" % (time.time() - time_start))
+        print("\n\n\n [UE Shader Script]: Finished create_multiple_materials_shader_maps in: %.4f sec" % (time.time() - time_start))
+    
+        return {"FINISHED"}
+
+
+#create multiple materials shader maps function
+#just runs the create one shader map function multiple times
+#for every material on the active object, checking if they are in the
+#pathtool list
+def create_multiple_materials_shader_maps(context, pathtool):
+    #if the folder path is a relative path
+    #turn it into an absolute one
+    #as relative paths cause problems
+    #when trying to load an image
+    #paths already absolute not affected
+    abs_mat_folder_path =  bpy.path.abspath(pathtool.material_folder_path)
+    
+    
+    #To get a specific material you have to use:
+    #bpy.context.selected_objects[0].data.materials[0]
+    
+    #returns the active object, which means the last selected object
+    #even if it is not selected at the current moment
+    active_object = bpy.context.active_object
+
+    material_indices_list_string = pathtool.material_indices_list_string
+    
+    #the active object cannot be nothing otherwise active_object.type
+    #returns an error
+    if active_object != None:
+        #also make sure there is something in the material
+        #indices input box
+        if material_indices_list_string != "":
+            #ignore any selected objects that are not meshes
+            #because we can't shader maps to non-meshes
+            if active_object.type == "MESH":
+                #shade smooth on the all selected meshes
+                #inside loop
+                #must use context.object.data
+                #as part of bpy.ops
+                #as bpy.ops.object.shade_smooth() as part of bpy.ops
+                #not bpy.data
+                mesh = active_object.data
+                for f in mesh.polygons:
+                    f.use_smooth = True
+                
+                #fetch all materials of the current selected object in a list
+                active_object_materials_list = active_object.data.materials[:]
+
+                
+                materials_indices_to_add_list = material_indices_list_string.split(" ")
+
+                #debug
+                print("materials_indices_to_add_list:", materials_indices_to_add_list)
+            
+                #create a shader map for each material in the materials list
+                #in a loop
+                #enumerate creates an index to come along with the each material
+                for material, index in enumerate(active_object_materials_list):
+                    
+                    #check if the material is one of the materials
+                    #specified by the user to add a shader map to
+                    #otherwise ignore it
+                    #convert index to string because the indices list is
+                    #made up of strings so compare strings to strings
+                    if str(index) in materials_indices_to_add_list:
+                        #make sure to use nodes before anything else
+                        #this is because if you don't have use nodes
+                        #enabled, the material and material.name will not work properly
+                        material.use_nodes = True
+                        if(pathtool.is_load_img_textures):
+                            find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, active_object, context)
+                        else:
+                            props_txt_path = "Not/Applicable"
+                            create_one_shader_map(context, material, props_txt_path, pathtool)
+        
+            #if the active object type is not a mesh
+            else:
+                warning_message = "Error: Active Object is not a mesh, please select a mesh before pressing Add Shader Maps to Multiple Materials"
+                bpy.ops.ueshaderscript.show_messsage(message = warning_message)
+                log(warning_message)
+        
+        #if the material_indices_list_string is empty
+        else:
+            warning_message = "Error: Material Indices List is empty, please enter integers separated by one space before pressing Add Shader Maps to Multiple Materials"
+            bpy.ops.ueshaderscript.show_messsage(message = warning_message)
+            log(warning_message)
+            
+    
+    #if the active object does not exist
+    else:
+        warning_message = "Error: No Active Object, please select a mesh before pressing Add Shader Maps to Multiple Materials"
+        bpy.ops.ueshaderscript.show_messsage(message = warning_message)
+        log(warning_message)
+            
+    return {"FINISHED"}
+
+
+
+class LOADUESHADERSCRIPT_OT_add_to_selected_meshes(bpy.types.Operator):
+    bl_label = "Add Shader Maps to ALL Selected Meshes"
+    bl_idname = "loadueshaderscript.add_to_selected_meshes_operator"
+    def execute(self, context):
+        #time how long it takes to create all shader maps for all materials
+        #set start time
+        time_start = time.time()
+
+        scene = context.scene 
+        #allow access to user inputted properties through pointer
+        #to properties
+        pathtool = scene.path_tool
+        
+        create_selected_meshes_shader_maps(context, pathtool)
+        #don't use log so can use new line characterws
+        print("\n\n\n [UE Shader Script]: Finished create_selected_meshes_shader_maps in: %.4f sec" % (time.time() - time_start))
     
         return {"FINISHED"}
 
 
 
-#create all basic shader maps function
-#just runs the create one basic shader map function
-#for all selected objects and all materials
-def create_basic_all_shader_maps(context, pathtool):
+
+
+#create selected meshes shader maps function
+#just runs the create one shader map function
+#for all selected objects, should be meshes and all materials
+def create_selected_meshes_shader_maps(context, pathtool):
     #if the folder path is a relative path
     #turn it into an absolute one
     #as relative paths cause problems
@@ -263,40 +464,49 @@ def create_basic_all_shader_maps(context, pathtool):
     #this makes a list of all selected objects (can be multiple)
     selected_objects_list = bpy.context.selected_objects
     
+    #warning message if user has selected no meshes or objects
+    if selected_objects_list == []:
+        warning_message = "Warning: No meshes selected, please select one or more meshes before pressing Add Shader Maps to ALL Selected Meshes"
+        bpy.ueshaderscript.show_message(message = warning_message)
+        log(warning_message)
     
     #go through each selected object
     #and in every selected object
     #go through all of the selected object's materials
     for selected_obj in selected_objects_list: 
-        
-        #shade smooth on the all selected meshes
-        #inside loop
-        #must use context.object.data
-        #as part of bpy.ops
-        #as bpy.ops.object.shade_smooth() as part of bpy.ops
-        #not bpy.data
-        mesh = selected_obj.data
-        for f in mesh.polygons:
-            f.use_smooth = True
-        
-        #fetch all materials of the current selected object in a list
-        selected_obj_materials_list = selected_obj.data.materials[:]
-    
-        #create a shader map for each material in the materials list
-        #in a loop
-        for material in selected_obj_materials_list:
-            #make sure to use nodes before anything else
-            #this is because if you don't have use nodes
-            #enabled, the material and material.name will not work properly
-            material.use_nodes = True
-            if(pathtool.is_load_img_textures):
-                find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, selected_obj, context)
-            else:
-                props_txt_path = "Not/Applicable"
-                create_one_shader_map(context, material, props_txt_path, pathtool)
+
+        #ignore any selected objects that are not meshes
+        #because we can't shader maps to non-meshes
+        if selected_obj.type == "MESH":
+            #shade smooth on the all selected meshes
+            #inside loop
+            #must use context.object.data
+            #as part of bpy.ops
+            #as bpy.ops.object.shade_smooth() as part of bpy.ops
+            #not bpy.data
+            mesh = selected_obj.data
+            for f in mesh.polygons:
+                f.use_smooth = True
             
+            #fetch all materials of the current selected object in a list
+            selected_obj_materials_list = selected_obj.data.materials[:]
+        
+            #create a shader map for each material in the materials list
+            #in a loop
+            for material in selected_obj_materials_list:
+                #make sure to use nodes before anything else
+                #this is because if you don't have use nodes
+                #enabled, the material and material.name will not work properly
+                material.use_nodes = True
+                if(pathtool.is_load_img_textures):
+                    find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, selected_obj, context)
+                else:
+                    props_txt_path = "Not/Applicable"
+                    create_one_shader_map(context, material, props_txt_path, pathtool)
+
             
     return {"FINISHED"}
+
 
 def find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, selected_obj, context):
     #returns a generator object with the matching
@@ -317,6 +527,8 @@ def find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool
     
     props_txt_path = get_value_in_gen_obj(gen_obj_match)
     
+    #default assume props txt exists and
+    #correct assumption later if it doesn't
     is_props_txt_exist_for_material = True
     #debug
     #print("props_txt_path:", props_txt_path)
@@ -1531,12 +1743,15 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
         #to properties
         pathtool = scene.path_tool
 
-        #don't reset the paths otherwise
+        #don't reset the paths or inputs otherwise
         #user has to set them again and again
         #pathtool.property_unset("props_txt_path")
         #pathtool.property_unset("skin_map_path")
         #pathtool.property_unset("material_folder_path")
         #pathtool.property_unset("export_folder_path")
+        #pathtool.property_unset("material_indices_list_string")
+
+        pathtool.property_unset("is_show_add_one_material_operator")
         pathtool.property_unset("is_replace_nodes")
         pathtool.property_unset("texture_file_type_enum")
         pathtool.property_unset("clipping_method_enum")
@@ -1556,10 +1771,17 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
 
 
 
+#don't register LOADUESHADERSCRIPT_shared_main_panel
+#because that is not a bpy class and trying to register
+#something that is not a panel or bpy class will result in an error
+classes = [PathProperties, 
 
-classes = [PathProperties, LOADUESHADERSCRIPT_PT_main_panel, 
-LOADUESHADERSCRIPT_OT_add_basic, LOADUESHADERSCRIPT_OT_add_basic_all,
-LOADUESHADERSCRIPT_OT_reset_settings_main_panel]
+LOADUESHADERSCRIPT_PT_select_preset_in_folder_main_panel_1,
+LOADUESHADERSCRIPT_PT_load_shader_map_settings_main_panel_2,
+LOADUESHADERSCRIPT_PT_load_shader_map_methods_main_panel_3,
+
+LOADUESHADERSCRIPT_OT_add_to_one_material, LOADUESHADERSCRIPT_OT_add_to_multiple_materials, 
+LOADUESHADERSCRIPT_OT_add_to_selected_meshes, LOADUESHADERSCRIPT_OT_reset_settings_main_panel]
  
 def register():
     for cls in classes:
@@ -1570,7 +1792,9 @@ def register():
         bpy.types.Scene.path_tool = bpy.props.PointerProperty(type = PathProperties)
  
 def unregister():
-    for cls in classes:
+    #unregister in reverse so classes relying on other classes
+    #will not lead to an error
+    for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
         
         #unregister path_tool as a type
