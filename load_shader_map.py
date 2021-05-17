@@ -79,7 +79,7 @@ class PathProperties(bpy.types.PropertyGroup):
 
     is_normal_non_colour: bpy.props.BoolProperty(name="Normal Map Textures Non Colour", default = True)
     is_m_non_colour: bpy.props.BoolProperty(name="Transparency Map Textures Non Colour", default = True)
-    is_orm_non_colour: bpy.props.BoolProperty(name="Packed ARM Textures Non Colour (True for Roman Noodles)", default = False)
+    is_orm_non_colour: bpy.props.BoolProperty(name="Packed ARM Textures Non Colour", default = True)
 
     is_load_img_textures: bpy.props.BoolProperty(name="Load Image Textures", default= True)
     is_delete_unused_img_texture_nodes: bpy.props.BoolProperty(name="Delete Unused Image Texture Nodes", default = True)
@@ -183,6 +183,7 @@ class LOADUESHADERSCRIPT_PT_load_settings_main_panel_2(LOADUESHADERSCRIPT_shared
 
             layout.prop(pathtool, "is_normal_non_colour")
             layout.prop(pathtool, "is_m_non_colour")
+            layout.prop(pathtool, "is_orm_non_colour")
             
             layout.prop(pathtool, "is_change_principle_bsdf_emission_strength")
 
@@ -191,7 +192,6 @@ class LOADUESHADERSCRIPT_PT_load_settings_main_panel_2(LOADUESHADERSCRIPT_shared
             layout.prop(pathtool, "material_alpha_threshold")
 
             #Roman Noodles related settings
-            layout.prop(pathtool, "is_orm_non_colour")
             layout.prop(pathtool, "is_add_skin_map")
 
         layout.operator("loadueshaderscript.reset_settings_main_panel_operator")
