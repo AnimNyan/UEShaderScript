@@ -548,26 +548,109 @@ def links_to_list(tree):
     return links_list
 
 def textures_to_list(savetool, nodes):
+    #nested function so that don't have to pass lists around
+    #nested functions can access parent function's variables
+    def suffix_and_node_name_to_list(suffix, node_name, texture):
+        img_textures_dict = {}
+        
+        #if both the suffix and suffix node are not empty
+        #record the suffix in the dictionary
+        if suffix != "" and node_name != "":
+
+            #try get the node by node name
+            #if it does not exist 
+            #do not let it be recorded in the img_textures_dict or img_textures_list
+            #because we don't want to record 
+            #img textures that will never get loaded
+            #debug
+            #print("node_name:", node_name)
+            node = nodes.get(node_name, None)
+            
+            #print("node:", node, "\n")
+
+            #by default assume node with suffix node name does not exist
+            is_node_with_node_name_exist = False
+
+            if (node != None):
+                is_node_with_node_name_exist = True
+            else:
+                #notify user if their
+                #Shader Map did not have a Node with the correctly named Node Name
+                #two brackets inner brackets converts to tuple .join needs a tuple
+                warning_message = "".join(("A node with Node Name: \"", node_name, "\" does not exist so the ", texture, " texture was not recorded to load!"))
+                bpy.ops.ueshaderscript.show_message(message = warning_message)
+            
+            #only record in the img_textures_dict and img_textures_list if the node exists
+            #in the current shader setup
+            if is_node_with_node_name_exist:
+                #texture is for debugging purposes so can check JSON file
+                #but it is also used to uniquely identify a 
+                #specific marked image texture node
+                #this is because both suffix and node_name can be changed
+                #but texture is always the same
+                img_textures_dict["texture"] = texture
+                img_textures_dict["node_name"] = node_name
+                #for the suffix property the rules are 
+                #every suffix should be separated by a space
+                #so we are separating every suffix with .split()
+                #.split generates a list so no need for extra square brackets
+                #around suffix.split(" ")
+                suffix_list = suffix.split(" ")
+                img_textures_dict["suffix_list"] = suffix_list
+
+        #if node name is missing but suffix is there
+        #special case to avoid skin texture because
+        #the default is always missing the Node Name
+        #since it only needs a Node Name
+        elif suffix != "" and node_name == "" and texture != "skin":
+            #notify user if they
+            #did not fill in both the suffix and the node name
+            warning_message = "".join(("The Node Name input is missing for texture: \"", texture, "\" so the texture was not recorded to load!"))
+            bpy.ops.ueshaderscript.show_message(message = warning_message)
+        
+        #if suffix is missing but node name is there
+        elif suffix == "" and node_name != "":
+            #notify user if they
+            #did not fill in both the suffix and the node name
+            warning_message = "".join(("The Suffix input is missing for texture: \"", texture, "\" so the texture was not recorded to load!"))
+            bpy.ops.ueshaderscript.show_message(message = warning_message)
+
+        #if the suffix and node name is missing then this is the default state
+        #so no warning message needs to be shown
+
+        #if an entry was added into the img_textures_dict 
+        #append it to the list
+        #otherwise don't append anything to the list
+        if img_textures_dict != {}:
+            img_textures_list.append(img_textures_dict)
+        #-------------------------------end of nested function
+
+
+
+
     img_textures_list = []
-    suffix_and_node_name_to_list(savetool.bc_suffix, savetool.bc_node_name, img_textures_list, "diffuse", nodes)
-    suffix_and_node_name_to_list(savetool.orm_suffix, savetool.orm_node_name, img_textures_list, "packed_orm", nodes)
-    suffix_and_node_name_to_list(savetool.n_suffix, savetool.n_node_name,  img_textures_list, "normal", nodes)
-    suffix_and_node_name_to_list(savetool.m_suffix, savetool.m_node_name,  img_textures_list, "transparency", nodes)
-    suffix_and_node_name_to_list(savetool.bde_suffix, savetool.bde_node_name, img_textures_list, "emissive", nodes)
-    suffix_and_node_name_to_list(savetool.hm_suffix, savetool.hm_node_name, img_textures_list, "height", nodes)
-    suffix_and_node_name_to_list(savetool.hair_gradient_suffix, savetool.hair_gradient_node_name, img_textures_list, "hair_gradient", nodes)
+    suffix_and_node_name_to_list(savetool.bc_suffix, savetool.bc_node_name, "diffuse")
+    suffix_and_node_name_to_list(savetool.orm_suffix, savetool.orm_node_name, "packed_orm")
+    suffix_and_node_name_to_list(savetool.n_suffix, savetool.n_node_name, "normal")
+    suffix_and_node_name_to_list(savetool.m_suffix, savetool.m_node_name, "transparency")
+    suffix_and_node_name_to_list(savetool.bde_suffix, savetool.bde_node_name, "emissive")
+    suffix_and_node_name_to_list(savetool.hm_suffix, savetool.hm_node_name, "height")
+    suffix_and_node_name_to_list(savetool.hair_gradient_suffix, savetool.hair_gradient_node_name, "hair_gradient")
+    suffix_and_node_name_to_list(savetool.specular_suffix, savetool.specular_node_name, "specular")
+    suffix_and_node_name_to_list(savetool.gloss_suffix, savetool.gloss_node_name, "gloss")
+
     #skin texture is always added and is found from the user chosen path 
-    suffix_and_node_name_to_list("Not/Applicable", savetool.skin_node_name, img_textures_list, "skin", nodes)
-    suffix_and_node_name_to_list(savetool.cust1_suffix, savetool.cust1_node_name, img_textures_list, "cust1", nodes)
-    suffix_and_node_name_to_list(savetool.cust2_suffix, savetool.cust2_node_name, img_textures_list, "cust2", nodes)
-    suffix_and_node_name_to_list(savetool.cust3_suffix, savetool.cust3_node_name, img_textures_list, "cust3", nodes)
+    suffix_and_node_name_to_list("Not/Applicable", savetool.skin_node_name, "skin")
+    suffix_and_node_name_to_list(savetool.cust1_suffix, savetool.cust1_node_name, "cust1")
+    suffix_and_node_name_to_list(savetool.cust2_suffix, savetool.cust2_node_name, "cust2")
+    suffix_and_node_name_to_list(savetool.cust3_suffix, savetool.cust3_node_name, "cust3")
+    suffix_and_node_name_to_list(savetool.cust4_suffix, savetool.cust4_node_name, "cust4")
 
    
     #if the img_textures list is empty
     #that is equivalent to having 
     #no image textures to load
 
-    
     #debug
     #print("img_textures_list: ", img_textures_list)
     #print("img_textures_list length: ", len(img_textures_list))
@@ -575,79 +658,7 @@ def textures_to_list(savetool, nodes):
     return img_textures_list
 
 
-def suffix_and_node_name_to_list(suffix, node_name, img_textures_list, texture, nodes):
-    img_textures_dict = {}
-    
-    #if both the suffix and suffix node are not empty
-    #record the suffix in the dictionary
-    if suffix != "" and node_name != "":
 
-        #try get the node by node name
-        #if it does not exist 
-        #do not let it be recorded in the img_textures_dict or img_textures_list
-        #because we don't want to record 
-        #img textures that will never get loaded
-        #debug
-        #print("node_name:", node_name)
-        node = nodes.get(node_name, None)
-        
-        #print("node:", node, "\n")
-
-        #by default assume node with suffix node name does not exist
-        is_node_with_node_name_exist = False
-
-        if (node != None):
-            is_node_with_node_name_exist = True
-        else:
-            #notify user if their
-            #Shader Map did not have a Node with the correctly named Node Name
-            #two brackets inner brackets converts to tuple .join needs a tuple
-            warning_message = "".join(("A node with Node Name: \"", node_name, "\" does not exist so the ", texture, " texture was not recorded to load!"))
-            bpy.ops.ueshaderscript.show_message(message = warning_message)
-        
-        #only record in the img_textures_dict and img_textures_list if the node exists
-        #in the current shader setup
-        if is_node_with_node_name_exist:
-            #texture is for debugging purposes so can check JSON file
-            #but it is also used to uniquely identify a 
-            #specific marked image texture node
-            #this is because both suffix and node_name can be changed
-            #but texture is always the same
-            img_textures_dict["texture"] = texture
-            img_textures_dict["node_name"] = node_name
-            #for the suffix property the rules are 
-            #every suffix should be separated by a space
-            #so we are separating every suffix with .split()
-            #.split generates a list so no need for extra square brackets
-            #around suffix.split(" ")
-            suffix_list = suffix.split(" ")
-            img_textures_dict["suffix_list"] = suffix_list
-
-    #if node name is missing but suffix is there
-    #special case to avoid skin texture because
-    #the default is always missing the Node Name
-    #since it only needs a Node Name
-    elif suffix != "" and node_name == "" and texture != "skin":
-        #notify user if they
-        #did not fill in both the suffix and the node name
-        warning_message = "".join(("The Node Name input is missing for texture: \"", texture, "\" so the texture was not recorded to load!"))
-        bpy.ops.ueshaderscript.show_message(message = warning_message)
-    
-    #if suffix is missing but node name is there
-    elif suffix == "" and node_name != "":
-        #notify user if they
-        #did not fill in both the suffix and the node name
-        warning_message = "".join(("The Suffix input is missing for texture: \"", texture, "\" so the texture was not recorded to load!"))
-        bpy.ops.ueshaderscript.show_message(message = warning_message)
-
-    #if the suffix and node name is missing then this is the default state
-    #so no warning message needs to be shown
-
-    #if an entry was added into the img_textures_dict 
-    #append it to the list
-    #otherwise don't append anything to the list
-    if img_textures_dict != {}:
-        img_textures_list.append(img_textures_dict)
 
 
 #---------------------------Panel related code including preset and folder new , deletion, renaming 
@@ -668,25 +679,31 @@ class SaveProperties(bpy.types.PropertyGroup):
     hm_node_name: bpy.props.StringProperty(name="Height Map Node Name", description="Height Map image texture node name", default="")
     hair_gradient_suffix: bpy.props.StringProperty(name="Hair Gradient Map Suffix", description="Suffix of Hair Gradient Map", default="")
     hair_gradient_node_name: bpy.props.StringProperty(name="Hair Gradient Map Node Name", description="Hair Gradient Map image texture node name", default="")
+    specular_suffix: bpy.props.StringProperty(name="Specular Map Suffix", description="Suffix of Specular Map", default="")
+    specular_node_name: bpy.props.StringProperty(name="Specular Map Node Name", description="Specular Map image texture node name", default="")
+    gloss_suffix: bpy.props.StringProperty(name="Gloss Map Suffix", description="Suffix of Gloss Map", default="")
+    gloss_node_name: bpy.props.StringProperty(name="Gloss Map Node Name", description="Gloss Map image texture node name", default="")
+
+    is_show_custom_textures: bpy.props.BoolProperty(name="Show Custom Suffix and Node Names", default= False)
     cust1_suffix: bpy.props.StringProperty(name="Custom1 Suffix", description="Suffix of Custom1 Texture", default="")
     cust1_node_name: bpy.props.StringProperty(name="Custom1 Node Name", description="Custom1 image texture node name", default="")
     cust2_suffix: bpy.props.StringProperty(name="Custom2 Suffix", description="Suffix of Custom2 Texture", default="")
     cust2_node_name: bpy.props.StringProperty(name="Custom2 Node Name", description="Custom2 image texture node name", default="")
     cust3_suffix: bpy.props.StringProperty(name="Custom3 Suffix", description="Suffix of Custom3 Texture", default="")
     cust3_node_name: bpy.props.StringProperty(name="Custom3 Node Name", description="Custom3 image texture node name", default="")
+    cust4_suffix: bpy.props.StringProperty(name="Custom4 Suffix", description="Suffix of Custom4 Texture", default="")
+    cust4_node_name: bpy.props.StringProperty(name="Custom4 Node Name", description="Custom4 image texture node name", default="")
 
     #skin only needs a node name as it is not from the game files
     #rather it is externally added by the user themself
     skin_node_name: bpy.props.StringProperty(name="Skin Node Name", description="Skin image texture node name", default="")
     is_add_img_textures: bpy.props.BoolProperty(name="Load Image Textures to Shader Map", default= True)
+    
 
 
 
-
-#code for drawing main panel in the 3D View
-class SAVEUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
-    bl_label = "Save UE Shaders"
-    bl_idname = "SAVEUESHADERSCRIPT_PT_main_panel"
+#----------------code for drawing main panel in the 3D View
+class SAVEUESHADERSCRIPT_shared_main_panel:
     bl_space_type = 'NODE_EDITOR'
     bl_region_type = 'UI'
     bl_category = "Save UE Shaders"
@@ -697,10 +714,18 @@ class SAVEUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
     #so in this case only draw a panel
     #if the current window is the Shader Editor window
     #NOT the compositor view
+    #because the plugin only saves shader editor shader maps
     @classmethod
     def poll(self, context):
         return context.area.ui_type == "ShaderNodeTree"
 
+#main panel 1
+#inheriting the shared panel's bl_space_type, bl_region_type and bl_category
+#and poll function
+class SAVEUESHADERSCRIPT_PT_manage_presets_main_panel_1(SAVEUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
+    bl_label = "Manage Presets"
+    bl_idname = "SAVEUESHADERSCRIPT_PT_manage_presets_main_panel_1"
+    
     def draw(self, context):
         layout = self.layout
         
@@ -747,16 +772,35 @@ class SAVEUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
         layout.operator("ueshaderscript.import_append_presets")
         layout.operator("ueshaderscript.export_presets")
         layout.operator("ueshaderscript.reset_update_default_presets")
-        layout.label(text = "Save a Custom Shader Map")
+
+
+#main panel 2
+#inheriting the shared panel's bl_space_type, bl_region_type and bl_category
+#and poll function
+class SAVEUESHADERSCRIPT_PT_save_custom_preset_main_panel_2(SAVEUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
+    bl_label = "Save a Custom Shader Map"
+    bl_idname = "SAVEUESHADERSCRIPT_PT_manage_presets_main_panel_1"
+
+    def draw(self, context):
+        layout = self.layout
+
+        #store active/selected scene to variable
+        scene = context.scene
         
+        #allow access to user inputted properties through pointer
+        #to properties
+        savetool = scene.save_tool
+
         layout.prop(savetool, "cust_map_name")
-        
         layout.prop(savetool, "is_add_img_textures")
-        
+
         #formatting
         #layout.use_property_split means that it will try and display 
         #the property fully
         layout.use_property_split = True
+
+        #don't show the keyframe button next to animateable properties
+        layout.use_property_decorate = False
         
         if (savetool.is_add_img_textures == True):
             box = layout.box()
@@ -778,21 +822,36 @@ class SAVEUESHADERSCRIPT_PT_main_panel(bpy.types.Panel):
             box.prop(savetool, "hm_node_name")
             box.prop(savetool, "hair_gradient_suffix")
             box.prop(savetool, "hair_gradient_node_name")
-            box.prop(savetool, "cust1_suffix")
-            box.prop(savetool, "cust1_node_name")
-            box.prop(savetool, "cust2_suffix")
-            box.prop(savetool, "cust2_node_name")
-            box.prop(savetool, "cust3_suffix")
-            box.prop(savetool, "cust3_node_name")
+            box.prop(savetool, "specular_suffix")
+            box.prop(savetool, "specular_node_name")
+            box.prop(savetool, "gloss_suffix")
+            box.prop(savetool, "gloss_node_name")
+
+            if(savetool.is_show_custom_textures == True):
+                box.prop(savetool, "cust1_suffix")
+                box.prop(savetool, "cust1_node_name")
+                box.prop(savetool, "cust2_suffix")
+                box.prop(savetool, "cust2_node_name")
+                box.prop(savetool, "cust3_suffix")
+                box.prop(savetool, "cust3_node_name")
+                box.prop(savetool, "cust4_suffix")
+                box.prop(savetool, "cust4_node_name")
 
             row = box.row()
 
             box.label(text = "Skin Texture Node (Special Case No Suffix)")
-            box.label(text = "Skin Texture Height Map always added regardless of props.txt files")
+            box.label(text = "Skin Texture Height Map is always added regardless of the props.txt files")
             box.prop(savetool, "skin_node_name")
             box.operator("SAVEUESHADERSCRIPT.reset_inputs_main_panel_operator")
         
         layout.operator("SAVEUESHADERSCRIPT.saveshadermap_operator")
+
+
+#main panel part 2 sub panel
+#inheriting the shared panel's bl_space_type, bl_region_type and bl_category
+class LOADUESHADERSCRIPT_PT_load_advanced_settings_main_panel_2_sub_1(SAVEUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
+    bl_label = "Advanced Settings"
+    bl_parent_id = "LOADUESHADERSCRIPT_PT_load_settings_main_panel_2"
 
 
 #this class is the list to be displayed in the main panel
@@ -1946,12 +2005,21 @@ class SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel(bpy.types.Operator):
         savetool.property_unset("hm_node_name")
         savetool.property_unset("hair_gradient_suffix")
         savetool.property_unset("hair_gradient_node_name")
+        savetool.property_unset("specular_suffix")
+        savetool.property_unset("specular_node_name")
+        savetool.property_unset("gloss_suffix")
+        savetool.property_unset("gloss_node_name")
+
+        savetool.property_unset("is_show_custom_textures")
         savetool.property_unset("cust1_suffix")
         savetool.property_unset("cust1_node_name")
         savetool.property_unset("cust2_suffix")
         savetool.property_unset("cust2_node_name")
         savetool.property_unset("cust3_suffix")
         savetool.property_unset("cust3_node_name")
+        savetool.property_unset("cust4_suffix")
+        savetool.property_unset("cust_node_name")
+
         savetool.property_unset("skin_node_name")
         savetool.property_unset("is_add_img_textures")
         return {'FINISHED'}
