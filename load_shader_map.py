@@ -105,6 +105,8 @@ class PathProperties(bpy.types.PropertyGroup):
 
 
 #------------code for drawing main panel in the 3D View
+#don't register this class it is not a bpy panel or type so
+#it does not need to be registereds
 class LOADUESHADERSCRIPT_shared_main_panel:
     # bl_label = "Load UE Shaders"
     # bl_idname = "LOADUESHADERSCRIPT_PT_main_panel"
@@ -121,9 +123,6 @@ class LOADUESHADERSCRIPT_PT_select_preset_main_panel_1(LOADUESHADERSCRIPT_shared
 
     def draw(self, context):
         layout = self.layout
-        
-        #store active/selected scene to variable
-        scene = context.scene
         
         #set isOverridePackage to override __package__ variable as it does
         #not work for imported functions
