@@ -4,10 +4,11 @@
 First things first, I have a discord server for questions, support and bugs find me here: https://discord.gg/rkkWSH2EMz
 
 ## Credits
-A huge thank you to Aaron Elkins who designed Node Kit, a Blender plugin under the GPL Licence which was several years in the making. 
+Thank you to Aaron Elkins who designed Node Kit, a Blender plugin under the GPL Licence which was several years in the making. 
 UEShaderScript copies a huge amount of code from Node Kit and I want to thank Aaron Elkins for his kindness 
 for giving me permission to release UEShaderscript. Please have a look at his plugin and his work here: https://blendermarket.com/products/node-kit
-I also want to give credit to Roman Noodles, YanimaDBD, Pit Princess and Frutto for designing the presets that come with this plugin.
+
+I also want to thank Roman Noodles, YanimaDBD, Pit Princess and Frutto for their fantastic work in designing the presets that come with this plugin!
 
 ## Permissions
 UEShaderScript is under the GPL Licence that means you have permission to use part or the whole of this plugin for free or commercial purposes free of charge.
