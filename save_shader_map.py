@@ -703,6 +703,8 @@ class SaveProperties(bpy.types.PropertyGroup):
 
 
 #----------------code for drawing main panel in the 3D View
+#don't register this class it is not a bpy panel or type so
+#it does not need to be registered
 class SAVEUESHADERSCRIPT_shared_main_panel:
     bl_space_type = 'NODE_EDITOR'
     bl_region_type = 'UI'
@@ -728,13 +730,6 @@ class SAVEUESHADERSCRIPT_PT_manage_presets_main_panel_1(SAVEUESHADERSCRIPT_share
     
     def draw(self, context):
         layout = self.layout
-        
-        #store active/selected scene to variable
-        scene = context.scene
-        
-        #allow access to user inputted properties through pointer
-        #to properties
-        savetool = scene.save_tool
 
         preferences = get_preferences()
         #make folder section
@@ -779,7 +774,7 @@ class SAVEUESHADERSCRIPT_PT_manage_presets_main_panel_1(SAVEUESHADERSCRIPT_share
 #and poll function
 class SAVEUESHADERSCRIPT_PT_save_custom_preset_main_panel_2(SAVEUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
     bl_label = "Save a Custom Shader Map"
-    bl_idname = "SAVEUESHADERSCRIPT_PT_manage_presets_main_panel_1"
+    bl_idname = "SAVEUESHADERSCRIPT_PT_save_custom_preset_main_panel_2"
 
     def draw(self, context):
         layout = self.layout
@@ -800,6 +795,7 @@ class SAVEUESHADERSCRIPT_PT_save_custom_preset_main_panel_2(SAVEUESHADERSCRIPT_s
         layout.use_property_split = True
 
         #don't show the keyframe button next to animateable properties
+        #such as the Bool Property
         layout.use_property_decorate = False
         
         if (savetool.is_add_img_textures == True):
@@ -826,7 +822,8 @@ class SAVEUESHADERSCRIPT_PT_save_custom_preset_main_panel_2(SAVEUESHADERSCRIPT_s
             box.prop(savetool, "specular_node_name")
             box.prop(savetool, "gloss_suffix")
             box.prop(savetool, "gloss_node_name")
-
+    
+            box.prop(savetool, "is_show_custom_textures")
             if(savetool.is_show_custom_textures == True):
                 box.prop(savetool, "cust1_suffix")
                 box.prop(savetool, "cust1_node_name")
@@ -845,13 +842,6 @@ class SAVEUESHADERSCRIPT_PT_save_custom_preset_main_panel_2(SAVEUESHADERSCRIPT_s
             box.operator("SAVEUESHADERSCRIPT.reset_inputs_main_panel_operator")
         
         layout.operator("SAVEUESHADERSCRIPT.saveshadermap_operator")
-
-
-#main panel part 2 sub panel
-#inheriting the shared panel's bl_space_type, bl_region_type and bl_category
-class LOADUESHADERSCRIPT_PT_load_advanced_settings_main_panel_2_sub_1(SAVEUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
-    bl_label = "Advanced Settings"
-    bl_parent_id = "LOADUESHADERSCRIPT_PT_load_settings_main_panel_2"
 
 
 #this class is the list to be displayed in the main panel
@@ -2018,21 +2008,26 @@ class SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel(bpy.types.Operator):
         savetool.property_unset("cust3_suffix")
         savetool.property_unset("cust3_node_name")
         savetool.property_unset("cust4_suffix")
-        savetool.property_unset("cust_node_name")
+        savetool.property_unset("cust4_node_name")
 
         savetool.property_unset("skin_node_name")
         savetool.property_unset("is_add_img_textures")
         return {'FINISHED'}
 
-
+#don't register SAVEUESHADERSCRIPT_shared_main_panel 
+#as it is not a bpy type or panel
+# #trying to register it will cause an error 
 classes = [SaveProperties, PresetCollection, FolderPresetsCollection, SavePreferences, 
 
     ResetAndUpdateDefaultPresetsOperator, ImportAndAppendPresetsOperator, ExportPresetsOperator,
     
-     SHADER_PRESETS_UL_items, SAVEUESHADERSCRIPT_PT_main_panel, 
-Shader_ShowFolderActionsOperator, SHADER_MT_FolderActionsMenu, Shader_NewFolderOperator, 
-Shader_RemoveFolderOperator, Shader_RenameFolderOperator, SAVEUESHADERSCRIPT_OT_remove_preset, ShowMessageOperator,
-RenamePresetOperator, MovePresetUpOperator, MovePresetDownOperator, MovePresetOperator, SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel,
+    SHADER_PRESETS_UL_items, 
+     
+    SAVEUESHADERSCRIPT_PT_manage_presets_main_panel_1, SAVEUESHADERSCRIPT_PT_save_custom_preset_main_panel_2,
+
+    Shader_ShowFolderActionsOperator, SHADER_MT_FolderActionsMenu, Shader_NewFolderOperator, 
+    Shader_RemoveFolderOperator, Shader_RenameFolderOperator, SAVEUESHADERSCRIPT_OT_remove_preset, ShowMessageOperator,
+    RenamePresetOperator, MovePresetUpOperator, MovePresetDownOperator, MovePresetOperator, SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel,
 
     SAVEUESHADERSCRIPT_OT_save_shader_map]
  
