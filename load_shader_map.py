@@ -898,7 +898,7 @@ def load_preset(material, abs_props_txt_path, pathtool):
     #     update_10_most_used_presets()
 
 class LOADUESHADERSCRIPT_OT_solo_material(bpy.types.Operator):
-    bl_label = "Solo Material for Active Mesh (Solo Use Nodes)"
+    bl_label = "Solo Active Material for Active Mesh (Solo Use Nodes)"
     bl_idname = "loadueshaderscript.solo_material_operator"
     def execute(self, context):
         active_object = bpy.context.active_object
@@ -938,7 +938,7 @@ class LOADUESHADERSCRIPT_OT_solo_material(bpy.types.Operator):
 
 
 class LOADUESHADERSCRIPT_OT_use_nodes_mesh(bpy.types.Operator):
-    bl_label = "Use Nodes for ALL materials on Active Mesh"
+    bl_label = "Use Nodes for ALL Materials on Active Mesh"
     bl_idname = "loadueshaderscript.use_nodes_mesh_operator"
     def execute(self, context):
         active_object = bpy.context.active_object
