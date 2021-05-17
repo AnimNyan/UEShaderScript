@@ -177,6 +177,7 @@ class LOADUESHADERSCRIPT_PT_load_settings_main_panel_2(LOADUESHADERSCRIPT_shared
 
             layout.prop(pathtool, "texture_file_type_enum")
             layout.prop(pathtool, "clipping_method_enum")
+            layout.prop(pathtool, "material_alpha_threshold")
 
             layout.prop(pathtool, "is_reuse_node_group_with_same_name")
             layout.prop(pathtool, "is_reuse_img_texture_with_same_name")
@@ -189,7 +190,6 @@ class LOADUESHADERSCRIPT_PT_load_settings_main_panel_2(LOADUESHADERSCRIPT_shared
 
             if(pathtool.is_change_principle_bsdf_emission_strength):
                 layout.prop(pathtool, "principled_bsdf_emission_strength_float")
-            layout.prop(pathtool, "material_alpha_threshold")
 
             #Roman Noodles related settings
             layout.prop(pathtool, "is_add_skin_map")
