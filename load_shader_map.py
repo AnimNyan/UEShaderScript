@@ -459,6 +459,11 @@ def create_multiple_materials_shader_maps(context, pathtool, time_start):
                 #debug
                 #print("materials_indices_to_add_list:", materials_indices_to_add_list)
 
+                #before for loop set this
+                #so it knows to use the normal search
+                #as this is the first time calling find_props_txt_and_create_shader_map()
+                previous_props_txt_folder = ""
+
                 #create a shader map for each material in the materials list
                 #in a loop
                 #enumerate creates an index to come along with the each material
@@ -485,7 +490,7 @@ def create_multiple_materials_shader_maps(context, pathtool, time_start):
                         #enabled, the material and material.name will not work properly
                         material.use_nodes = True
                         if(pathtool.is_load_img_textures):
-                            find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, active_object)
+                            previous_props_txt_folder = find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, active_object, previous_props_txt_folder)
                         else:
                             props_txt_path = "Not/Applicable"
                             create_one_shader_map(material, props_txt_path, pathtool)
@@ -596,6 +601,11 @@ def create_selected_meshes_shader_maps(context, pathtool, time_start):
                 mesh = selected_obj.data
                 for f in mesh.polygons:
                     f.use_smooth = True
+
+                #before for loop set this
+                #so it knows to use the normal search
+                #as this is the first time calling find_props_txt_and_create_shader_map()
+                previous_props_txt_folder = ""
                 
                 #fetch all materials of the current selected object in a list
                 selected_obj_materials_list = selected_obj.data.materials[:]
@@ -608,7 +618,7 @@ def create_selected_meshes_shader_maps(context, pathtool, time_start):
                     #enabled, the material and material.name will not work properly
                     material.use_nodes = True
                     if(pathtool.is_load_img_textures):
-                        find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, selected_obj)
+                        previous_props_txt_folder = find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, selected_obj, previous_props_txt_folder)
                     else:
                         props_txt_path = "Not/Applicable"
                         create_one_shader_map(material, props_txt_path, pathtool)
@@ -634,53 +644,106 @@ def create_selected_meshes_shader_maps(context, pathtool, time_start):
 
 
 
-def find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, selected_obj):
-    #returns a generator object with the matching
-    #absolute path to the props txt file
-    #rglob is a globbing function (match and return a pattern)
-    #and Path is a path type object, used for easy manipulation of paths
-    
-    #we use rglob and search for the
-    #props.txt file because the file we are looking for
-    #might be in a subdirectory such as Outfit01
-    #and the user might have selected the material folder path
-    #C:\Nyan\Dwight Recolor\Game\Characters\Slashers\Nurse\Materials\
-    #instead of C:\Nyan\Dwight Recolor\Game\Characters\Slashers\Nurse\Materials\Outfit01
-    #this allows for extra redundancy
-    #so the props.txt file can be either in the current directory, or its subdirectories
-    props_txt_name = "".join((material.name, pathtool.props_txt_file_type))
-    gen_obj_match = Path(abs_mat_folder_path).rglob(props_txt_name)
-    
-    props_txt_path = get_value_in_gen_obj(gen_obj_match)
-    
-    #default assume props txt exists and
-    #correct assumption later if it doesn't
-    is_props_txt_exist_for_material = True
-    #debug
-    #print("props_txt_path:", props_txt_path)
-    #if can't find the propstxt file in the material folder do a recursive glob search
-    #in the exported Game folder which costs more time since many folders
-    #because it might be somewhere else like this instead
-    #\Game\Characters\Campers\CommonAcc\Materials\Top\MI_CMMHair019_TAA.props.txt
-    if props_txt_path == "":
-        abs_export_folder_path = bpy.path.abspath(pathtool.export_folder_path)
-        gen_obj_match = Path(abs_export_folder_path).rglob(props_txt_name)
-        #get the new props_txt_path in the new generator object
+def find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, selected_obj, previous_props_txt_folder):
+    #nested function has access to all the variables of the parent function
+    def find_props_txt():
+        props_txt_name = "".join((material.name, pathtool.props_txt_file_type))
+        #returns a generator object with the matching
+        #absolute path to the props txt file
+        #rglob is a globbing function (match and return a pattern)
+        #and Path is a path type object, used for easy manipulation of paths
+        
+        #we use rglob and search for the
+        #props.txt file because the file we are looking for
+        #might be in a subdirectory such as Outfit01
+        #and the user might have selected the material folder path
+        #C:\Nyan\Dwight Recolor\Game\Characters\Slashers\Nurse\Materials\
+        #instead of C:\Nyan\Dwight Recolor\Game\Characters\Slashers\Nurse\Materials\Outfit01
+        #this allows for extra redundancy
+        #so the props.txt file can be either in the current directory, or its subdirectories
+        gen_obj_match = Path(abs_mat_folder_path).rglob(props_txt_name)
+        
         props_txt_path = get_value_in_gen_obj(gen_obj_match)
+        
+        #default assume props txt exists and
+        #correct assumption later if it doesn't or cannot be found
+        is_props_txt_exist_for_material = True
+
         #debug
-        #print("refind props_txt_path:", props_txt_path)
-        
-        #if the props_txt_path is still null
-        #after second search in the game folder
-        #show an error message and ignore the material
-        #do not create a shader map for it
+        #print("props_txt_path:", props_txt_path)
+        #if can't find the propstxt file in the material folder do a recursive glob search
+        #in the exported Game folder which costs more time since many folders
+        #because it might be somewhere else like this instead
+        #\Game\Characters\Campers\CommonAcc\Materials\Top\MI_CMMHair019_TAA.props.txt
         if props_txt_path == "":
-            warning_message = "".join(("Warning: the props.txt file for object \"", selected_obj.name, "\" material \"", material.name, 
-                        "\" was not found in the Game Folder so the material was ignored!"))
-            bpy.ops.ueshaderscript.show_message(message = warning_message)
-            log(warning_message)
-            is_props_txt_exist_for_material = False
+            abs_export_folder_path = bpy.path.abspath(pathtool.export_folder_path)
+            gen_obj_match = Path(abs_export_folder_path).rglob(props_txt_name)
+            #get the new props_txt_path in the new generator object
+            props_txt_path = get_value_in_gen_obj(gen_obj_match)
+            #debug
+            #print("refind props_txt_path:", props_txt_path)
+            
+            #if the props_txt_path is still nothing
+            #after second search in the game folder
+            #show an error message and ignore the material
+            #do not create a shader map for it
+            if props_txt_path == "":
+                warning_message = "".join(("Warning: the props.txt file for object \"", selected_obj.name, "\" material \"", material.name, 
+                            "\" was not found in the Game Folder so the material was ignored!"))
+                bpy.ops.ueshaderscript.show_message(message = warning_message)
+                log(warning_message)
+                is_props_txt_exist_for_material = False
+
+                #if the props_txt file wasn't found
+                #set the mat folder for the next loop to be nothing
+                #so it doesn't try to use the previous_props_txt_folder
+                previous_props_txt_folder = ""
+            
+            #if on the second search 
+            #from the export game folder
+            #the props_txt file is found 
+            #set the props txt folder for
+            #the next calling of find_props_txt_and_create_shader_map
+            else:
+                previous_props_txt_folder = os.path.dirname(props_txt_path)
+        #if on the first serach
+        #from the materials folder
+        #the props_txt file is found
+        #the next calling of find_props_txt_and_create_shader_map
+        else:
+            previous_props_txt_folder = os.path.dirname(props_txt_path)
         
+        return props_txt_path, is_props_txt_exist_for_material, previous_props_txt_folder 
+        #---------end nested function
+
+
+
+    #if a valid props_txt file wasn't found last time or 
+    #this is the first time going through the 
+    #find_props_txt_and_create_shader_map function
+    #do the normal rglob search
+    if previous_props_txt_folder == "":
+        props_txt_path, is_props_txt_exist_for_material, previous_props_txt_folder = find_props_txt()
+
+    #otherwise check the folder
+    #where the previous props_txt file was found 
+    #to save time so the recursive glob doesn't need to go through so many folders
+    else:
+        props_txt_name = "".join((material.name, pathtool.props_txt_file_type))
+        gen_obj_match = Path(previous_props_txt_folder).rglob(props_txt_name)
+        props_txt_path = get_value_in_gen_obj(gen_obj_match)
+        is_props_txt_exist_for_material = True
+
+        #previous_props_txt_folder stays the same
+
+        #if we can't find anything do the normal search
+        if props_txt_path == "":
+            props_txt_path, is_props_txt_exist_for_material, previous_props_txt_folder = find_props_txt()
+        #debug
+        #if found props.txt through previous folder
+        # else:
+        #     print("Found props.txt via previous folder")
+
     #not needed any more
     #get the current material's name to concatenate
     #a string the path to the props.txt file
@@ -688,6 +751,10 @@ def find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool
 
     if (is_props_txt_exist_for_material):
         create_one_shader_map(material, props_txt_path, pathtool)
+    
+    #debug
+    #print("previous_props_txt_folder:", previous_props_txt_folder)
+    return previous_props_txt_folder
 
 
 def get_value_in_gen_obj(gen_obj_match):
