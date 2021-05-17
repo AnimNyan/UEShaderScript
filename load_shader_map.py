@@ -97,8 +97,10 @@ class PathProperties(bpy.types.PropertyGroup):
     is_add_skin_map: bpy.props.BoolProperty(name="Add Height Map Skin Texture (True for Roman Noodles Skin)", default = False)
 
     #advanced settings
-    regex_pattern_in_props_txt_file:  bpy.props.StringProperty(name="Regex Pattern in props.txt (material) files:", 
+    regex_pattern_in_props_txt_file: bpy.props.StringProperty(name="Regex Pattern in props.txt (material) files:", 
                 description="Regex pattern used in files that describe materials ", default = "Texture2D\'(.*)\.")
+    props_txt_file_type: bpy.props.StringProperty(name="File extension for material info files:", 
+                description="File extension for material info files, props.txt file equivalents", default = ".props.txt")
 
 
 
@@ -218,6 +220,7 @@ class LOADUESHADERSCRIPT_PT_load_advanced_settings_main_panel_2_sub_1(LOADUESHAD
 
         layout.label(text = "Please only change these settings if you know what you are doing")
         layout.prop(pathtool, "regex_pattern_in_props_txt_file")
+        layout.prop(pathtool, "props_txt_file_type")
 
 
 
@@ -445,7 +448,7 @@ def create_multiple_materials_shader_maps(context, pathtool):
                         #enabled, the material and material.name will not work properly
                         material.use_nodes = True
                         if(pathtool.is_load_img_textures):
-                            find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, active_object, context)
+                            find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, active_object)
                         else:
                             props_txt_path = "Not/Applicable"
                             create_one_shader_map(material, props_txt_path, pathtool)
@@ -562,7 +565,7 @@ def create_selected_meshes_shader_maps(context, pathtool):
                 #enabled, the material and material.name will not work properly
                 material.use_nodes = True
                 if(pathtool.is_load_img_textures):
-                    find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, selected_obj, context)
+                    find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, selected_obj)
                 else:
                     props_txt_path = "Not/Applicable"
                     create_one_shader_map(material, props_txt_path, pathtool)
@@ -575,7 +578,7 @@ def create_selected_meshes_shader_maps(context, pathtool):
     return {"FINISHED"}
 
 
-def find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, selected_obj, context):
+def find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, selected_obj):
     #returns a generator object with the matching
     #absolute path to the props txt file
     #rglob is a globbing function (match and return a pattern)
@@ -589,7 +592,7 @@ def find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool
     #instead of C:\Nyan\Dwight Recolor\Game\Characters\Slashers\Nurse\Materials\Outfit01
     #this allows for extra redundancy
     #so the props.txt file can be either in the current directory, or its subdirectories
-    props_txt_name = "".join((material.name, ".props.txt"))
+    props_txt_name = "".join((material.name, pathtool.props_txt_file_type))
     gen_obj_match = Path(abs_mat_folder_path).rglob(props_txt_name)
     
     props_txt_path = get_value_in_gen_obj(gen_obj_match)
@@ -1880,6 +1883,11 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
         pathtool.property_unset("is_reuse_node_group_with_same_name")
         pathtool.property_unset("is_reuse_img_texture_with_same_name")
         pathtool.property_unset("is_add_skin_map")
+
+        #reset advanced settings as well in case
+        #they were changed accidentally
+        pathtool.property_unset("regex_pattern_in_props_txt_file")
+        pathtool.property_unset("props_txt_file_type")
         return {'FINISHED'}
 
 
