@@ -59,7 +59,10 @@ class PathProperties(bpy.types.PropertyGroup):
         items = 
         [
             (".tga" , ".tga", ""),
-            (".png" , ".png", "")
+            (".png" , ".png", ""),
+            (".jpg", ".jpg", ""),
+            (".bmp", ".bmp", ""),
+            (".dds", ".dds", "")
         ]
         
     )
@@ -532,8 +535,8 @@ def create_selected_meshes_shader_maps(context, pathtool):
     #go through all of the selected object's materials
     for selected_obj in selected_objects_list: 
         #debug
-        print("selected_obj.name", selected_obj.name)
-        print("selected_obj.type", selected_obj.type)
+        #print("selected_obj.name", selected_obj.name)
+        #print("selected_obj.type", selected_obj.type)
 
         #ignore any selected objects that are not meshes
         #because we can't shader maps to non-meshes
@@ -703,28 +706,16 @@ def load_preset(material, abs_props_txt_path, pathtool):
     #         message="Selected preset can not be restored to this node editor.")
     #     return {'FINISHED'}
     if nodes_dict["editor_type"] == SHADER_EDITOR:
-        # if (bpy.context.object is not None and bpy.context.object.type != "MESH" and bpy.context.object.type != "LIGHT") or bpy.context.object is None:
-        #     bpy.ops.ueshaderscript.show_message(
-        #         message = "Selected object cannot be restored, please choose a Mesh to load a shader map to.")
-        #     return {'FINISHED'}
-        # if "shader_type" in nodes_dict:
-        #     shader_type_value = nodes_dict["shader_type"]
-        #     area.spaces[0].shader_type = shader_type_value
-        # Branch for shader type: Object or World
-        # shader_type = area.spaces[0].shader_type
         shader_type = nodes_dict["shader_type"]
-        # if bpy.context.object.type == "LIGHT" and shader_type == "OBJECT":
-        #     light = bpy.data.lights[bpy.context.object.name]
-        #     light.use_nodes = True
-        #     node_tree = light.node_tree
-        # elif bpy.context.object.type == "LIGHT" and shader_type == "WORLD":
-        #     world = get_active_world()
-        #     node_tree = world.node_tree
         if shader_type == "OBJECT":
-            if bpy.context.object is None:
-                bpy.ops.ueshaderscript.show_message(
-                    message = "Please choose an object in View 3D to restore.")
-                return {'FINISHED'}
+            #don't need this check because 
+            #checks have already happened before it reaches this point
+            #in the operators themselves
+            # if bpy.context.object is None:
+            #     bpy.ops.ueshaderscript.show_message(
+            #         message = "Please choose a mesh in the 3D view to restore.")
+            #     return {'FINISHED'}
+            
             #this is from node kit use own method of loading shader map
             #later
             #mat = add_material_to_active_object()
@@ -1134,33 +1125,27 @@ def get_complete_path_to_texture_file(pathtool, tex_location):
     #turn it into an absolute one
     #as relative paths cause problems
     #when trying to load an image
+    #looks like C:\Nyan\Dwight Recolor\Game\
     abs_export_folder_path = bpy.path.abspath(pathtool.export_folder_path)
     
-    # Returns user specified export game folder path
-    # with first character removed
-    # reason why is there would be double up of \/ when 
-    #concatenating strings
-    user_tex_folder = abs_export_folder_path[:-1]
-    
     #replace forward slash with backslash reason why is
-    # when concatenating complete path looks like this
-    #if no replace path looks like e.g. C:\Nyan\Dwight Recolor\Game/Characters/Slashers/Bear/Textures/Outfit01/T_BEHead01_BC
+    #when concatenating complete path looks like this
+    #if no replace path looks like e.g. C:\Nyan\Dwight Recolor\/Game/Characters/Slashers/Bear/Textures/Outfit01/T_BEHead01_BC
     #which is weird
     #backslash is used to escape backslash character
+    #if no forward slash is found this does nothing
+    #so it is still okay
     tex_location = tex_location.replace("/","\\")
+
+
+    #now abs_export_folder_path looks like
+    #C:\Nyan\Dwight Recolor\Game\
+    #and tex_location looks like \Game\Characters\Slashers\Bear\Textures\Outfit01\T_BEHead01_BC
+    #concatenate the two strings merging overlapping parts
+    texture_path = overlap_concat_string(abs_export_folder_path, tex_location)
     
-    #if the user selects the game folder instead of the
-    #parent folder, the first 5 characters of 
-    #the user input box: user_tex_folder will be "Game"
-    #so we remove "Game\" from the tex_location
-    #to avoid a double up
-    #this is extra redundancy so if the
-    #user chooses either the Game folder or
-    #the parent folder of the Game folder
-    #both options will work
-    if user_tex_folder[-4:] == "Game":
-        #backslash is used to escape backslash character
-        tex_location = tex_location.replace("\\Game","")
+    #debug
+    #print("texture_path", texture_path)
 
     #must string concatenate the user specified texture location path to 
     #the texture location
@@ -1171,9 +1156,72 @@ def get_complete_path_to_texture_file(pathtool, tex_location):
     #we need e.g. C:\Nyan\Dwight Recolor\Game\Characters
     #\Slashers\Bear\Textures\Outfit01\T_BEHead01_BC
     #using pathtool.texture_file_type_enum because it may be ".tga" or ".png"
-    complete_path = "".join((user_tex_folder, tex_location, pathtool.texture_file_type_enum))
+    complete_path = "".join((texture_path, pathtool.texture_file_type_enum))
     return complete_path
 
+#concatenates two strings by merging overlapping parts
+#at the end of the string 1 and the start of string 2
+def overlap_concat_string(string1, string2):
+    len_s1 = len(string1)
+    len_s2 = len(string2)
+
+    #create sequence from 0 to len_s1 - 1
+    #iterate over string 1 indexes
+    #use reversed so we're iterating through the 
+    #first string backwards where the match should be
+    for current_index_s1 in range(len_s1):
+        char_index_s1 = current_index_s1
+        #checking from the start of string 2 for a match
+        char_index_s2 = 0
+
+        # #debug
+        # current_char_s1 = string1[char_index_s1]
+        # current_char_s2 =  string2[char_index_s2]
+        # print("current_char_s1:", current_char_s1)
+        # print("current_char_s2:", current_char_s2)
+
+        #repeat while loop
+        #we are iterating forwards through
+        #so we must make sure that char_index_s1 does not reach the length of string 1
+        #we are iterating forwards through string 2
+        #so char_index_s2 must not reach the length of string 2
+        #because otherwise we would be checking for non existent indexes 
+        #in strings
+        #we must also check whether to continue based on if the current character
+        #for string 1 is equal to the current character for string 2
+        #so we know if we're encountering a matched part
+        while (char_index_s1 < len_s1 and char_index_s2 < len_s2 and 
+                     string1[char_index_s1] == string2[char_index_s2]):
+            char_index_s1 = char_index_s1 + 1
+            char_index_s2 = char_index_s2 + 1
+            
+            # #debug
+            # if (char_index_s1 < len_s1 and char_index_s2 < len_s2):
+            #     current_char_s1 = string1[char_index_s1]
+            #     current_char_s2 =  string2[char_index_s2]
+            #     print("current_char_s1:", current_char_s1)
+            #     print("current_char_s2:", current_char_s2)
+
+        
+        #if the index is equal to the length of the string
+        #all characters have been checked in the string
+        #and there are two cases: 
+        #1. It was a match until the end of the string
+        #so char_index_s2 is not 0 and we are only
+        #taking the part that is unique from string 2
+        if char_index_s1 == len_s1:
+            n = char_index_s2
+
+            #break from for loop
+            #if the full match has been found
+            break
+    
+        else:
+            #2. else is only reached if there was no matching parts
+            #in string 1 and string 2 to merge
+            #so n = 0 so that we can take the full string 2
+            n = 0
+    return string1 + string2[n:]
 
 def img_textures_special_handler(textures, pathtool, material, node_to_load, node_tree):
     #special case if the node that was loaded was a transparency node _M
