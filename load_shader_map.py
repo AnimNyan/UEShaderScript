@@ -299,6 +299,20 @@ class LOADUESHADERSCRIPT_PT_load_methods_main_panel_3(LOADUESHADERSCRIPT_shared_
             box.operator("loadueshaderscript.add_to_one_material_operator")
 
 
+#main panel part 4
+#inheriting the shared panel's bl_space_type, bl_region_type and bl_category
+class LOADUESHADERSCRIPT_PT_solo_material_main_panel_4(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
+    bl_label = "Solo Material so it is easier to adjust"
+    bl_idname = "LOADUESHADERSCRIPT_PT_solo_material_main_panel_4"
+    bl_options = {"DEFAULT_CLOSED"}
+
+    def draw(self, context):
+        layout = self.layout
+        layout.operator("loadueshaderscript.solo_material_operator")
+        layout.operator("loadueshaderscript.use_nodes_mesh_operator")
+
+
+
 #---------------------------code for Operators in Main Panel
 
 class LOADUESHADERSCRIPT_OT_add_to_one_material(bpy.types.Operator):
@@ -317,38 +331,56 @@ class LOADUESHADERSCRIPT_OT_add_to_one_material(bpy.types.Operator):
         #returns the active object, which means the last selected object
         #even if it is not selected at the current moment
         active_object = bpy.context.active_object
-        if active_object != None:
-            if active_object.type == "MESH":
-                #shade smooth on the active object
-                #may already be shaded smooth if coming from the 
-                #create_all_shader_maps
-                #but this is just in case the user only runs create_one_shader_map
-                mesh = active_object.data
-                for f in mesh.polygons:
-                    f.use_smooth = True
 
-                #find the selected material and 
-                #create a basic shader on it
-                selected_mat = bpy.context.active_object.active_material
-                
-                create_one_shader_map(selected_mat, pathtool.props_txt_path, pathtool)
-            
-            #if the active_object is not a mesh
-            else:
-                warning_message = "Error: Active Object is not a mesh, please select a mesh before pressing Add ONE Shader Map to Active Material"
-                bpy.ops.ueshaderscript.show_message(message = warning_message)
-                log(warning_message)
+        #check if required fields have been filled in
+        if pathtool.export_folder_path != "" and pathtool.props_txt_path != "":
+            create_one_material_shader_map(active_object, pathtool, time_start)
 
-        #if active_object is None and does not exist
+        #else if required fields are missing
         else:
-            warning_message = "Error: No Active Object, please select a mesh before pressing Add ONE Shader Map to Active Material"
-            bpy.ops.ueshaderscript.show_message(message = warning_message)
-            log(warning_message)
-        
-        #don't use log so can use new line characterws
-        print("\n\n\n[UE Shader Script]: Finished create_one_shader_map in: %.4f sec" % (time.time() - time_start))
+            error_message = "Error: One or more Required Fields, marked with (!) have not been filled in."
+            bpy.ops.ueshaderscript.show_message(message = error_message)
+            log(error_message)
         
         return {"FINISHED"}
+
+
+def create_one_material_shader_map(active_object, pathtool, time_start):
+    if active_object != None:
+
+        if active_object.type == "MESH":
+            #shade smooth on the active object
+            #may already be shaded smooth if coming from the 
+            #create_all_shader_maps
+            #but this is just in case the user only runs create_one_shader_map
+            mesh = active_object.data
+            for f in mesh.polygons:
+                f.use_smooth = True
+
+            #find the selected material and 
+            #create a basic shader on it
+            selected_mat = bpy.context.active_object.active_material
+            
+            create_one_shader_map(selected_mat, pathtool.props_txt_path, pathtool)
+
+            #print the time taken to finish creating the shader map
+            #don't use log so can use new line characters
+            #this is inside all the checks because we only print finished if an error hasn't occcured
+            print("\n\n\n[UE Shader Script]: Finished create_one_shader_map in: %.4f sec" % (time.time() - time_start))
+
+
+        #if the active_object is not a mesh
+        else:
+            error_message = "Error: Active Object is not a mesh, please select a mesh before pressing Add ONE Shader Map to Active Material"
+            bpy.ops.ueshaderscript.show_message(message = error_message)
+            log(error_message)
+
+
+    #if active_object is None and does not exist
+    else:
+        error_message = "Error: No Active Object, please select a mesh before pressing Add ONE Shader Map to Active Material"
+        bpy.ops.ueshaderscript.show_message(message = error_message)
+        log(error_message)
 
 
 
@@ -364,11 +396,17 @@ class LOADUESHADERSCRIPT_OT_add_to_multiple_materials(bpy.types.Operator):
         #allow access to user inputted properties through pointer
         #to properties
         pathtool = scene.path_tool
+
+        #check if required fields have been filled in
+        if pathtool.export_folder_path != "" and pathtool.material_indices_list_string != "":
+            create_multiple_materials_shader_maps(context, pathtool, time_start)
+            
+        #else if required fields are missing
+        else:
+            error_message = "Error: One or more Required Fields, marked with (!) have not been filled in."
+            bpy.ops.ueshaderscript.show_message(message = error_message)
+            log(error_message)
         
-        create_multiple_materials_shader_maps(context, pathtool)
-        #don't use log so can use new line characterws
-        print("\n\n\n[UE Shader Script]: Finished create_multiple_materials_shader_maps in: %.4f sec" % (time.time() - time_start))
-    
         return {"FINISHED"}
 
 
@@ -376,7 +414,7 @@ class LOADUESHADERSCRIPT_OT_add_to_multiple_materials(bpy.types.Operator):
 #just runs the create one shader map function multiple times
 #for every material on the active object, checking if they are in the
 #pathtool list
-def create_multiple_materials_shader_maps(context, pathtool):
+def create_multiple_materials_shader_maps(context, pathtool, time_start):
     #if the folder path is a relative path
     #turn it into an absolute one
     #as relative paths cause problems
@@ -462,27 +500,31 @@ def create_multiple_materials_shader_maps(context, pathtool):
                     warning_message = " ".join(("Warning: The", not_found_material_index, "material slot was not found, please note that indexes start from 0."))
                     bpy.ops.ueshaderscript.show_message(message = warning_message)
                     log(warning_message)
+
+                #print the time taken to finish creating shader maps
+                #don't use log so can use new line characters
+                #this is inside all the checks because we only print finished if an error hasn't occcured
+                print("\n\n\n[UE Shader Script]: Finished create_multiple_materials_shader_maps in: %.4f sec" % (time.time() - time_start))
             
+
             #if the active object type is not a mesh
             else:
-                warning_message = "Error: Active Object is not a mesh, please select a mesh before pressing Add Shader Maps to Multiple Materials"
-                bpy.ops.ueshaderscript.show_message(message = warning_message)
-                log(warning_message)
+                error_message = "Error: Active Object is not a mesh, please select a mesh before pressing Add Shader Maps to Multiple Materials"
+                bpy.ops.ueshaderscript.show_message(message = error_message)
+                log(error_message)
         
         #if the material_indices_list_string is empty
         else:
-            warning_message = "Error: Material Indices List is empty, please enter integers separated by one space before pressing Add Shader Maps to Multiple Materials"
-            bpy.ops.ueshaderscript.show_message(message = warning_message)
-            log(warning_message)
+            error_message = "Error: Material Indices List is empty, please enter integers separated by one space before pressing Add Shader Maps to Multiple Materials"
+            bpy.ops.ueshaderscript.show_message(message = error_message)
+            log(error_message)
             
     
     #if the active object does not exist
     else:
-        warning_message = "Error: No Active Object, please select a mesh before pressing Add Shader Maps to Multiple Materials"
-        bpy.ops.ueshaderscript.show_message(message = warning_message)
-        log(warning_message)
-            
-    return {"FINISHED"}
+        error_message = "Error: No Active Object, please select a mesh before pressing Add Shader Maps to Multiple Materials"
+        bpy.ops.ueshaderscript.show_message(message = error_message)
+        log(error_message)
 
 
 
@@ -498,10 +540,16 @@ class LOADUESHADERSCRIPT_OT_add_to_selected_meshes(bpy.types.Operator):
         #allow access to user inputted properties through pointer
         #to properties
         pathtool = scene.path_tool
-        
-        create_selected_meshes_shader_maps(context, pathtool)
-        #don't use log so can use new line characterws
-        print("\n\n\n[UE Shader Script]: Finished create_selected_meshes_shader_maps in: %.4f sec" % (time.time() - time_start))
+
+        #check if required fields have been filled in
+        if pathtool.export_folder_path != "":
+            create_selected_meshes_shader_maps(context, pathtool, time_start)
+
+        #else if required fields are missing
+        else:
+            error_message = "Error: The Required Exported Game Folder Field, marked with (!) has not been filled in."
+            bpy.ops.ueshaderscript.show_message(message = error_message)
+            log(error_message)
     
         return {"FINISHED"}
 
@@ -512,7 +560,7 @@ class LOADUESHADERSCRIPT_OT_add_to_selected_meshes(bpy.types.Operator):
 #create selected meshes shader maps function
 #just runs the create one shader map function
 #for all selected objects, should be meshes and all materials
-def create_selected_meshes_shader_maps(context, pathtool):
+def create_selected_meshes_shader_maps(context, pathtool, time_start):
     #if the folder path is a relative path
     #turn it into an absolute one
     #as relative paths cause problems
@@ -527,55 +575,64 @@ def create_selected_meshes_shader_maps(context, pathtool):
     #this makes a list of all selected objects (can be multiple)
     selected_objects_list = bpy.context.selected_objects
     
-    #warning message if user has selected no meshes or objects
-    if selected_objects_list == []:
-        warning_message = "Warning: No meshes selected, please select one or more meshes before pressing Add Shader Maps to ALL Selected Meshes"
-        bpy.ops.ueshaderscript.show_message(message = warning_message)
-        log(warning_message)
-    
-    #go through each selected object
-    #and in every selected object
-    #go through all of the selected object's materials
-    for selected_obj in selected_objects_list: 
-        #debug
-        #print("selected_obj.name", selected_obj.name)
-        #print("selected_obj.type", selected_obj.type)
+    #make sure that ther are selected objects
+    if selected_objects_list != []:
+        #go through each selected object
+        #and in every selected object
+        #go through all of the selected object's materials
+        for selected_obj in selected_objects_list: 
+            #debug
+            #print("selected_obj.name", selected_obj.name)
+            #print("selected_obj.type", selected_obj.type)
 
-        #ignore any selected objects that are not meshes
-        #because we can't shader maps to non-meshes
-        if selected_obj.type == "MESH":
-            #shade smooth on the all selected meshes
-            #inside loop
-            #must use context.object.data
-            #as part of bpy.ops
-            #as bpy.ops.object.shade_smooth() as part of bpy.ops
-            #not bpy.data
-            mesh = selected_obj.data
-            for f in mesh.polygons:
-                f.use_smooth = True
+            #ignore any selected objects that are not meshes
+            #because we can't shader maps to non-meshes
+            if selected_obj.type == "MESH":
+                #shade smooth on the all selected meshes
+                #inside loop
+                #must use context.object.data
+                #as part of bpy.ops
+                #as bpy.ops.object.shade_smooth() as part of bpy.ops
+                #not bpy.data
+                mesh = selected_obj.data
+                for f in mesh.polygons:
+                    f.use_smooth = True
+                
+                #fetch all materials of the current selected object in a list
+                selected_obj_materials_list = selected_obj.data.materials[:]
             
-            #fetch all materials of the current selected object in a list
-            selected_obj_materials_list = selected_obj.data.materials[:]
-        
-            #create a shader map for each material in the materials list
-            #in a loop
-            for material in selected_obj_materials_list:
-                #make sure to use nodes before anything else
-                #this is because if you don't have use nodes
-                #enabled, the material and material.name will not work properly
-                material.use_nodes = True
-                if(pathtool.is_load_img_textures):
-                    find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, selected_obj)
-                else:
-                    props_txt_path = "Not/Applicable"
-                    create_one_shader_map(material, props_txt_path, pathtool)
-        
-        #if it is not a mesh do not show a warning as if the user
-        #has a lot of non mesh objects this would issue many warnings
-        #which might be very annoying
-        #instead just ignore these non mesh objects
+                #create a shader map for each material in the materials list
+                #in a loop
+                for material in selected_obj_materials_list:
+                    #make sure to use nodes before anything else
+                    #this is because if you don't have use nodes
+                    #enabled, the material and material.name will not work properly
+                    material.use_nodes = True
+                    if(pathtool.is_load_img_textures):
+                        find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, selected_obj)
+                    else:
+                        props_txt_path = "Not/Applicable"
+                        create_one_shader_map(material, props_txt_path, pathtool)
             
-    return {"FINISHED"}
+            #if it is not a mesh do not show a warning as if the user
+            #has a lot of non mesh objects this would issue many warnings
+            #which might be very annoying
+            #instead just ignore these non mesh objects
+        
+
+        #print the time taken to finish creating shader maps
+        #don't use log so can use new line characters
+        #this is inside all the checks because we only print finished if an error hasn't occcured
+        print("\n\n\n[UE Shader Script]: Finished create_selected_meshes_shader_maps in: %.4f sec" % (time.time() - time_start))
+    
+    else:
+        #error message if user has selected no meshes or objects
+        error_message = "Error: No meshes selected, please select one or more meshes before pressing Add Shader Maps to ALL Selected Meshes"
+        bpy.ops.ueshaderscript.show_message(message = error_message)
+        log(error_message)
+
+    
+
 
 
 def find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, selected_obj):
@@ -773,6 +830,84 @@ def load_preset(material, abs_props_txt_path, pathtool):
     #     # Update 10 most used presets
     #     update_selected_preset_used_count()
     #     update_10_most_used_presets()
+
+class LOADUESHADERSCRIPT_OT_solo_material(bpy.types.Operator):
+    bl_label = "Solo Material for Active Mesh (Solo Use Nodes)"
+    bl_idname = "loadueshaderscript.solo_material_operator"
+    def execute(self, context):
+        active_object = bpy.context.active_object
+
+        if active_object != None:
+
+            if active_object.type == "MESH":
+                active_material = active_object.active_material
+
+                if active_material != None:
+                    
+                    #set every material on the active object use_nodes to False
+                    for mat_slot in active_object.material_slots:
+                        mat_slot.material.use_nodes = False
+                    
+                    #change the active material use_nodes back to True
+                    active_material.use_nodes = True
+                    
+                # if the active material does not exist
+                else:
+                    error_message = "Error: There is no active material, please select a mesh and material before pressing Solo Material."
+                    bpy.ops.ueshaderscript.show_message(message = error_message)
+                    log(error_message)
+            # if the active object is not a mesh
+            else:
+                error_message = "Error: The Active Object was not a Mesh, please select a mesh before pressing Solo Material."
+                bpy.ops.ueshaderscript.show_message(message = error_message)
+                log(error_message)
+        
+        #if the active object does not exist
+        else:
+            error_message = "Error: No Active Mesh was found, please select a mesh before pressing Solo Material."
+            bpy.ops.ueshaderscript.show_message(message = error_message)
+            log(error_message)
+        
+        return {"FINISHED"}
+
+
+class LOADUESHADERSCRIPT_OT_use_nodes_mesh(bpy.types.Operator):
+    bl_label = "Use Nodes for ALL materials on Active Mesh"
+    bl_idname = "loadueshaderscript.use_nodes_mesh_operator"
+    def execute(self, context):
+        active_object = bpy.context.active_object
+
+        if active_object != None:
+
+            if active_object.type == "MESH":
+                active_material = active_object.active_material
+
+                #need to check if there is no material slots
+                #otherwise trying to use_nodes will cause an error
+                if len(active_object.material_slots) != 0:
+                    
+                    #set every material on the active object use_nodes to False
+                    for mat_slot in active_object.material_slots:
+                        mat_slot.material.use_nodes = True
+
+                # if there are no material slots on the active mesh
+                else:
+                    error_message = "Error: There are no materials on the active mesh, please select a mesh with materials before pressing Solo Material."
+                    bpy.ops.ueshaderscript.show_message(message = error_message)
+                    log(error_message)
+            # if the active object is not a mesh
+            else:
+                error_message = "Error: The Active Object was not a Mesh, please select a mesh before pressing Solo Material."
+                bpy.ops.ueshaderscript.show_message(message = error_message)
+                log(error_message)
+        
+        #if the active object does not exist
+        else:
+            error_message = "Error: No Active Mesh was found, please select a mesh before pressing Solo Material."
+            bpy.ops.ueshaderscript.show_message(message = error_message)
+            log(error_message)
+        
+        return {"FINISHED"}
 
 
 def get_active_world():
@@ -1199,6 +1334,8 @@ def overlap_concat_string(string1, string2):
             char_index_s2 = char_index_s2 + 1
             
             # #debug
+            # #even the debug needs a check otherwise will try to print
+            # #a char that is out of range
             # if (char_index_s1 < len_s1 and char_index_s2 < len_s2):
             #     current_char_s1 = string1[char_index_s1]
             #     current_char_s2 =  string2[char_index_s2]
@@ -1387,7 +1524,9 @@ def reuse_the_img_texture(node_to_load, img_texture_file_name):
     node_to_load.image = bpy.data.images[img_texture_file_name]
 
 
-#returns first principled bsdf in case of two
+#if more than one principled bsdf changes all of them to the same strength
+#have to change this manually as there is not always a _BDE image texture
+#so we only increase emission strength as required when there is a _BDE texture
 def change_emission_strength_principled_bsdf(node_tree, node_type, emission_strength):
     count = 0
     for node in node_tree.nodes:
@@ -1900,6 +2039,7 @@ classes = [PathProperties,
 LOADUESHADERSCRIPT_PT_select_preset_main_panel_1,
 LOADUESHADERSCRIPT_PT_load_settings_main_panel_2, LOADUESHADERSCRIPT_PT_load_advanced_settings_main_panel_2_sub_1,
 LOADUESHADERSCRIPT_PT_load_methods_main_panel_3,
+LOADUESHADERSCRIPT_PT_solo_material_main_panel_4, LOADUESHADERSCRIPT_OT_solo_material, LOADUESHADERSCRIPT_OT_use_nodes_mesh,
 
 LOADUESHADERSCRIPT_OT_add_to_one_material, LOADUESHADERSCRIPT_OT_add_to_multiple_materials, 
 LOADUESHADERSCRIPT_OT_add_to_selected_meshes, LOADUESHADERSCRIPT_OT_reset_settings_main_panel]
