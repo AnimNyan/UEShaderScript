@@ -8,7 +8,7 @@ Thank you to Aaron Elkins who designed Node Kit, a Blender plugin under the GPL 
 UEShaderScript copies a huge amount of code from Node Kit and I want to thank Aaron Elkins for his kindness 
 for giving me permission to release UEShaderscript. Please have a look at his plugin and his work here: https://blendermarket.com/products/node-kit
 
-I also want to thank Roman Noodles, YanimaDBD, Pit Princess and Frutto for their fantastic work in designing the presets that come with this plugin!
+I also want to extend my overwhelming gratitude towards Roman Noodles, YanimaDBD, Pit Princess and Frutto for their fantastic work in designing the presets that come with this plugin, but also for their guidance and support which without I would not have been able to finish this plugin!
 
 ## Permissions
 UEShaderScript is under the GPL Licence that means you have permission to use part or the whole of this plugin for free or commercial purposes free of charge.
@@ -104,6 +104,17 @@ Most of the time we don't want to use this, because it only adds a preset to one
 This is just in case we have one material which should have a different shader map preset.
 So to load a single preset for one material we want to look at the box labelled "ADD SHADER MAP TO SELECTED MATERIAL (ONE MATERIAL)"
 1. 
+
+#### Disclaimer for Pit Princess's presets from Pit Princess
+Using custom per-light ray denoising in compositing will break because my "colour" of objects can be outside the sdr range, because blender technically only has diffuse and specular light rays
+it's easily fixable by denoising in hdr range. For example, skin can be seen to be "glowing" in the direct colour pass.
+
+#### Using Pit Princess's presets
+for the cloth shader
+softness is meant for soft fabrics like cotton
+hardness is meant for hard stuff like leather or rubber
+fuzziness is made for things like silk or a thin-sheet adidas-tracksuit
+translucency is meant for anything that's supposed to let light through it such as thin t-shirts
 
 ### Advanced Options Loading Preset Shader Maps
 
