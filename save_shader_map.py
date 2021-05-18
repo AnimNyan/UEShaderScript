@@ -57,6 +57,7 @@ class SAVEUESHADERSCRIPT_OT_save_shader_map(bpy.types.Operator):
     #default name is for Roman Noodles label
     #text is changed for other Shader Map Types
     bl_label = "Save Shader Map"
+    bl_description = "Save Current Shader Map as a Preset"
     bl_idname = "saveueshaderscript.saveshadermap_operator"
     def execute(self, context):
   
@@ -697,7 +698,7 @@ class SaveProperties(bpy.types.PropertyGroup):
     #skin only needs a node name as it is not from the game files
     #rather it is externally added by the user themself
     skin_node_name: bpy.props.StringProperty(name="Skin Node Name", description="Skin image texture node name", default="")
-    is_add_img_textures: bpy.props.BoolProperty(name="Load Image Textures to Shader Map", default= True)
+    is_add_img_textures: bpy.props.BoolProperty(name="Load Image Textures to Shader Map Dynamically", default= True)
     
 
 
@@ -1963,7 +1964,7 @@ class ShowMessageOperator(bpy.types.Operator):
 class SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel(bpy.types.Operator):
     bl_idname = "saveueshaderscript.reset_inputs_main_panel_operator"
     bl_label = "Reset All Inputs to Default"
-    bl_description = "Reset Main Panel for UEShaderScript"
+    bl_description = "Reset Save Main Panel for UEShaderScript"
     bl_options = {'REGISTER'}
 
     @classmethod

@@ -334,6 +334,7 @@ class LOADUESHADERSCRIPT_PT_solo_material_main_panel_4(LOADUESHADERSCRIPT_shared
 
 class LOADUESHADERSCRIPT_OT_add_to_one_material(bpy.types.Operator):
     bl_label = "Add ONE Shader Map to Active Material"
+    bl_description = "Add ONE Shader Map to Active Material on Active Mesh"
     bl_idname = "loadueshaderscript.add_to_one_material_operator"
     def execute(self, context):
         #time how long it takes to create all shader maps for all materials
@@ -405,6 +406,7 @@ def create_one_material_shader_map(active_object, pathtool, time_start):
 
 class LOADUESHADERSCRIPT_OT_add_to_multiple_materials(bpy.types.Operator):
     bl_label = "Add Shader Maps to Multiple Materials"
+    bl_description = "Add Shader Maps to Multiple Materials by Index"
     bl_idname = "loadueshaderscript.add_to_multiple_materials_operator"
     def execute(self, context):
         #time how long it takes to create all shader maps for all materials
@@ -558,6 +560,7 @@ def create_multiple_materials_shader_maps(context, pathtool, time_start):
 
 class LOADUESHADERSCRIPT_OT_add_to_selected_meshes(bpy.types.Operator):
     bl_label = "Add Shader Maps to ALL Selected Meshes"
+    bl_description = "Add Shader Maps to all Materials on all Selected Meshes"
     bl_idname = "loadueshaderscript.add_to_selected_meshes_operator"
     def execute(self, context):
         #time how long it takes to create all shader maps for all materials
@@ -925,6 +928,7 @@ def load_preset(material, abs_props_txt_path, pathtool):
 
 class LOADUESHADERSCRIPT_OT_solo_material(bpy.types.Operator):
     bl_label = "Solo Active Material for Active Mesh (Solo Use Nodes)"
+    bl_description = "Use Nodes True for Active Material and False for Other Materials on Active Mesh"
     bl_idname = "loadueshaderscript.solo_material_operator"
     def execute(self, context):
         active_object = bpy.context.active_object
@@ -965,6 +969,7 @@ class LOADUESHADERSCRIPT_OT_solo_material(bpy.types.Operator):
 
 class LOADUESHADERSCRIPT_OT_use_nodes_mesh(bpy.types.Operator):
     bl_label = "Use Nodes for ALL Materials on Active Mesh"
+    bl_description = "Make Use Nodes True for ALL Materials on Active Mesh"
     bl_idname = "loadueshaderscript.use_nodes_mesh_operator"
     def execute(self, context):
         active_object = bpy.context.active_object
@@ -2076,7 +2081,7 @@ def roman_noodles_shader_map(material, props_txt_path, pathtool):
 class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
     bl_idname = "loadueshaderscript.reset_settings_main_panel_operator"
     bl_label = "Reset All Settings to Default"
-    bl_description = "Reset Main Panel for UEShaderScript"
+    bl_description = "Reset Load Main Panel for UEShaderScript"
     bl_options = {'REGISTER'}
 
     @classmethod
