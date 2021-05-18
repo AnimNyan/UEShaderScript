@@ -1964,7 +1964,7 @@ class ShowMessageOperator(bpy.types.Operator):
 class SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel(bpy.types.Operator):
     bl_idname = "saveueshaderscript.reset_inputs_main_panel_operator"
     bl_label = "Reset All Inputs to Default"
-    bl_description = "Reset Save Main Panel for UEShaderScript"
+    bl_description = "Reset Save Settings Main Panel for UEShaderScript"
     bl_options = {'REGISTER'}
 
     @classmethod

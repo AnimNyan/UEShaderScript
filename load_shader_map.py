@@ -2081,7 +2081,7 @@ def roman_noodles_shader_map(material, props_txt_path, pathtool):
 class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
     bl_idname = "loadueshaderscript.reset_settings_main_panel_operator"
     bl_label = "Reset All Settings to Default"
-    bl_description = "Reset Load Main Panel for UEShaderScript"
+    bl_description = "Reset Load Settings Main Panel for UEShaderScript"
     bl_options = {'REGISTER'}
 
     @classmethod
