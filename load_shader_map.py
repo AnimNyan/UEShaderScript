@@ -81,7 +81,7 @@ class PathProperties(bpy.types.PropertyGroup):
     is_m_non_colour: bpy.props.BoolProperty(name="Transparency Map Textures Non Colour", default = True)
     is_orm_non_colour: bpy.props.BoolProperty(name="Packed ARM Textures Non Colour", default = True)
 
-    is_load_img_textures: bpy.props.BoolProperty(name="Load Image Textures", default= True)
+    is_load_img_textures: bpy.props.BoolProperty(name="Load Image Textures Dynamically", default= True)
     is_delete_unused_img_texture_nodes: bpy.props.BoolProperty(name="Delete Unused Image Texture Nodes", default = True)
     is_delete_unused_related_nodes: bpy.props.BoolProperty(name="Delete Unused Image Texture Nodes AND Related Nodes (Slower)", default = False)
 
@@ -167,10 +167,11 @@ class LOADUESHADERSCRIPT_PT_load_settings_main_panel_2(LOADUESHADERSCRIPT_shared
         #option to replace or keep existing nodes in materials
         layout.prop(pathtool, "is_replace_nodes")
 
-        #option to delete image texture nodes which have not had a texture
-        #loaded into them
-        layout.prop(pathtool, "is_delete_unused_img_texture_nodes")
         if(pathtool.is_load_img_textures):
+            #option to delete image texture nodes which have not had a texture
+            #loaded into them
+            layout.prop(pathtool, "is_delete_unused_img_texture_nodes")
+
             #only show this option if delete unused_img_texture_nodes is checked
             if(pathtool.is_delete_unused_img_texture_nodes):
                 layout.prop(pathtool, "is_delete_unused_related_nodes")
@@ -203,10 +204,27 @@ class LOADUESHADERSCRIPT_PT_load_advanced_settings_main_panel_2_sub_1(LOADUESHAD
     bl_label = "Advanced Settings"
     bl_parent_id = "LOADUESHADERSCRIPT_PT_load_settings_main_panel_2"
     bl_options = {"DEFAULT_CLOSED"}
+    
+    #poll function only allows 
+    #execute and draw functions to be executed
+    #if poll returns true
+    #in this case depends upon whether the
+    #is_load_img_textures settings is true
+    #if false then don't draw the advanced settings panel
+    @classmethod
+    def poll(self, context):
+        #store active scene to variable
+        scene = context.scene
+        #allow access to user inputted properties through pointer
+        #to properties
+        pathtool = scene.path_tool
+
+        return pathtool.is_load_img_textures
 
     def draw(self, context):
         layout = self.layout
 
+        #store active scene to variable
         scene = context.scene
         #allow access to user inputted properties through pointer
         #to properties
@@ -332,7 +350,9 @@ class LOADUESHADERSCRIPT_OT_add_to_one_material(bpy.types.Operator):
         active_object = bpy.context.active_object
 
         #check if required fields have been filled in
-        if pathtool.export_folder_path != "" and pathtool.props_txt_path != "":
+        #or if the load image textures dynamically checkbox is false
+        #does not need required fields
+        if pathtool.export_folder_path != "" and pathtool.props_txt_path != "" or not(pathtool.is_load_img_textures):
             create_one_material_shader_map(active_object, pathtool, time_start)
 
         #else if required fields are missing
@@ -398,6 +418,10 @@ class LOADUESHADERSCRIPT_OT_add_to_multiple_materials(bpy.types.Operator):
 
         #check if required fields have been filled in
         if pathtool.export_folder_path != "" and pathtool.material_indices_list_string != "":
+            create_multiple_materials_shader_maps(context, pathtool, time_start)
+        #or if the load image textures dynamically checkbox is false
+        #only need one of the required fields the material indexes to be filled in
+        elif pathtool.material_indices_list_string != "" and not(pathtool.is_load_img_textures):
             create_multiple_materials_shader_maps(context, pathtool, time_start)
             
         #else if required fields are missing
@@ -546,7 +570,9 @@ class LOADUESHADERSCRIPT_OT_add_to_selected_meshes(bpy.types.Operator):
         pathtool = scene.path_tool
 
         #check if required fields have been filled in
-        if pathtool.export_folder_path != "":
+        #don't need the required field to be filled in
+        #if load image textures is false
+        if pathtool.export_folder_path != "" or not(pathtool.is_load_img_textures):
             create_selected_meshes_shader_maps(context, pathtool, time_start)
 
         #else if required fields are missing
