@@ -193,9 +193,11 @@ class LOADUESHADERSCRIPT_PT_load_settings_main_panel_2(LOADUESHADERSCRIPT_shared
             layout.prop(pathtool, "is_orm_non_colour")
             
             layout.prop(pathtool, "is_change_principle_bsdf_emission_strength")
-            layout.prop(pathtool, "is_reverse_match_list_from_props_txt")
+            
             if(pathtool.is_change_principle_bsdf_emission_strength):
                 layout.prop(pathtool, "principled_bsdf_emission_strength_float")
+            
+            layout.prop(pathtool, "is_reverse_match_list_from_props_txt")
 
             #Roman Noodles related settings
             layout.prop(pathtool, "is_add_skin_map")
