@@ -97,7 +97,7 @@ class PathProperties(bpy.types.PropertyGroup):
     #txt file takes priority this is done by 
     #reversing or not reversing the match_list
     reverse_match_list_from_props_txt_enum: bpy.props.EnumProperty(
-        name = "Overlapping Loaded Textures Priority",
+        name = "Overlapping Textures Priority",
         description = "If Dynamically Loaded Textures Overlap Choose Priority",
         items = 
         [
