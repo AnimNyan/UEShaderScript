@@ -2144,6 +2144,7 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
         pathtool.property_unset("material_alpha_threshold")
         pathtool.property_unset("is_reuse_node_group_with_same_name")
         pathtool.property_unset("is_reuse_img_texture_with_same_name")
+        pathtool.property_unset("reverse_match_list_from_props_txt_enum")
         pathtool.property_unset("is_add_skin_map")
 
         #reset advanced settings as well in case
