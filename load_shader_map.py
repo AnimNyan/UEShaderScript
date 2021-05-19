@@ -96,7 +96,16 @@ class PathProperties(bpy.types.PropertyGroup):
     #in case of overlap decide if first or last texture in props
     #txt file takes priority this is done by 
     #reversing or not reversing the match_list
-    is_reverse_match_list_from_props_txt: bpy.props.BoolProperty(name="For Overlapping Loaded Textures First Takes Priority", default = True)
+    reverse_match_list_from_props_txt_enum: bpy.props.EnumProperty(
+        name = "Overlapping Loaded Textures Priority",
+        description = "If Dynamically Loaded Textures Overlap Choose Priority",
+        items = 
+        [
+            ("Reverse Match List" , "First in Materials Info File/props.txt Takes Priority (First > Last)", ""),
+            ("Don't Reverse Match List" , "Last in Materials Info File/props.txt Takes Priority (Last > First)", "")
+        ]
+        
+    )
     
     #for roman noodles shader maps
     is_add_skin_map: bpy.props.BoolProperty(name="Add Height Map Skin Texture (True for Roman Noodles Skin)", default = False)
@@ -197,7 +206,7 @@ class LOADUESHADERSCRIPT_PT_load_settings_main_panel_2(LOADUESHADERSCRIPT_shared
             if(pathtool.is_change_principle_bsdf_emission_strength):
                 layout.prop(pathtool, "principled_bsdf_emission_strength_float")
             
-            layout.prop(pathtool, "is_reverse_match_list_from_props_txt")
+            layout.prop(pathtool, "reverse_match_list_from_props_txt_enum")
 
             #Roman Noodles related settings
             layout.prop(pathtool, "is_add_skin_map")
@@ -1312,8 +1321,9 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
         #most important ones
         #convention says the most important textures that want to be last
         #in the case of overlap should be written first in the props.txt file
-        if pathtool.is_reverse_match_list_from_props_txt:
+        if pathtool.reverse_match_list_from_props_txt_enum == "Reverse Match List":
             match_list = reversed(match_list)
+        ##if it is Don't Reverse Match List don't do anything
 
     #---------------------add image texture nodes 
     
