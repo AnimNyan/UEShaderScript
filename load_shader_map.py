@@ -1501,6 +1501,12 @@ def img_textures_special_handler(textures, pathtool, material, node_to_load, nod
         #change to non-colour based on user settings
         if(pathtool.is_m_non_colour):
             node_to_load.image.colorspace_settings.name = "Non-Color"
+        #else revert to default colorspace settings
+        #need to do this as if the user has already
+        #set the color space to non-colour it will not revert to 
+        #sRGB unless we have the else statement
+        else:
+            node_to_load.image.colorspace_settings.name = "sRGB"
         
         #change clipping method + threshold to clip
         clipping_method = pathtool.clipping_method_enum
@@ -1521,10 +1527,15 @@ def img_textures_special_handler(textures, pathtool, material, node_to_load, nod
     elif textures["texture"] == "normal":
         if(pathtool.is_normal_non_colour):
             node_to_load.image.colorspace_settings.name = "Non-Color"
+        #else revert to default colorspace settings
+        else:
+            node_to_load.image.colorspace_settings.name = "sRGB"
     
     elif textures["texture"] == "packed_orm":
         if(pathtool.is_orm_non_colour):
             node_to_load.image.colorspace_settings.name = "Non-Color"
+        else:
+            node_to_load.image.colorspace_settings.name = "sRGB"
 
     #special case if the node loaded was an emissive BDE
     #find the principled BSDF node
@@ -1536,13 +1547,20 @@ def img_textures_special_handler(textures, pathtool, material, node_to_load, nod
         #change to linear if needed
         if (pathtool.is_emissive_linear):
             node_to_load.image.colorspace_settings.name = "Linear"
+        else:
+            node_to_load.image.colorspace_settings.name = "sRGB"
     elif textures["texture"] == "height":
         if(pathtool.is_hm_non_colour):
             node_to_load.image.colorspace_settings.name = "Non-Color"
+        else:
+            node_to_load.image.colorspace_settings.name = "sRGB"
+        
     
     elif textures["texture"] == "hair_gradient":
         if(pathtool.is_hair_gradient_non_colour):
             node_to_load.image.colorspace_settings.name = "Non-Color"
+        else:
+            node_to_load.image.colorspace_settings.name = "sRGB"
 
 
 
