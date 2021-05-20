@@ -82,6 +82,7 @@ class PathProperties(bpy.types.PropertyGroup):
     is_orm_non_colour: bpy.props.BoolProperty(name="Packed ARM Textures Non Colour", default = True)
     is_hm_non_colour: bpy.props.BoolProperty(name="Height Map Textures Non Colour", default = True)
     is_hair_gradient_non_colour: bpy.props.BoolProperty(name="Hair Gradient Map Textures Non Colour", default = True)
+    is_emissive_linear: bpy.props.BoolProperty(name="Emissive Map Textures Linear", default = False)
 
     is_load_img_textures: bpy.props.BoolProperty(name="Load Image Textures Dynamically", default= True)
     is_delete_unused_img_texture_nodes: bpy.props.BoolProperty(name="Delete Unused Image Texture Nodes", default = True)
@@ -204,6 +205,7 @@ class LOADUESHADERSCRIPT_PT_load_settings_main_panel_2(LOADUESHADERSCRIPT_shared
             layout.prop(pathtool, "is_orm_non_colour")
             layout.prop(pathtool, "is_hm_non_colour")
             layout.prop(pathtool, "is_hair_gradient_non_colour")
+            layout.prop(pathtool, "is_emissive_linear")
             
             layout.prop(pathtool, "is_change_principle_bsdf_emission_strength")
             
@@ -1531,7 +1533,9 @@ def img_textures_special_handler(textures, pathtool, material, node_to_load, nod
         #only change the emission strength if the bool checkbox is checked
         if (pathtool.is_change_principle_bsdf_emission_strength):
             change_emission_strength_principled_bsdf(node_tree, "BSDF_PRINCIPLED", pathtool.principled_bsdf_emission_strength_float)
-    
+        #change to linear if needed
+        if (pathtool.is_emissive_linear):
+            node_to_load.image.colorspace_settings.name = "Linear"
     elif textures["texture"] == "height":
         if(pathtool.is_hm_non_colour):
             node_to_load.image.colorspace_settings.name = "Non-Color"
@@ -2151,6 +2155,7 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
         pathtool.property_unset("is_orm_non_colour")
         pathtool.property_unset("is_hm_non_colour")
         pathtool.property_unset("is_hair_gradient_non_colour")
+        pathtool.property_unset("is_emissive_linear")
         pathtool.property_unset("is_load_img_textures")
         pathtool.property_unset("is_delete_unused_img_texture_nodes")
         pathtool.property_unset("is_delete_unused_related_nodes")
