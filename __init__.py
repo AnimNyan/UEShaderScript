@@ -26,7 +26,7 @@ import bpy
 bl_info = {
     "name": "Load Save UE Shader Map Setups",
     "author": "Anime Nyan",
-    "version": (1, 0, 7),
+    "version": (1, 0, 8),
     "blender": (2, 92, 0),
     "location": "3D View > Properties > Load UE Shaders + Shader Editor > Properties > Save UE Shaders",
     "description": "Adds the ability to save and load shader maps for 3d Meshes exported from Unreal Engine games and adds default preset shader maps for your convenience ",
