@@ -82,7 +82,7 @@ class PathProperties(bpy.types.PropertyGroup):
     is_orm_non_colour: bpy.props.BoolProperty(name="Packed ARM Textures Non Colour", default = True)
     is_hm_non_colour: bpy.props.BoolProperty(name="Height Map Textures Non Colour", default = True)
     is_hair_gradient_non_colour: bpy.props.BoolProperty(name="Hair Gradient Map Textures Non Colour", default = True)
-    is_emissive_linear: bpy.props.BoolProperty(name="Emissive Map Textures Linear", default = False)
+    is_emissive_linear: bpy.props.BoolProperty(name="Emissive Map Textures Linear", default = True)
 
     is_load_img_textures: bpy.props.BoolProperty(name="Load Image Textures Dynamically", default= True)
     is_delete_unused_img_texture_nodes: bpy.props.BoolProperty(name="Delete Unused Image Texture Nodes", default = True)
