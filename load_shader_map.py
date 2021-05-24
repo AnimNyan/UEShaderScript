@@ -488,8 +488,7 @@ def create_multiple_materials_shader_maps(context, pathtool, time_start):
             #ignore any selected objects that are not meshes
             #because we can't shader maps to non-meshes
             if active_object.type == "MESH":
-                #shade smooth on the all selected meshes
-                #inside loop
+                #shade smooth on the active mesh
                 #must use context.object.data
                 #as part of bpy.ops
                 #as bpy.ops.object.shade_smooth() as part of bpy.ops
