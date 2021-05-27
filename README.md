@@ -30,6 +30,7 @@ Again find me on my discord here: https://discord.gg/rkkWSH2EMz to send me scree
 3. Adds the ability to load shader maps and their respective image textures based on a props.txt file exported from UModel: https://www.gildor.org/en/projects/umodel#files
 
 ## Video Demo and Tutorial for UEShaderScript (Tutorial to be added)
+[![UEShaderScript Dead By Daylight Tutorial](https://i.ytimg.com/vi/8bptSUSiyB8/maxresdefault.jpg)](https://www.youtube.com/watch?v=8bptSUSiyB8 "UEShaderScript Dead By Daylight Tutorial")
 [![UEShaderScript v1.0.3 demo](https://i.ytimg.com/vi/sGY5rCJW5ZQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=sGY5rCJW5ZQ&lc=UgyelgrzDH2_XMyxoBB4AaABAg "UEShaderScript v1.0.3 demo")
 
 # Installation
