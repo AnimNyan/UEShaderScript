@@ -20,8 +20,6 @@
 
 from . import save_shader_map
 from . import load_shader_map
-import time
-import bpy
 
 bl_info = {
     "name": "Load Save UE Shader Map Setups",
