@@ -35,7 +35,7 @@ bl_info = {
 }
 
 """
-Version': '1.0.7' written by Anime Nyan
+Version': '1.0.8' written by Anime Nyan
 
 Adds two panels one in the Shader Editor View to save different preset shader maps and one in the 3D View to load shader maps.
 """
