@@ -629,7 +629,7 @@ def create_selected_meshes_shader_maps(context, pathtool, time_start):
     #this makes a list of all selected objects (can be multiple)
     selected_objects_list = bpy.context.selected_objects
     
-    #make sure that ther are selected objects
+    #make sure that there are selected objects
     if selected_objects_list != []:
         #go through each selected object
         #and in every selected object
