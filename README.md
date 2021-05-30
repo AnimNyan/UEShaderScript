@@ -35,7 +35,7 @@ Again find me on my discord here: https://discord.gg/rkkWSH2EMz to send me scree
 
 # Installation
 ### To install UEShaderScript:
-1. Download the "UEShaderScript_v.X.X.X.zip" file do NOT unzip it. 
+1. Go here: https://github.com/AnimNyan/UEShaderScript/releases Right click on "UEShaderScript_v.X.X.X.zip" > Save Link As do NOT unzip it. 
 2. Open Blender and click Edit > Preferences > Add-Ons > Install > in the file explorer find "UEShaderScript_v.X.X.X.zip" and select it.
 3. In the Add-Ons search, search for UE Shader Maps and enable the Add On to complete the installation.
 
