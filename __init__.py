@@ -44,6 +44,10 @@ Adds two panels one in the Shader Editor View to save different preset shader ma
 def register():
     save_shader_map.register()
     load_shader_map.register()
+    #import_current_or_default_json will not work when blender just
+    #starts the reason why is because you cannot get add on preferences
+    #when blender starts
+    #so this is only used when the add on is being re enabled in the addons panel
     try:
         save_shader_map.import_current_or_default_json()
     except Exception as e:
