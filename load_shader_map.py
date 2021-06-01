@@ -711,9 +711,20 @@ def find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool
         #instead of C:\Nyan\Dwight Recolor\Game\Characters\Slashers\Nurse\Materials\Outfit01
         #this allows for extra redundancy
         #so the props.txt file can be either in the current directory, or its subdirectories
-        gen_obj_match = Path(abs_mat_folder_path).rglob(props_txt_name)
-        
-        props_txt_path = get_value_in_gen_obj(gen_obj_match)
+
+        #Only do a recursive glob search if optional Materials
+        #Folder Path input is not empty
+        if abs_mat_folder_path != "":
+            gen_obj_match = Path(abs_mat_folder_path).rglob(props_txt_name)
+            
+            #rglob returns a gen_object 
+            #so you must get the values from inside an object
+            #with a for loop
+            props_txt_path = get_value_in_gen_obj(gen_obj_match)
+        else:
+            #if the materials folder path input is empty 
+            #then go straight to checking the Exported Game folder
+            props_txt_path = ""
         
         #default assume props txt exists and
         #correct assumption later if it doesn't or cannot be found
