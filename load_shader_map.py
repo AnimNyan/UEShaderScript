@@ -1118,9 +1118,9 @@ class LOADUESHADERSCRIPT_OT_use_nodes_mesh_all(bpy.types.Operator):
             #if the length of the scene objects list is 0
             #which means there are no scene objects send a warning
             #since nothing will happen
-            warning_message = "Warning: There are no meshes in the scene, make sure there are before pressing Use Nodes."
-            bpy.ops.ueshaderscript.show_message(message = warning_message)
-            log(warning_message)
+            error_message = "Error: There are no Meshes in the scene, make sure there are before pressing Use Nodes."
+            bpy.ops.ueshaderscript.show_message(message = error_message)
+            log(error_message)
 
         return {"FINISHED"}
 
