@@ -341,12 +341,19 @@ class LOADUESHADERSCRIPT_PT_load_methods_main_panel_3(LOADUESHADERSCRIPT_shared_
 #main panel part 4
 #inheriting the shared panel's bl_space_type, bl_region_type and bl_category
 class LOADUESHADERSCRIPT_PT_solo_material_main_panel_4(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
-    bl_label = "Solo Material so it is easier to adjust"
+    bl_label = "Solo Material"
     bl_idname = "LOADUESHADERSCRIPT_PT_solo_material_main_panel_4"
     bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
         layout = self.layout
+        layout.label(text = "Toggle Solo Use Nodes on the active material so it easier to adjust")
+        layout.label(text = "Solo Material for ALL Meshes")
+        layout.operator("loadueshaderscript.solo_material_all_operator")
+        layout.operator("loadueshaderscript.use_nodes_mesh_all_operator")
+        layout.separator()
+
+        layout.label(text = "Solo Material for the Active Mesh")
         layout.operator("loadueshaderscript.solo_material_operator")
         layout.operator("loadueshaderscript.use_nodes_mesh_operator")
 
@@ -974,17 +981,63 @@ class LOADUESHADERSCRIPT_OT_solo_material(bpy.types.Operator):
                     
                     #set every material on the active object use_nodes to False
                     for mat_slot in active_object.material_slots:
+                        #set all its materials Use Nodes attribute to False to Hide them
                         mat_slot.material.use_nodes = False
                     
                     #change the active material use_nodes back to True
                     active_material.use_nodes = True
                     
-                # if the active material does not exist
+                #if the active material does not exist
                 else:
                     error_message = "Error: There is no active material, please select a mesh and material before pressing Solo Material."
                     bpy.ops.ueshaderscript.show_message(message = error_message)
                     log(error_message)
-            # if the active object is not a mesh
+            #if the active object is not a mesh
+            else:
+                error_message = "Error: The Active Object was not a Mesh, please select a mesh before pressing Solo Material."
+                bpy.ops.ueshaderscript.show_message(message = error_message)
+                log(error_message)
+        
+        #if the active object does not exist
+        else:
+            error_message = "Error: No Active Mesh was found, please select a mesh before pressing Solo Material."
+            bpy.ops.ueshaderscript.show_message(message = error_message)
+            log(error_message)
+        
+        return {"FINISHED"}
+
+
+class LOADUESHADERSCRIPT_OT_solo_material_all(bpy.types.Operator):
+    bl_label = "Solo Active Material for ALL Meshes (Solo Use Nodes)"
+    bl_description = "Use Nodes True for Active Material and False for Other Materials on ALL Meshes"
+    bl_idname = "loadueshaderscript.solo_material_all_operator"
+    def execute(self, context):
+        active_object = bpy.context.active_object
+
+        if active_object != None:
+
+            if active_object.type == "MESH":
+                active_material = active_object.active_material
+
+                if active_material != None:
+                    #iterate through all objects in the current scene
+                    for obj in bpy.context.scene.objects:
+                        #if the object is a mesh
+                        #set all its materials Use Nodes attribute to False to Hide them
+                        if obj.type == 'MESH':
+                            #set every material on the mesh use_nodes to False
+                            for mat_slot in obj.material_slots:
+                                mat_slot.material.use_nodes = False
+                        
+                    #change the active material use_nodes back to True
+                    active_material.use_nodes = True
+                    
+                #if the active material does not exist
+                else:
+                    error_message = "Error: There is no active material, please select a mesh and material before pressing Solo Material."
+                    bpy.ops.ueshaderscript.show_message(message = error_message)
+                    log(error_message)
+            #if the active object is not a mesh
             else:
                 error_message = "Error: The Active Object was not a Mesh, please select a mesh before pressing Solo Material."
                 bpy.ops.ueshaderscript.show_message(message = error_message)
@@ -1000,7 +1053,7 @@ class LOADUESHADERSCRIPT_OT_solo_material(bpy.types.Operator):
 
 
 class LOADUESHADERSCRIPT_OT_use_nodes_mesh(bpy.types.Operator):
-    bl_label = "Use Nodes for ALL Materials on Active Mesh"
+    bl_label = "Use Nodes True for ALL Materials on Active Mesh"
     bl_description = "Make Use Nodes True for ALL Materials on Active Mesh"
     bl_idname = "loadueshaderscript.use_nodes_mesh_operator"
     def execute(self, context):
@@ -1019,23 +1072,50 @@ class LOADUESHADERSCRIPT_OT_use_nodes_mesh(bpy.types.Operator):
                     for mat_slot in active_object.material_slots:
                         mat_slot.material.use_nodes = True
 
-                # if there are no material slots on the active mesh
+                #if there are no material slots on the active mesh
                 else:
-                    error_message = "Error: There are no materials on the active mesh, please select a mesh with materials before pressing Solo Material."
+                    error_message = "Error: There are no materials on the active mesh, please select a mesh with materials before pressing Use Nodes."
                     bpy.ops.ueshaderscript.show_message(message = error_message)
                     log(error_message)
-            # if the active object is not a mesh
+            #if the active object is not a mesh
             else:
-                error_message = "Error: The Active Object was not a Mesh, please select a mesh before pressing Solo Material."
+                error_message = "Error: The Active Object was not a Mesh, please select a mesh before pressing Use Nodes."
                 bpy.ops.ueshaderscript.show_message(message = error_message)
                 log(error_message)
         
         #if the active object does not exist
         else:
-            error_message = "Error: No Active Mesh was found, please select a mesh before pressing Solo Material."
+            error_message = "Error: No Active Mesh was found, please select a mesh before pressing Use Nodes."
             bpy.ops.ueshaderscript.show_message(message = error_message)
             log(error_message)
         
+        return {"FINISHED"}
+
+
+class LOADUESHADERSCRIPT_OT_use_nodes_mesh_all(bpy.types.Operator):
+    bl_label = "Use Nodes True for ALL Materials on ALL Meshes"
+    bl_description = "Make Use Nodes True for ALL Materials on ALL Meshes"
+    bl_idname = "loadueshaderscript.use_nodes_mesh_all_operator"
+    def execute(self, context):
+        scene_objects_list = bpy.context.scene.objects
+        #if there are objects in the scene
+        if len(scene_objects_list) != 0:
+            #iterate through all the objects in the scene
+            for obj in scene_objects_list:
+                #if the object is a mesh
+                #set all the material Use Nodes attributes to True to show them
+                if obj.type == 'MESH':
+                    #set every material on the mesh use_nodes to True
+                    for mat_slot in obj.material_slots:
+                        mat_slot.material.use_nodes = True
+        else:
+            #if the length of the scene objects list is 0
+            #which means there are no scene objects send a warning
+            #since nothing will happen
+            warning_message = "Warning: There are no meshes in the scene, make sure there are before pressing Use Nodes."
+            bpy.ops.ueshaderscript.show_message(message = warning_message)
+            log(warning_message)
+
         return {"FINISHED"}
 
 
@@ -2211,7 +2291,10 @@ classes = [PathProperties,
 LOADUESHADERSCRIPT_PT_select_preset_main_panel_1,
 LOADUESHADERSCRIPT_PT_load_settings_main_panel_2, LOADUESHADERSCRIPT_PT_load_advanced_settings_main_panel_2_sub_1,
 LOADUESHADERSCRIPT_PT_load_methods_main_panel_3,
-LOADUESHADERSCRIPT_PT_solo_material_main_panel_4, LOADUESHADERSCRIPT_OT_solo_material, LOADUESHADERSCRIPT_OT_use_nodes_mesh,
+LOADUESHADERSCRIPT_PT_solo_material_main_panel_4, 
+
+LOADUESHADERSCRIPT_OT_solo_material, LOADUESHADERSCRIPT_OT_solo_material_all,
+LOADUESHADERSCRIPT_OT_use_nodes_mesh, LOADUESHADERSCRIPT_OT_use_nodes_mesh_all,
 
 LOADUESHADERSCRIPT_OT_add_to_one_material, LOADUESHADERSCRIPT_OT_add_to_multiple_materials, 
 LOADUESHADERSCRIPT_OT_add_to_selected_meshes, LOADUESHADERSCRIPT_OT_reset_settings_main_panel]
