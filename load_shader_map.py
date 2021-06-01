@@ -119,7 +119,7 @@ class PathProperties(bpy.types.PropertyGroup):
     props_txt_file_type: bpy.props.StringProperty(name="File extension for material info files:", 
                 description="File extension for material info files, props.txt file equivalents", default = ".props.txt")
 
-    #Option to show debug console
+    #Option to show the abs_props_txt path in the debug console
     is_show_abs_props_debug: bpy.props.BoolProperty(name="Show props.txt/Materials Info file path in System Console", default = False)
   
 
@@ -219,6 +219,9 @@ class LOADUESHADERSCRIPT_PT_load_settings_main_panel_2(LOADUESHADERSCRIPT_shared
 
             #Roman Noodles related settings
             layout.prop(pathtool, "is_add_skin_map")
+
+            #showing debug console file path
+            layout.prop(pathtool, "is_show_abs_props_debug")
 
         layout.operator("loadueshaderscript.reset_settings_main_panel_operator")
 
