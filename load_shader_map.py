@@ -354,12 +354,12 @@ class LOADUESHADERSCRIPT_PT_solo_material_main_panel_4(LOADUESHADERSCRIPT_shared
     def draw(self, context):
         layout = self.layout
         layout.label(text = "Toggle Solo Use Nodes on the active material so it easier to adjust")
-        layout.label(text = "Solo Material for ALL Meshes")
+        layout.label(text = "Solo Active Material for ALL Meshes")
         layout.operator("loadueshaderscript.solo_material_all_operator")
         layout.operator("loadueshaderscript.use_nodes_mesh_all_operator")
         layout.separator()
 
-        layout.label(text = "Solo Material for the Active Mesh")
+        layout.label(text = "Solo Active Material for the Active Mesh")
         layout.operator("loadueshaderscript.solo_material_operator")
         layout.operator("loadueshaderscript.use_nodes_mesh_operator")
 
