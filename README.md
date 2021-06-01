@@ -6,7 +6,7 @@ First things first, I have a discord server for questions, support and bugs find
 ## Credits
 Thank you to Aaron Elkins who designed Node Kit, a Blender plugin under the GPL Licence which was several years in the making. 
 UEShaderScript copies a huge amount of code from Node Kit and I want to thank Aaron Elkins for his kindness 
-for giving me permission to release UEShaderscript. Please have a look at his plugin and his work here: https://blendermarket.com/products/node-kit
+for giving me permission to release UEShaderscript. Please have a look at his plugin and his work [here](https://blendermarket.com/products/node-kit).
 
 I also want to extend my overwhelming gratitude towards Roman Noodles, YanimaDBD, Pit Princess and Frutto for their fantastic work in designing the presets that come with this plugin, but also for their guidance and support which without I would not have been able to finish this plugin!
 
@@ -29,7 +29,7 @@ Again find me on my discord here: https://discord.gg/rkkWSH2EMz to send me scree
 
 3. Adds the ability to load shader maps and their respective image textures based on a props.txt file exported from UModel: https://www.gildor.org/en/projects/umodel#files
 
-## Video Demo and Tutorial for UEShaderScript (Tutorial to be added)
+## Video Demo and Tutorial for UEShaderScript
 [![UEShaderScript Dead By Daylight Tutorial](https://i.ytimg.com/vi/8bptSUSiyB8/maxresdefault.jpg)](https://www.youtube.com/watch?v=8bptSUSiyB8 "UEShaderScript Dead By Daylight Tutorial")
 [![UEShaderScript v1.0.3 demo](https://i.ytimg.com/vi/sGY5rCJW5ZQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=sGY5rCJW5ZQ&lc=UgyelgrzDH2_XMyxoBB4AaABAg "UEShaderScript v1.0.3 demo")
 
@@ -93,12 +93,39 @@ to export all meshes in the Models folder.
 1. Go to the 3D View and press n > you should see a panel called "UE Shaders" > click on UE Shaders to open the panel.
 2. You may need to hover your mouse over the left edge of the panel > click and drag to the left to expand the window to see the text.
 3. At the very top of the of the Panel you should see a list of Preset Shader Maps > click on one of these Presets to highlight and select it.
-4. Now scroll down to the bottom of the panel and you should see two boxes one labelled "ADD SHADER MAP TO SELECTED MATERIAL (ONE MATERIAL)",
+4. Now scroll down to the bottom of the panel and you should see two boxes one labelled "ADD SHADER MAP TO MULTIPLE MATERIALS (MULTIPLE MATERIALS)",
 this is for adding a shader map to a single material. The other box should be labelled "ADD SHADER MAP TO ALL MATERIALS ON SELECTED MESHES (ALL MATERIALS)"
 
 ### Bulk Loading a Preset for all materials on all selected meshes
 So to load a single preset for all materials on all selected objects we want to look at the box labelled 
 "ADD SHADER MAP TO ALL MATERIALS ON SELECTED MESHES (ALL MATERIALS)"
+This is for if you want to load your preset shader map to all selected meshes.
+The reason why we have to select the Materials Folder and Exported Game Folder is if you are loading image textures
+dynamically, we need to know where materials info/props.txt files are and where the image textures are located.
+1. Select all the Meshes you want to load the shader map preset to by holding the Shift key and pressing Left Mouse Button. 
+2. Press on the folder icon for the Exported Game Folder input this is a required field as shown by the (!) before the field name and in the file
+explorer navigate to the folder you have exported the meshes to. From here you should be able to find a Game folder, go inside
+the game folder and then press Accept.
+3. Press on the folder icon for the Materials Folder input. This is an optional field but will speed up the rate at which shader map presets
+are loaded. So in this case what you want to do is find the character folder in this case Guam and then there should be a Materials folder.
+Go inside the Materials folder and press Accept.
+4. Press Add Shader Maps to ALL Selected Meshes.
+
+### Loading a Preset for multiple materials on the active mesh
+So this is to load the preset onto multiple materials on the active (last selected) mesh. 
+This is useful when you want to load different presets on different materials on one mesh.
+1. Select the single mesh you want to load presets to.
+2. Press on the folder icon for the Exported Game Folder input this is a required field as shown by the (!) before the field name and in the file
+explorer navigate to the folder you have exported the meshes to. From here you should be able to find a Game folder, go inside
+the game folder and then press Accept.
+3. Press on the folder icon for the Materials Folder input. This is an optional field but will speed up the rate at which shader map presets
+are loaded. So in this case what you want to do is find the character folder in this case Guam and then there should be a Materials folder.
+Go inside the Materials folder and press Accept.
+4. Now in the Indexes of Material Slots to be loaded tab delete everything that is there. So click on the materials tab,
+should be a Material ball icon and check what materials you would like to load to. count from the top downwards starting from 
+Index 0. So if I wanted to load the shader map preset to the first and third materials, in the box I will type "0 2" without 
+the double quotes. As you can see multiple materials are separated by a single space and it starts from 0 so material slot number 1 is 0.
+5. Once you have entered the indexes of the material slots you want to load your preset to press Add Shader Maps to Multiple Materials.
 
 ### Loading a Preset for one selected material
 Most of the time we don't want to use this, because it only adds a preset to one selected material. 
