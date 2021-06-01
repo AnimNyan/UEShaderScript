@@ -29,7 +29,7 @@ bl_info = {
     "location": "3D View > Properties > Load UE Shaders + Shader Editor > Properties > Save UE Shaders",
     "description": "Adds the ability to save and load shader maps for 3d Meshes exported from Unreal Engine games and adds default preset shader maps for your convenience ",
     "warning": "",
-    "wiki_url": "https://github.com/AnimNyan/UEShaderScript/wiki",
+    "wiki_url": "https://github.com/AnimNyan/UEShaderScript",
     "category": "Material",
     "tracker_url": "https://github.com/AnimNyan/UEShaderScript"
 }
