@@ -109,7 +109,7 @@ class PathProperties(bpy.types.PropertyGroup):
         ]
         
     )
-    
+  
     #for roman noodles shader maps
     is_add_skin_map: bpy.props.BoolProperty(name="Add Height Map Skin Texture (True for Roman Noodles Skin)", default = False)
 
@@ -119,6 +119,9 @@ class PathProperties(bpy.types.PropertyGroup):
     props_txt_file_type: bpy.props.StringProperty(name="File extension for material info files:", 
                 description="File extension for material info files, props.txt file equivalents", default = ".props.txt")
 
+    #Option to show debug console
+    is_show_abs_props_debug: bpy.props.BoolProperty(name="Show props.txt/Materials Info file path in System Console", default = False)
+  
 
 
 #------------code for drawing main panel in the 3D View
@@ -1396,8 +1399,11 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
 
 
 
-
-    print("\nabs_props_txt_path", abs_props_txt_path)
+    #now outside the nested function
+    #show the props txt path in the system console
+    #if the option to show it is enabled
+    if pathtool.is_show_abs_props_debug:
+        print("\nabs_props_txt_path", abs_props_txt_path)
     
     #open the propstxt file for the material and find the
     #texture locations from it
@@ -2274,6 +2280,7 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
         pathtool.property_unset("is_reuse_img_texture_with_same_name")
         pathtool.property_unset("reverse_match_list_from_props_txt_enum")
         pathtool.property_unset("is_add_skin_map")
+        pathtool.property_unset("is_show_abs_props_debug")
 
         #reset advanced settings as well in case
         #they were changed accidentally
