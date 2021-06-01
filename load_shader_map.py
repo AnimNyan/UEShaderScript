@@ -120,7 +120,7 @@ class PathProperties(bpy.types.PropertyGroup):
                 description="File extension for material info files, props.txt file equivalents", default = ".props.txt")
 
     #Option to show the abs_props_txt path in the debug console
-    is_show_abs_props_debug: bpy.props.BoolProperty(name="Show props.txt/Materials Info file path in System Console", default = False)
+    is_show_abs_props_debug: bpy.props.BoolProperty(name="Show props.txt/Materials Info File Path in System Console", default = False)
   
 
 
