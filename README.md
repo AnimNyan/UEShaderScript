@@ -138,11 +138,14 @@ Using custom per-light ray denoising in compositing will break because my "colou
 it's easily fixable by denoising in hdr range. For example, skin can be seen to be "glowing" in the direct colour pass.
 
 #### Using Pit Princess's presets
-for the cloth shader
-softness is meant for soft fabrics like cotton
-hardness is meant for hard stuff like leather or rubber
-fuzziness is made for things like silk or a thin-sheet adidas-tracksuit
-translucency is meant for anything that's supposed to let light through it such as thin t-shirts
+For the cloth shader:
+Softness is meant for soft fabrics like cotton
+Hardness is meant for hard stuff like leather or rubber
+Fuzziness is made for things like silk or a thin-sheet adidas-tracksuit
+Translucency is meant for anything that's supposed to let light through it such as thin t-shirts
+Velour (-1) is for stuff like fur, carpets, velvet, etc, and fuzz (+1) is for tight fine fabrics
+The sliders have been designed so that mixing and matching values yields plausible results, so it's perfectly okay to experiment.
+If the slider accepts an input combination, it works.
 
 ### Advanced Options Loading Preset Shader Maps
 
