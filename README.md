@@ -139,11 +139,10 @@ it's easily fixable by denoising in hdr range. For example, skin can be seen to 
 
 #### Using Pit Princess's presets
 For the cloth shader:
-Softness is meant for soft fabrics like cotton
-Hardness is meant for hard stuff like leather or rubber
-Fuzziness is made for things like silk or a thin-sheet adidas-tracksuit
-Translucency is meant for anything that's supposed to let light through it such as thin t-shirts
-Velour (-1) is for stuff like fur, carpets, velvet, etc, and fuzz (+1) is for tight fine fabrics
+* Softness (-1) is meant for soft fabrics like cotton / Hardness (1) is meant for hard stuff like leather or rubber
+* Velour (-1) is for stuff like fur, carpets, velvet, etc, and Fuzziness (+1) is for tight fine fabrics like silk or a thin-sheet adidas-tracksuit
+* Translucency is meant for anything that's supposed to let light through it such as thin t-shirts. Less light going through (0) and more light going through (1) 
+
 The sliders have been designed so that mixing and matching values yields plausible results, so it's perfectly okay to experiment.
 If the slider accepts an input combination, it works.
 
