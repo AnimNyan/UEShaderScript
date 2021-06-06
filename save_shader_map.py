@@ -702,7 +702,7 @@ class SaveProperties(bpy.types.PropertyGroup):
     
     #enum property for using default suffixes
     default_suffix_enum: bpy.props.EnumProperty(
-        name = "(Optional) Suffix/Node Name Preset to Use",
+        name = "(Optional) Suffix/Node Name Preset",
         description = "Default Suffix Type",
         items = 
         [
