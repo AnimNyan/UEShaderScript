@@ -345,8 +345,7 @@ class LOADUESHADERSCRIPT_PT_reset_settings_main_panel_6(LOADUESHADERSCRIPT_share
     #hide header means to hide the title because we 
     #just want to see the button here
     #not the bl_label
-    bl_options = {"HIDE_HEADER"}
-
+    #bl_options = {"HIDE_HEADER"}
     def draw(self, context):
         layout = self.layout
         layout.operator("loadueshaderscript.reset_settings_main_panel_operator")
@@ -1274,7 +1273,7 @@ def dict_to_nodes(nodes_list, tree):
             new_node.parent = parent
         new_node.location.x = node["x"]
         new_node.location.y = node["y"]
-        # Special handlling ShaderNodeGroup
+        # Special handling ShaderNodeGroup
         # this is for Group nodes
         if node["node_name"] == "ShaderNodeGroup":
             dict_to_nodes_handle_shader_node_group(new_node, node)
