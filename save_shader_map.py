@@ -700,6 +700,18 @@ class SaveProperties(bpy.types.PropertyGroup):
     skin_node_name: bpy.props.StringProperty(name="Skin Node Name", description="Skin image texture node name", default="")
     is_add_img_textures: bpy.props.BoolProperty(name="Load Image Textures to Shader Map Dynamically", default= True)
     
+    #enum property for using default suffixes
+    default_suffix_enum: bpy.props.EnumProperty(
+        name = "(Optional) Suffix/Node Name Preset to Use",
+        description = "Default Suffix Type",
+        items = 
+        [
+            ("DBD_GENERAL" , "DBD Generic/Basic", ""),
+            ("DBD_SKIN", "DBD Skin", ""),
+            ("DBD_HAIR" , "DBD Hair", "")
+        ]
+        
+    )
 
 
 
@@ -805,6 +817,8 @@ class SAVEUESHADERSCRIPT_PT_save_custom_preset_main_panel_2(SAVEUESHADERSCRIPT_s
             box.label(text = "(leave suffix and node name empty if you do NOT want to load the specific image texture)")
             box.label(text = "Node Names can be found/changed by selecting an image texture node > Press n > Item > Name")
             box.label(text = "Separate different suffixes with a single space")
+            box.prop(savetool, "default_suffix_enum")
+            box.operator("saveueshaderscript.load_default_suffixes_operator")
             box.prop(savetool, "bc_suffix")
             box.prop(savetool, "bc_node_name")
             box.prop(savetool, "orm_suffix")
@@ -1680,8 +1694,8 @@ class SavePreferences(bpy.types.AddonPreferences):
         wm = context.window_manager
         layout = self.layout
 
-#by default use __package__ however, if the function is being imported elsewhere
-#the __package__ variable does not work, allow another paramter to override with the UEShaderScript string
+#by default use __package__ however, if the function is being imported elsewhere to a different file
+#the __package__ variable does not work, allow another parameter to override with the UEShaderScript string
 def get_preferences(isOverridePackage = False, package=__package__, context=None):
     """Multi version compatibility for getting preferences"""
     if isOverridePackage:
@@ -1960,6 +1974,88 @@ class ShowMessageOperator(bpy.types.Operator):
             return wm.invoke_props_dialog(self, width=700)
         return {'FINISHED'}
 
+#--------load default suffixes so don't need to type in all the suffixes and node names
+class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
+    bl_idname = "saveueshaderscript.load_default_suffixes_operator"
+    bl_label = "Load Preset Suffixes and Node Names"
+    bl_description = "Load Preset Suffixes and Node Names"
+    bl_options = {'REGISTER'}
+
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def execute(self, context):
+        #store active/selected scene to variable
+        scene = context.scene
+        
+        #allow access to user inputted properties through pointer
+        #to properties
+        savetool = scene.save_tool
+
+        default_suffix = savetool.default_suffix_enum
+
+        print("default_suffix", default_suffix)
+
+        #load the suffixes into the
+        #suffix and node input boxes required 
+        #for the different hardcoded cases
+        if(default_suffix == "DBD_HAIR"):
+            #this first case is written explicitly
+            #instead of changing from the default 
+            #inputs and node names because
+            #it changes so much and is quite confusing
+            #without explcitly stating what the inputs are
+            savetool.bc_suffix = "_BC _ID _BC_01 _BC_02 _BC_03 _BC_04 _BC_2 _BC_3 _BC_4"
+            savetool.bc_node_name = "Diffuse Node"
+            savetool.orm_suffix = ""
+            savetool.orm_node_name = ""
+            savetool.n_suffix = "_N"
+            savetool.n_node_name = "Normal Map Node"
+            savetool.m_suffix = "_M _A"
+            savetool.m_node_name = "Transparency Map Node"
+            savetool.bde_suffix = ""
+            savetool.bde_node_name = ""
+            savetool.hm_suffix = "_Height _Heigth _D _Depth"
+            savetool.hm_node_name = "Height Map Node"
+            savetool.hair_gradient_suffix = "_verticalGradient _verticalGradient2 _Gradient"
+            savetool.hair_gradient_node_name = "Hair Gradient Map Node"
+            savetool.specular_suffix = ""
+            savetool.specular_node_name = ""
+            savetool.gloss_suffix = ""
+            savetool.gloss_node_name = ""
+
+            savetool.cust1_suffix = ""
+            savetool.cust1_node_name = ""
+            savetool.cust2_suffix = ""
+            savetool.cust2_node_name = ""
+            savetool.cust3_suffix = ""
+            savetool.cust3_node_name = ""
+            savetool.cust4_suffix = ""
+            savetool.cust4_node_name = ""
+
+            savetool.skin_node_name = ""
+        elif(default_suffix == "DBD_SKIN"):
+            #reason why we are using reset to default is the skin operator
+            #is very similar to the default inputs except for the m_suffix,
+            #m_node_name and skin_node_name
+            bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
+            savetool.m_suffix = ""
+            savetool.m_node_name = ""
+            savetool.skin_node_name = "Skin Node"
+
+        elif(default_suffix == "DBD_GENERAL"):
+            #the dbd general suffix and node names are the default ones
+            #so reset to the default inputs
+            bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
+
+        else:
+            error_message = "".join("Error: the default_suffix", default_suffix, "was not found, please contact the plugin author.")
+            bpy.ops.ueshaderscript.show_message(message = error_message)
+            log(error_message)
+
+        return {'FINISHED'}
+
 #--------reset save function main panel class
 class SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel(bpy.types.Operator):
     bl_idname = "saveueshaderscript.reset_inputs_main_panel_operator"
@@ -2028,7 +2124,9 @@ classes = [SaveProperties, PresetCollection, FolderPresetsCollection, SavePrefer
 
     Shader_ShowFolderActionsOperator, SHADER_MT_FolderActionsMenu, Shader_NewFolderOperator, 
     Shader_RemoveFolderOperator, Shader_RenameFolderOperator, SAVEUESHADERSCRIPT_OT_remove_preset, ShowMessageOperator,
-    RenamePresetOperator, MovePresetUpOperator, MovePresetDownOperator, MovePresetOperator, SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel,
+    RenamePresetOperator, MovePresetUpOperator, MovePresetDownOperator, MovePresetOperator, 
+    
+    SAVEUESHADERSCRIPT_OT_load_default_suffixes, SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel,
 
     SAVEUESHADERSCRIPT_OT_save_shader_map]
  
