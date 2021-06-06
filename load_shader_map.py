@@ -67,7 +67,7 @@ class PathProperties(bpy.types.PropertyGroup):
         
     )
     clipping_method_enum: bpy.props.EnumProperty(
-        name = "Clipping Method for Transparency",
+        name = "Alpha Clipping Method",
         description = "Dropdown List of all the texture file types",
         items = 
         [
@@ -88,7 +88,7 @@ class PathProperties(bpy.types.PropertyGroup):
     is_delete_unused_img_texture_nodes: bpy.props.BoolProperty(name="Delete Unused Image Texture Nodes", default = True)
     is_delete_unused_related_nodes: bpy.props.BoolProperty(name="Delete Unused Image Texture Nodes AND Related Nodes (Slower)", default = False)
 
-    is_change_principle_bsdf_emission_strength: bpy.props.BoolProperty(name="Change Principled BSDF Strength if Emissions Texture Loaded", default = True)
+    is_change_principle_bsdf_emission_strength: bpy.props.BoolProperty(name="Change Principled BSDF Node Strength if Emissions Texture Loaded", default = True)
     principled_bsdf_emission_strength_float: bpy.props.FloatProperty(name="Principled BSDF Emission Strength if Emissions Texture Loaded", default = 5.0)
     material_alpha_threshold: bpy.props.FloatProperty(name="Material Clip Threshold if Transparency Texture Loaded", default = 0.0)
 
@@ -111,7 +111,7 @@ class PathProperties(bpy.types.PropertyGroup):
     )
   
     #for roman noodles shader maps
-    is_add_skin_map: bpy.props.BoolProperty(name="Add Height Map Skin Texture (True for Roman Noodles Skin)", default = False)
+    is_add_skin_map: bpy.props.BoolProperty(name="Add Height Map Skin Texture (Optional for Skin Presets)", default = False)
 
     #advanced settings
     regex_pattern_in_props_txt_file: bpy.props.StringProperty(name="Regex Pattern in props.txt (material) files:", 
@@ -120,13 +120,13 @@ class PathProperties(bpy.types.PropertyGroup):
                 description="File extension for material info files, props.txt file equivalents", default = ".props.txt")
 
     #Option to show the abs_props_txt path in the debug console
-    is_show_abs_props_debug: bpy.props.BoolProperty(name="Show props.txt/Materials Info File Path in System Console", default = False)
+    is_show_abs_props_debug: bpy.props.BoolProperty(name="Show props.txt File Path in System Console for Debugging", default = False)
   
 
 
 #------------code for drawing main panel in the 3D View
 #don't register this class it is not a bpy panel or type so
-#it does not need to be registereds
+#it does not need to be registered
 class LOADUESHADERSCRIPT_shared_main_panel:
     # bl_label = "Load UE Shaders"
     # bl_idname = "LOADUESHADERSCRIPT_PT_main_panel"
@@ -197,40 +197,21 @@ class LOADUESHADERSCRIPT_PT_load_settings_main_panel_2(LOADUESHADERSCRIPT_shared
                 layout.prop(pathtool, "is_delete_unused_related_nodes")
 
             layout.prop(pathtool, "texture_file_type_enum")
-            layout.prop(pathtool, "clipping_method_enum")
-            layout.prop(pathtool, "material_alpha_threshold")
 
             layout.prop(pathtool, "is_reuse_node_group_with_same_name")
             layout.prop(pathtool, "is_reuse_img_texture_with_same_name")
 
-            layout.prop(pathtool, "is_normal_non_colour")
-            layout.prop(pathtool, "is_m_non_colour")
-            layout.prop(pathtool, "is_orm_non_colour")
-            layout.prop(pathtool, "is_hm_non_colour")
-            layout.prop(pathtool, "is_hair_gradient_non_colour")
-            layout.prop(pathtool, "is_emissive_linear")
-            
-            layout.prop(pathtool, "is_change_principle_bsdf_emission_strength")
-            
-            if(pathtool.is_change_principle_bsdf_emission_strength):
-                layout.prop(pathtool, "principled_bsdf_emission_strength_float")
-            
             layout.prop(pathtool, "reverse_match_list_from_props_txt_enum")
 
             #Roman Noodles related settings
             layout.prop(pathtool, "is_add_skin_map")
 
-            #showing debug console file path
-            layout.prop(pathtool, "is_show_abs_props_debug")
-
-        layout.operator("loadueshaderscript.reset_settings_main_panel_operator")
-
-
-#main panel part 2 sub panel
+#main panel part 3
 #inheriting the shared panel's bl_space_type, bl_region_type and bl_category
-class LOADUESHADERSCRIPT_PT_load_advanced_settings_main_panel_2_sub_1(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
-    bl_label = "Advanced Settings"
-    bl_parent_id = "LOADUESHADERSCRIPT_PT_load_settings_main_panel_2"
+class LOADUESHADERSCRIPT_PT_alpha_emissive_main_panel_3(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
+    bl_label = "Alpha and Emissive Settings"
+    bl_idname = "LOADUESHADERSCRIPT_PT_alpha_emissive_main_panel_3"
+    #put parent id so it knows this is a subpanel of the parent panel
     bl_options = {"DEFAULT_CLOSED"}
     
     #poll function only allows 
@@ -258,6 +239,95 @@ class LOADUESHADERSCRIPT_PT_load_advanced_settings_main_panel_2_sub_1(LOADUESHAD
         #to properties
         pathtool = scene.path_tool
 
+        layout.prop(pathtool, "clipping_method_enum")
+        layout.prop(pathtool, "material_alpha_threshold")
+
+        layout.prop(pathtool, "is_change_principle_bsdf_emission_strength")
+            
+        if(pathtool.is_change_principle_bsdf_emission_strength):
+            layout.prop(pathtool, "principled_bsdf_emission_strength_float")
+
+
+#main panel part 4
+#inheriting the shared panel's bl_space_type, bl_region_type and bl_category
+class LOADUESHADERSCRIPT_PT_color_space_main_panel_4(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
+    bl_label = "Color Space Settings"
+    bl_idname = "LOADUESHADERSCRIPT_PT_color_space_main_panel_4"
+    bl_options = {"DEFAULT_CLOSED"}
+    
+    #poll function only allows 
+    #execute and draw functions to be executed
+    #if poll returns true
+    #in this case depends upon whether the
+    #is_load_img_textures settings is true
+    #if false then don't draw the advanced settings panel
+    @classmethod
+    def poll(self, context):
+        #store active scene to variable
+        scene = context.scene
+        #allow access to user inputted properties through pointer
+        #to properties
+        pathtool = scene.path_tool
+
+        return pathtool.is_load_img_textures
+
+    def draw(self, context):
+        layout = self.layout
+
+        #store active scene to variable
+        scene = context.scene
+        #allow access to user inputted properties through pointer
+        #to properties
+        pathtool = scene.path_tool
+
+        layout.prop(pathtool, "is_normal_non_colour")
+        layout.prop(pathtool, "is_m_non_colour")
+        layout.prop(pathtool, "is_orm_non_colour")
+        layout.prop(pathtool, "is_hm_non_colour")
+        layout.prop(pathtool, "is_hair_gradient_non_colour")
+        layout.prop(pathtool, "is_emissive_linear")
+
+            
+
+#main panel part 5
+#inheriting the shared panel's bl_space_type, bl_region_type and bl_category
+class LOADUESHADERSCRIPT_PT_advanced_settings_main_panel_5(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
+    bl_label = "Advanced Settings"
+    bl_idname = "LOADUESHADERSCRIPT_PT_advanced_settings_main_panel_5"
+    bl_options = {"DEFAULT_CLOSED"}
+    
+    #poll function only allows 
+    #execute and draw functions to be executed
+    #if poll returns true
+    #in this case depends upon whether the
+    #is_load_img_textures settings is true
+    #if false then don't draw the advanced settings panel
+    @classmethod
+    def poll(self, context):
+        #store active scene to variable
+        scene = context.scene
+        #allow access to user inputted properties through pointer
+        #to properties
+        pathtool = scene.path_tool
+
+        return pathtool.is_load_img_textures
+
+    def draw(self, context):
+        layout = self.layout
+
+        #store active scene to variable
+        scene = context.scene
+        #allow access to user inputted properties through pointer
+        #to properties
+        pathtool = scene.path_tool
+
+        #showing debug console file path
+        #this is if debugging is required
+        #enable this option so then you can see which material is causing the problem
+        #do this before use_property split so it is not affected by the use_property_spli
+        #because it looks bad with use property split
+        layout.prop(pathtool, "is_show_abs_props_debug")
+
         #formatting
         #layout.use_property_split means that it will try and display 
         #the property fully
@@ -267,13 +337,26 @@ class LOADUESHADERSCRIPT_PT_load_advanced_settings_main_panel_2_sub_1(LOADUESHAD
         layout.prop(pathtool, "regex_pattern_in_props_txt_file")
         layout.prop(pathtool, "props_txt_file_type")
 
-
-
-#main panel part 3
+#main panel part 6
 #inheriting the shared panel's bl_space_type, bl_region_type and bl_category
-class LOADUESHADERSCRIPT_PT_load_methods_main_panel_3(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
+class LOADUESHADERSCRIPT_PT_reset_settings_main_panel_6(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
+    bl_label = "Reset Load Shader Map Settings"
+    bl_idname = "LOADUESHADERSCRIPT_PT_reset_settings_main_panel_6"
+    #hide header means to hide the title because we 
+    #just want to see the button here
+    #not the bl_label
+    bl_options = {"HIDE_HEADER"}
+
+    def draw(self, context):
+        layout = self.layout
+        layout.operator("loadueshaderscript.reset_settings_main_panel_operator")
+
+
+#main panel part 7
+#inheriting the shared panel's bl_space_type, bl_region_type and bl_category
+class LOADUESHADERSCRIPT_PT_load_methods_main_panel_7(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
     bl_label = "Load Shader Map Methods"
-    bl_idname = "LOADUESHADERSCRIPT_PT_load_methods_main_panel_3"
+    bl_idname = "LOADUESHADERSCRIPT_PT_load_methods_main_panel_7"
 
     def draw(self, context):
         layout = self.layout
@@ -344,11 +427,11 @@ class LOADUESHADERSCRIPT_PT_load_methods_main_panel_3(LOADUESHADERSCRIPT_shared_
             box.operator("loadueshaderscript.add_to_one_material_operator")
 
 
-#main panel part 4
+#main panel part 8
 #inheriting the shared panel's bl_space_type, bl_region_type and bl_category
-class LOADUESHADERSCRIPT_PT_solo_material_main_panel_4(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
+class LOADUESHADERSCRIPT_PT_solo_material_main_panel_8(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
     bl_label = "Solo Material"
-    bl_idname = "LOADUESHADERSCRIPT_PT_solo_material_main_panel_4"
+    bl_idname = "LOADUESHADERSCRIPT_PT_solo_material_main_panel_8"
     bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
@@ -2299,9 +2382,13 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
 classes = [PathProperties, 
 
 LOADUESHADERSCRIPT_PT_select_preset_main_panel_1,
-LOADUESHADERSCRIPT_PT_load_settings_main_panel_2, LOADUESHADERSCRIPT_PT_load_advanced_settings_main_panel_2_sub_1,
-LOADUESHADERSCRIPT_PT_load_methods_main_panel_3,
-LOADUESHADERSCRIPT_PT_solo_material_main_panel_4, 
+
+LOADUESHADERSCRIPT_PT_load_settings_main_panel_2, LOADUESHADERSCRIPT_PT_alpha_emissive_main_panel_3, 
+LOADUESHADERSCRIPT_PT_color_space_main_panel_4, LOADUESHADERSCRIPT_PT_advanced_settings_main_panel_5,
+LOADUESHADERSCRIPT_PT_reset_settings_main_panel_6, 
+
+LOADUESHADERSCRIPT_PT_load_methods_main_panel_7,
+LOADUESHADERSCRIPT_PT_solo_material_main_panel_8, 
 
 LOADUESHADERSCRIPT_OT_solo_material, LOADUESHADERSCRIPT_OT_solo_material_all,
 LOADUESHADERSCRIPT_OT_use_nodes_mesh, LOADUESHADERSCRIPT_OT_use_nodes_mesh_all,
