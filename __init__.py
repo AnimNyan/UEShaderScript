@@ -24,7 +24,7 @@ from . import load_shader_map
 bl_info = {
     "name": "Load Save UE Shader Map Setups",
     "author": "Anime Nyan",
-    "version": (1, 1, 0),
+    "version": (1, 1, 1),
     "blender": (2, 92, 0),
     "location": "3D View > Properties > Load UE Shaders + Shader Editor > Properties > Save UE Shaders",
     "description": "Adds the ability to save and load shader maps for 3d Meshes exported from Unreal Engine games and adds default preset shader maps for your convenience ",
@@ -35,7 +35,7 @@ bl_info = {
 }
 
 """
-Version': '1.1.0' written by Anime Nyan
+Version': '1.1.1' written by Anime Nyan
 
 Adds two panels one in the Shader Editor View to save different preset shader maps and one in the 3D View to load shader maps.
 """
