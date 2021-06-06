@@ -1995,7 +1995,8 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
 
         default_suffix = savetool.default_suffix_enum
 
-        print("default_suffix", default_suffix)
+        #debug
+        #print("default_suffix", default_suffix)
 
         #load the suffixes into the
         #suffix and node input boxes required 
