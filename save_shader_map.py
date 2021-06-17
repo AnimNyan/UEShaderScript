@@ -1534,10 +1534,21 @@ def json_string_to_update_default_presets(json_string, skip_autosave=False):
                     new_preset.content = content
                     message = " ".join(("Preset", new_name, "does not exist and was created!"))
                     log(message)
+
+    #save_pref and any code after this line save_pref() 
+    #inside json_string_to_update_default_presets will 
+    #not run when blender has just started
+    #as save_pref uses a bpy.ops
+    #bpy.ops is not accessible when blender first starts
+    #this still means that the current user preferences
+    #will be updated even if the lines including save_pref()
+    #are not run they just will not be made the default preferences
+    save_pref()
+
     ui_message = "All presets were reset and updated successfully!"
     bpy.ops.ueshaderscript.show_message(message = ui_message)
     log(ui_message)
-    save_pref()
+    
 
     
     
@@ -1743,6 +1754,8 @@ def save_pref(skip_autosave=False):
     #import_current_or_default_json()
     #when the blender has just started as blender cannot allow
     #to access ops when file starts
+    #what bpy.ops.wm.save_userpref() does is:
+    #Make the current preferences default
     bpy.ops.wm.save_userpref()
     if not skip_autosave:
         export_to_current_json()
