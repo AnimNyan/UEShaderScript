@@ -1728,6 +1728,11 @@ def get_preferences(isOverridePackage = False, package=__package__, context=None
         #it would be UEShaderScript for this one
         #This line here gets a prefs struct which is not what we 
         #about we want the attribute preferences inside the prefs struct
+        #this gets the current preferences so we can edit the current preferences
+        #this is NOT the same as the default preferences
+        #the current preferences are the add on preferences for the current file
+        #the default preferences are the add on preferences for all blender files
+        #this is the current preferences
         prefs = context.preferences.addons.get(package, None)
         #debug
         #print("dir(prefs):", dir(prefs))
