@@ -10,7 +10,7 @@ import os
 
 #import with relative imports
 #import classes 
-from .save_shader_map import SHADER_PRESETS_UL_items, ShowMessageOperator
+from .save_shader_map import SHADER_PRESETS_UL_items, ShowMessageOperator, save_pref
 #import functions
 from .save_shader_map import get_preferences, get_selected_folder_presets, json_to_nodes_dict, log
 
@@ -121,7 +121,21 @@ class PathProperties(bpy.types.PropertyGroup):
 
     #Option to show the abs_props_txt path in the debug console
     is_show_abs_props_debug: bpy.props.BoolProperty(name="Show props.txt File Path in System Console for Debugging", default = False)
-  
+    
+
+
+    #This is NOT a property that will show on any panel and the user
+    #cannot interact with this variable
+    #it is used to trigger a flag when accessing bpy.ops to save
+    #to the default preferences is not possible
+    #it will raise this boolean so the next time the user loads
+    #any preset it will make the add on preferences for the current file to be
+    #the default preferences
+    #it is set to true when the plugin is initialised and will be immediately 
+    #set to false upon the first load shader map completion
+    is_save_to_default_preferences_on_next_load_shader_map: bpy.props.BoolProperty(name="N/A", default = True)
+
+
 
 
 #------------code for drawing main panel in the 3D View
@@ -936,6 +950,20 @@ def get_value_in_gen_obj(gen_obj_match):
 
 
 def create_one_shader_map(material, props_txt_path, pathtool):
+    #do a check if saving the current add on preferences 
+    #to the default add on preferences is required
+    #This will either happen after blender is just opened and
+    #the presets have been updated
+    #or after the plugin is enabled in the Edit > Preferences > Add Ons panel
+    #if so do it
+    is_save_default_preferences = pathtool.is_save_to_default_preferences_on_next_load_shader_map
+    #debug
+    #print("is_save_default_preferences: ", is_save_default_preferences)
+    if(is_save_default_preferences):
+        save_pref()
+        #set it to false as we have now saved to the default preferences
+        #once after the plugin has been initialised
+        pathtool.is_save_to_default_preferences_on_next_load_shader_map = False
 
     #only needed if the user selects to load image textures
     if(pathtool.is_load_img_textures):
