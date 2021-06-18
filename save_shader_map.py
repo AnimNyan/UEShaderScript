@@ -640,7 +640,12 @@ def textures_to_list(savetool, nodes):
     suffix_and_node_name_to_list(savetool.specular_suffix, savetool.specular_node_name, "specular")
     suffix_and_node_name_to_list(savetool.gloss_suffix, savetool.gloss_node_name, "gloss")
 
-    #skin texture is always added and is found from the user chosen path 
+    #tint textures
+    suffix_and_node_name_to_list(savetool.tint_base_diffuse_suffix, savetool.tint_base_diffuse_node_name, "tint_base_diffuse")
+    suffix_and_node_name_to_list(savetool.tint_mask_suffix, savetool.tint_mask_node_name, "tint_mask")
+
+    #skin texture is always added and is found from the user chosen path
+    #not from the exported game folder
     suffix_and_node_name_to_list("Not/Applicable", savetool.skin_node_name, "skin")
     suffix_and_node_name_to_list(savetool.cust1_suffix, savetool.cust1_node_name, "cust1")
     suffix_and_node_name_to_list(savetool.cust2_suffix, savetool.cust2_node_name, "cust2")
@@ -685,6 +690,16 @@ class SaveProperties(bpy.types.PropertyGroup):
     gloss_suffix: bpy.props.StringProperty(name="Gloss Map Suffix", description="Suffix of Gloss Map", default="")
     gloss_node_name: bpy.props.StringProperty(name="Gloss Map Node Name", description="Gloss Map image texture node name", default="")
 
+    #tint textures
+    is_show_tint_textures: bpy.props.BoolProperty(name="Show Tint Suffix and Node Names", default= False)
+    #this is called base diffuse, because it is the color which is applied as
+    #a base before the tint is applied on top of the base color
+    tint_base_diffuse_suffix: bpy.props.StringProperty(name="Tint Base Diffuse Suffix", description="Suffix of Tint Base Diffuse Texture", default="")
+    tint_base_diffuse_node_name: bpy.props.StringProperty(name="Tint Base Diffuse Node Name", description="Tint Base Diffuse image texture node name", default="")
+    tint_mask_suffix: bpy.props.StringProperty(name="Tint Mask Suffix", description="Suffix of Tint Mask Texture", default="")
+    tint_mask_node_name: bpy.props.StringProperty(name="Tint Mask Node Name", description="Tint Mask image texture node name", default="")
+
+    #custom textures
     is_show_custom_textures: bpy.props.BoolProperty(name="Show Custom Suffix and Node Names", default= False)
     cust1_suffix: bpy.props.StringProperty(name="Custom1 Suffix", description="Suffix of Custom1 Texture", default="")
     cust1_node_name: bpy.props.StringProperty(name="Custom1 Node Name", description="Custom1 image texture node name", default="")
@@ -706,9 +721,10 @@ class SaveProperties(bpy.types.PropertyGroup):
         description = "Default Suffix Type",
         items = 
         [
-            ("DBD_GENERAL" , "DBD Generic/Basic", ""),
+            ("DBD_GENERAL" , "DBD Generic/Clothing/Basic", ""),
             ("DBD_SKIN", "DBD Skin", ""),
-            ("DBD_HAIR" , "DBD Hair", "")
+            ("DBD_HAIR" , "DBD Hair", ""),
+            ("DBD_TINT" , "DBD Tint", "")
         ]
         
     )
@@ -837,7 +853,17 @@ class SAVEUESHADERSCRIPT_PT_save_custom_preset_main_panel_2(SAVEUESHADERSCRIPT_s
             box.prop(savetool, "specular_node_name")
             box.prop(savetool, "gloss_suffix")
             box.prop(savetool, "gloss_node_name")
-    
+
+            #tint texture inputs
+            box.prop(savetool, "is_show_tint_textures")
+
+            if(savetool.is_show_tint_textures):
+                box.prop(savetool, "tint_base_diffuse_suffix")
+                box.prop(savetool, "tint_base_diffuse_node_name")
+                box.prop(savetool, "tint_mask_suffix")
+                box.prop(savetool, "tint_mask_node_name")
+
+            #custom texture inputs
             box.prop(savetool, "is_show_custom_textures")
             if(savetool.is_show_custom_textures == True):
                 box.prop(savetool, "cust1_suffix")
@@ -2020,49 +2046,45 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
         #suffix and node input boxes required 
         #for the different hardcoded cases
         if(default_suffix == "DBD_HAIR"):
-            #this first case is written explicitly
-            #instead of changing from the default 
-            #inputs and node names because
-            #it changes so much and is quite confusing
-            #without explcitly stating what the inputs are
+            #We are using the reset to default operator so we do not
+            #need to explicitly state all the suffix and node names 
+            bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
+
             savetool.bc_suffix = "_BC _ID _BC_01 _BC_02 _BC_03 _BC_04 _BC_2 _BC_3 _BC_4"
             savetool.bc_node_name = "Diffuse Node"
             savetool.orm_suffix = ""
             savetool.orm_node_name = ""
-            savetool.n_suffix = "_N"
-            savetool.n_node_name = "Normal Map Node"
-            savetool.m_suffix = "_M _A"
-            savetool.m_node_name = "Transparency Map Node"
             savetool.bde_suffix = ""
             savetool.bde_node_name = ""
             savetool.hm_suffix = "_Height _Heigth _D _Depth"
             savetool.hm_node_name = "Height Map Node"
             savetool.hair_gradient_suffix = "_verticalGradient _verticalGradient2 _Gradient"
             savetool.hair_gradient_node_name = "Hair Gradient Map Node"
-            savetool.specular_suffix = ""
-            savetool.specular_node_name = ""
-            savetool.gloss_suffix = ""
-            savetool.gloss_node_name = ""
-
-            savetool.cust1_suffix = ""
-            savetool.cust1_node_name = ""
-            savetool.cust2_suffix = ""
-            savetool.cust2_node_name = ""
-            savetool.cust3_suffix = ""
-            savetool.cust3_node_name = ""
-            savetool.cust4_suffix = ""
-            savetool.cust4_node_name = ""
-
-            savetool.skin_node_name = ""
+        
         elif(default_suffix == "DBD_SKIN"):
-            #reason why we are using reset to default is the skin operator
-            #is very similar to the default inputs except for the m_suffix,
+            #We are using the reset to default operator so we do not
+            #need to explicitly state all the suffix and node names 
+            #The skin preset is very similar to the default inputs except for the m_suffix,
             #m_node_name and skin_node_name
             bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
             savetool.m_suffix = ""
             savetool.m_node_name = ""
             savetool.skin_node_name = "Skin Node"
 
+        elif(default_suffix == "DBD_TINT"):
+            bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
+            savetool.bc_suffix = ""
+            savetool.bc_node_name = ""
+            savetool.is_show_tint_textures = True
+            savetool.tint_base_diffuse_suffix = "_TintBC _Tint_BC _Tint"
+            savetool.tint_base_diffuse_node_name = "Tint Base Diffuse Node"
+            savetool.tint_mask_suffix = "_IDD"
+            savetool.tint_mask_node_name = "Tint Mask Node"
+
+        #this is the last case because this option is unlikely to be picked
+        #because it is the default selected suffix and node names when
+        #the blender add on starts
+        #this is for general or clothing presets
         elif(default_suffix == "DBD_GENERAL"):
             #the dbd general suffix and node names are the default ones
             #so reset to the default inputs
@@ -2115,6 +2137,12 @@ class SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel(bpy.types.Operator):
         savetool.property_unset("specular_node_name")
         savetool.property_unset("gloss_suffix")
         savetool.property_unset("gloss_node_name")
+
+        savetool.property_unset("is_show_tint_textures")
+        savetool.property_unset("tint_base_diffuse_suffix")
+        savetool.property_unset("tint_base_diffuse_node_name")
+        savetool.property_unset("tint_mask_suffix")
+        savetool.property_unset("tint_mask_node_name")
 
         savetool.property_unset("is_show_custom_textures")
         savetool.property_unset("cust1_suffix")
