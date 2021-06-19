@@ -600,10 +600,10 @@ def textures_to_list(savetool, nodes):
                 img_textures_dict["suffix_list"] = suffix_list
 
         #if node name is missing but suffix is there
-        #special case to avoid skin texture because
+        #special case to avoid skin bump texture because
         #the default is always missing the Node Name
         #since it only needs a Node Name
-        elif suffix != "" and node_name == "" and texture != "skin":
+        elif suffix != "" and node_name == "" and texture != "skin_bump":
             #notify user if they
             #did not fill in both the suffix and the node name
             warning_message = "".join(("The Node Name input is missing for texture: \"", texture, "\" so the texture was not recorded to load!"))
@@ -644,9 +644,9 @@ def textures_to_list(savetool, nodes):
     suffix_and_node_name_to_list(savetool.tint_base_diffuse_suffix, savetool.tint_base_diffuse_node_name, "tint_base_diffuse")
     suffix_and_node_name_to_list(savetool.tint_mask_suffix, savetool.tint_mask_node_name, "tint_mask")
 
-    #skin texture is always added and is found from the user chosen path
+    #skin bump texture is always added and is found from the user chosen path
     #not from the exported game folder
-    suffix_and_node_name_to_list("Not/Applicable", savetool.skin_node_name, "skin")
+    suffix_and_node_name_to_list("Not/Applicable", savetool.skin_bump_node_name, "skin_bump")
     suffix_and_node_name_to_list(savetool.cust1_suffix, savetool.cust1_node_name, "cust1")
     suffix_and_node_name_to_list(savetool.cust2_suffix, savetool.cust2_node_name, "cust2")
     suffix_and_node_name_to_list(savetool.cust3_suffix, savetool.cust3_node_name, "cust3")
@@ -712,7 +712,7 @@ class SaveProperties(bpy.types.PropertyGroup):
 
     #skin only needs a node name as it is not from the game files
     #rather it is externally added by the user themself
-    skin_node_name: bpy.props.StringProperty(name="Skin Node Name", description="Skin image texture node name", default="")
+    skin_bump_node_name: bpy.props.StringProperty(name="Skin Bump Node Name", description="Skin Bump image texture node name", default="")
     is_add_img_textures: bpy.props.BoolProperty(name="Load Image Textures to Shader Map Dynamically", default= True)
     
     #enum property for using default suffixes
@@ -877,9 +877,9 @@ class SAVEUESHADERSCRIPT_PT_save_custom_preset_main_panel_2(SAVEUESHADERSCRIPT_s
 
             row = box.row()
 
-            box.label(text = "Skin Texture Node (Special Case No Suffix)")
-            box.label(text = "Skin Texture Height Map is always added regardless of the props.txt files")
-            box.prop(savetool, "skin_node_name")
+            box.label(text = "Skin Bump Texture Node (Special Case No Suffix)")
+            box.label(text = "Skin Bump Map Texture is always added regardless of the props.txt files")
+            box.prop(savetool, "skin_bump_node_name")
             box.operator("SAVEUESHADERSCRIPT.reset_inputs_main_panel_operator")
         
         layout.operator("SAVEUESHADERSCRIPT.saveshadermap_operator")
@@ -2065,11 +2065,11 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
             #We are using the reset to default operator so we do not
             #need to explicitly state all the suffix and node names 
             #The skin preset is very similar to the default inputs except for the m_suffix,
-            #m_node_name and skin_node_name
+            #m_node_name and skin_bump_node_name
             bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
             savetool.m_suffix = ""
             savetool.m_node_name = ""
-            savetool.skin_node_name = "Skin Node"
+            savetool.skin_bump_node_name = "Skin Bump Node"
 
         elif(default_suffix == "DBD_TINT"):
             bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
@@ -2154,7 +2154,7 @@ class SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel(bpy.types.Operator):
         savetool.property_unset("cust4_suffix")
         savetool.property_unset("cust4_node_name")
 
-        savetool.property_unset("skin_node_name")
+        savetool.property_unset("skin_bump_node_name")
         savetool.property_unset("is_add_img_textures")
         return {'FINISHED'}
 
