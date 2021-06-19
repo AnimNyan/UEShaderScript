@@ -33,13 +33,11 @@ NOT_TO_HANDLE_ATTRS_NODES = [
     # "CompositorNodeImage"
 ]
 
-
-
 #define all user input properties
 class PathProperties(bpy.types.PropertyGroup):
     #user input paths for textures and materials
     props_txt_path: bpy.props.StringProperty(name="(!) Select PropsTxt File*", description="Select a props.txt file", subtype="FILE_PATH")
-    skin_map_path: bpy.props.StringProperty(name="Select Skin Map File (Roman Noodles Skin Only)", description="Select a skin map image file", subtype="FILE_PATH")
+    skin_bump_map_path: bpy.props.StringProperty(name="Select Skin Bump Map File (Optional for Skin Presets)", description="Select a skin bump map image file", subtype="FILE_PATH")
     material_folder_path: bpy.props.StringProperty(name="Select Materials Folder", description="Select a Materials folder", subtype="DIR_PATH")
     export_folder_path: bpy.props.StringProperty(name="(!) Select Exported Game Folder*", description="Select a Game folder", subtype="DIR_PATH")
 
@@ -71,26 +69,20 @@ class PathProperties(bpy.types.PropertyGroup):
         description = "Dropdown List of all the texture file types",
         items = 
         [
-            ("CLIP" , "Alpha Clip", ""),
-            ("HASHED" , "Alpha Hashed", "")
+            ("HASHED" , "Alpha Hashed", ""),
+            ("CLIP" , "Alpha Clip", "")
         ]
+  
         
     )
 
-    is_normal_non_colour: bpy.props.BoolProperty(name="Normal Map Textures Non Colour", default = True)
-    is_m_non_colour: bpy.props.BoolProperty(name="Transparency Map Textures Non Colour", default = True)
-    is_orm_non_colour: bpy.props.BoolProperty(name="Packed ARM Textures Non Colour", default = True)
-    is_hm_non_colour: bpy.props.BoolProperty(name="Height Map Textures Non Colour", default = True)
-    is_hair_gradient_non_colour: bpy.props.BoolProperty(name="Hair Gradient Map Textures Non Colour", default = True)
-    is_emissive_linear: bpy.props.BoolProperty(name="Emissive Map Textures Linear", default = True)
-
     is_load_img_textures: bpy.props.BoolProperty(name="Load Image Textures Dynamically", default= True)
     is_delete_unused_img_texture_nodes: bpy.props.BoolProperty(name="Delete Unused Image Texture Nodes", default = True)
-    is_delete_unused_related_nodes: bpy.props.BoolProperty(name="Delete Unused Image Texture Nodes AND Related Nodes (Slower)", default = False)
+    is_delete_unused_related_nodes: bpy.props.BoolProperty(name="Delete Unused Image Texture Nodes AND Related Nodes (Slower)", default = True)
 
     is_change_principle_bsdf_emission_strength: bpy.props.BoolProperty(name="Change Principled BSDF Node Strength if Emissions Texture Loaded", default = True)
     principled_bsdf_emission_strength_float: bpy.props.FloatProperty(name="Principled BSDF Emission Strength if Emissions Texture Loaded", default = 5.0)
-    material_alpha_threshold: bpy.props.FloatProperty(name="Material Clip Threshold if Transparency Texture Loaded", default = 0.0)
+    material_alpha_threshold: bpy.props.FloatProperty(name="Material Clip Threshold if Transparency Texture Loaded", default = 0.3333)
 
     #options to allow reuse of node groups and image textures
     is_reuse_node_group_with_same_name: bpy.props.BoolProperty(name="Reuse Node Groups With Same Name", default = True)
@@ -110,8 +102,7 @@ class PathProperties(bpy.types.PropertyGroup):
         
     )
   
-    #for roman noodles shader maps
-    is_add_skin_map: bpy.props.BoolProperty(name="Add Height Map Skin Texture (Optional for Skin Presets)", default = False)
+    is_add_skin_bump_map: bpy.props.BoolProperty(name="Add Skin Bump Texture (Optional for Skin Presets)", default = False)
 
     #advanced settings
     regex_pattern_in_props_txt_file: bpy.props.StringProperty(name="Regex Pattern in props.txt (material) files:", 
@@ -218,7 +209,7 @@ class LOADUESHADERSCRIPT_PT_load_settings_main_panel_2(LOADUESHADERSCRIPT_shared
             layout.prop(pathtool, "reverse_match_list_from_props_txt_enum")
 
             #Roman Noodles related settings
-            layout.prop(pathtool, "is_add_skin_map")
+            layout.prop(pathtool, "is_add_skin_bump_map")
 
 #main panel part 3
 #inheriting the shared panel's bl_space_type, bl_region_type and bl_category
@@ -293,13 +284,6 @@ class LOADUESHADERSCRIPT_PT_color_space_main_panel_4(LOADUESHADERSCRIPT_shared_m
         #allow access to user inputted properties through pointer
         #to properties
         pathtool = scene.path_tool
-
-        layout.prop(pathtool, "is_normal_non_colour")
-        layout.prop(pathtool, "is_m_non_colour")
-        layout.prop(pathtool, "is_orm_non_colour")
-        layout.prop(pathtool, "is_hm_non_colour")
-        layout.prop(pathtool, "is_hair_gradient_non_colour")
-        layout.prop(pathtool, "is_emissive_linear")
 
             
 
@@ -396,8 +380,8 @@ class LOADUESHADERSCRIPT_PT_load_methods_main_panel_7(LOADUESHADERSCRIPT_shared_
             box.prop(pathtool, "material_folder_path")
             box.prop(pathtool, "material_indices_list_string")
             box.prop(pathtool, "export_folder_path")
-            if(pathtool.is_add_skin_map):
-                box.prop(pathtool, "skin_map_path")
+            if(pathtool.is_add_skin_bump_map):
+                box.prop(pathtool, "skin_bump_map_path")
         else:
             box.prop(pathtool, "material_indices_list_string")
         box.operator("loadueshaderscript.add_to_multiple_materials_operator")
@@ -411,8 +395,8 @@ class LOADUESHADERSCRIPT_PT_load_methods_main_panel_7(LOADUESHADERSCRIPT_shared_
         if(pathtool.is_load_img_textures):
             box.prop(pathtool, "material_folder_path")
             box.prop(pathtool, "export_folder_path")
-            if(pathtool.is_add_skin_map):
-                box.prop(pathtool, "skin_map_path")
+            if(pathtool.is_add_skin_bump_map):
+                box.prop(pathtool, "skin_bump_map_path")
         box.operator("loadueshaderscript.add_to_selected_meshes_operator" )
 
         layout.use_property_split = False
@@ -435,8 +419,8 @@ class LOADUESHADERSCRIPT_PT_load_methods_main_panel_7(LOADUESHADERSCRIPT_shared_
             if(pathtool.is_load_img_textures):
                 box.prop(pathtool, "props_txt_path")
                 box.prop(pathtool, "export_folder_path")
-                if(pathtool.is_add_skin_map):
-                    box.prop(pathtool, "skin_map_path")
+                if(pathtool.is_add_skin_bump_map):
+                    box.prop(pathtool, "skin_bump_map_path")
             box.operator("loadueshaderscript.add_to_one_material_operator")
 
 
@@ -1459,13 +1443,15 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
                 node_to_load = node_tree.nodes[node_name]
                 load_image_texture(node_to_load, complete_path, pathtool)
 
+                #change the color space to non-colour or linear if required
+                change_colour_space(textures, node_to_load)
+
                 #this handles special nodes e.g.
                 #a Transparency node has been loaded 
-                #we might need to set it to Non-colour or 
-                #make the material Alpha Clip or Alpha hashed
+                #we might need to make the material Alpha Clip or Alpha hashed
                 #special handler does that
                 img_textures_special_handler(textures, pathtool, material, node_to_load, node_tree)
-                    
+                
                     
                 #if an image texture node has been loaded
                 #and the option to delete image texture nodes who
@@ -1563,7 +1549,7 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
     #if either of these conditions is true we must iterate 
     #through the image textures list
     #once
-    if (pathtool.is_delete_unused_img_texture_nodes or pathtool.is_add_skin_map):
+    if (pathtool.is_delete_unused_img_texture_nodes or pathtool.is_add_skin_bump_map):
         #go through the textures list once to load all the node_names to interested_node_name_list
         #we are interested in that might have something loaded to them
         #if nothing is loaded to the nodes from interested_node_name_list
@@ -1579,8 +1565,8 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
             if pathtool.is_delete_unused_img_texture_nodes:
                 interested_node_name_list.append(node_name)
             
-            if (pathtool.is_add_skin_map):
-                load_skin_texture_if_needed(node_tree, pathtool, img_textures_list, not_delete_img_texture_node_name_list, node_name, texture_id)
+            if (pathtool.is_add_skin_bump_map):
+                load_skin_bump_texture_if_needed(node_tree, pathtool, img_textures_list, not_delete_img_texture_node_name_list, node_name, texture_id)
 
     #iterate through texture locations
     #reminder match list looks like
@@ -1701,50 +1687,39 @@ def overlap_concat_string(string1, string2):
             n = 0
     return string1 + string2[n:]
 
+#global variables for the recommended 
+#colour spaces for image textures
+#srgb color space isn't used but it is there for reference purposes
+srgb_color_space_list = ["diffuse", "tint_base_diffuse", "cust1", "cust2", "cust3", "cust4"]
+non_color_space_list = ["normal", "packed_orm", "emissive", "tint_mask", "specular", "gloss"]
+linear_color_space_list = ["transparency", "height", "hair_gradient", "skin_bump"]
+
+def change_colour_space(textures, node_to_load):
+    if textures["texture"] in non_color_space_list:
+        node_to_load.image.colorspace_settings.name = "Non-Color"
+    if textures["texture"] in linear_color_space_list:
+        node_to_load.image.colorspace_settings.name = "Linear"
+    
+
 def img_textures_special_handler(textures, pathtool, material, node_to_load, node_tree):
     #special case if the node that was loaded was a transparency node _M
     #we need to set the material blend_method to alpha clip
     #and set the alpha threshold to 0 which looks best
     #with the least clipped
-    if textures["texture"] == "transparency":
-        #change to non-colour based on user settings
-        if(pathtool.is_m_non_colour):
-            node_to_load.image.colorspace_settings.name = "Non-Color"
-        #else revert to default colorspace settings
-        #need to do this as if the user has already
-        #set the color space to non-colour it will not revert to 
-        #sRGB unless we have the else statement
-        else:
-            node_to_load.image.colorspace_settings.name = "sRGB"
-        
+    if textures["texture"] == "transparency":        
         #change clipping method + threshold to clip
         clipping_method = pathtool.clipping_method_enum
-        if clipping_method == "CLIP":
+        if clipping_method == "HASHED":
+            material.blend_method = "HASHED"
+            material.shadow_method = "HASHED" 
+        elif clipping_method == "CLIP":
             material.blend_method = "CLIP"
             material.shadow_method = "CLIP"
             material.alpha_threshold = pathtool.material_alpha_threshold
-        elif clipping_method == "HASHED":
-            material.blend_method = "HASHED"
-            material.shadow_method = "HASHED"
         else:
             error_message = "Error: could not find clipping method"
             bpy.ops.ueshaderscript.show_message(message = error_message)
             log(error_message)
-
-    #special case if the node loaded was a Normal Map _N or Packed RGB ARM _ORM
-    #change colour interpolation to non-colour
-    elif textures["texture"] == "normal":
-        if(pathtool.is_normal_non_colour):
-            node_to_load.image.colorspace_settings.name = "Non-Color"
-        #else revert to default colorspace settings
-        else:
-            node_to_load.image.colorspace_settings.name = "sRGB"
-    
-    elif textures["texture"] == "packed_orm":
-        if(pathtool.is_orm_non_colour):
-            node_to_load.image.colorspace_settings.name = "Non-Color"
-        else:
-            node_to_load.image.colorspace_settings.name = "sRGB"
 
     #special case if the node loaded was an emissive BDE
     #find the principled BSDF node
@@ -1753,23 +1728,6 @@ def img_textures_special_handler(textures, pathtool, material, node_to_load, nod
         #only change the emission strength if the bool checkbox is checked
         if (pathtool.is_change_principle_bsdf_emission_strength):
             change_emission_strength_principled_bsdf(node_tree, "BSDF_PRINCIPLED", pathtool.principled_bsdf_emission_strength_float)
-        #change to linear if needed
-        if (pathtool.is_emissive_linear):
-            node_to_load.image.colorspace_settings.name = "Linear"
-        else:
-            node_to_load.image.colorspace_settings.name = "sRGB"
-    elif textures["texture"] == "height":
-        if(pathtool.is_hm_non_colour):
-            node_to_load.image.colorspace_settings.name = "Non-Color"
-        else:
-            node_to_load.image.colorspace_settings.name = "sRGB"
-        
-    
-    elif textures["texture"] == "hair_gradient":
-        if(pathtool.is_hair_gradient_non_colour):
-            node_to_load.image.colorspace_settings.name = "Non-Color"
-        else:
-            node_to_load.image.colorspace_settings.name = "sRGB"
 
 
 
@@ -1835,22 +1793,22 @@ def delete_unused_img_texture_nodes_and_related_nodes(not_delete_img_texture_nod
 
 
 
-def load_skin_texture_if_needed(node_tree, pathtool, img_textures_list, not_delete_img_texture_node_name_list, node_name, texture_id):
-    #turn the path to the skin map to an absolute path instead of a relative one
+def load_skin_bump_texture_if_needed(node_tree, pathtool, img_textures_list, not_delete_img_texture_node_name_list, node_name, texture_id):
+    #turn the path to the skin bump map to an absolute path instead of a relative one
     #to avoid errors
-    abs_skin_map_path = bpy.path.abspath(pathtool.skin_map_path)
+    abs_skin_bump_map_path = bpy.path.abspath(pathtool.skin_bump_map_path)
     #if the node is a skin texture node
     #always load skin height map texture regardless
     #because it doesn't come from the props.txt file
-    #it is externally added from skin_map_path
-    #and the skin_map path is not empty
+    #it is externally added from skin_bump_map_path
+    #and the skin_bump_map path is not empty
     #so do not need to check the suffix for a match against the propstxt file
     #always load
-    #also require that is_add_skin_map is checked by the user to add a skin map
-    if  texture_id == "skin" and abs_skin_map_path !="" and pathtool.is_add_skin_map:
+    #also require that is_add_skin_bump_map is checked by the user to add a skin bump map
+    if  texture_id == "skin_bump" and abs_skin_bump_map_path !="" and pathtool.is_add_skin_bump_map:
         node_to_load = node_tree.nodes[node_name]
-        #bpy.data.images.load(abs_skin_map_path)
-        load_image_texture(node_to_load, abs_skin_map_path, pathtool)
+        #bpy.data.images.load(abs_skin_bump_map_path)
+        load_image_texture(node_to_load, abs_skin_bump_map_path, pathtool)
         #add to whitelist
         if pathtool.is_delete_unused_img_texture_nodes:
             not_delete_img_texture_node_name_list.append(node_to_load.name)
@@ -2150,203 +2108,6 @@ def set_values_for_ImageUser(image_user, value_dict):
     image_user.use_auto_refresh = value_dict["use_auto_refresh"]
 
 
-#Now UNUSED but good example of how to implement a shader map manually
-#making each node and linking each node by hand
-def roman_noodles_shader_map(material, props_txt_path, pathtool):
-    #store new link function to variable
-    link = material.node_tree.links.new
-    
-    #store new node function to variable
-    new_node = material.node_tree.nodes.new
-    
-    #assign Principled BSDF to a variable so can be referenced later
-    #so that nodes can link to it
-    principled_node = material.node_tree.nodes.get('Principled BSDF')
-    #add subsurface skin settings to principled BSDF node
-    #if the material is for skin
-    if pathtool.is_material_skin == True:
-        principled_node.subsurface_method = "RANDOM_WALK"
-        principled_node.inputs[1].default_value = 0.03
-        principled_node.inputs["Subsurface Color"].default_value = (0.8, 0, 0, 1)
-        
-    principled_node.inputs["Specular"].default_value = 0.064
-
-    #start adding all nodes and respective links to shader map
-    #--------------add everything except image texture nodes
-    #using inputs through ["Metallic"] rather than numbers is much
-    #better as sometimes there are hidden inputs and outputs
-    srgb_node = new_node("ShaderNodeSeparateRGB")
-    srgb_node.location = (-150,150) # x,y
-    link(srgb_node.outputs[2], principled_node.inputs["Metallic"])
-
-    ramp_node_1 = new_node("ShaderNodeValToRGB")
-    ramp_node_1.location = (-450,50) # x,y
-    ramp_node_1.color_ramp.elements[1].position = 0.209
-    link(ramp_node_1.outputs[0], principled_node.inputs["Roughness"])
-    
-    bump_node = new_node("ShaderNodeBump")
-    bump_node.location = (-200,-200) # x,y
-    bump_node.inputs[0].default_value = 0.175
-    link(bump_node.outputs[0], principled_node.inputs["Normal"])
-    
-    rgbbw_node = new_node("ShaderNodeRGBToBW")
-    rgbbw_node.location = (-150,0) # x,y
-    link(rgbbw_node.outputs[0], ramp_node_1.inputs["Fac"])
-    
-    normap_node = new_node(type="ShaderNodeNormalMap")
-    normap_node.location = (-400,-200) # x,y
-    link(normap_node.outputs[0], bump_node.inputs["Normal"])
-    
-    #only add skin related nodes for height map
-    #if material is for skin
-    if pathtool.is_material_skin == True:
-        map_node = new_node(type="ShaderNodeMapping")
-        map_node.location = (-300,-450) # x,y
-        map_node.inputs[3].default_value[0] = 12
-        map_node.inputs[3].default_value[1] = 12
-        map_node.inputs[3].default_value[2] = 12
-        
-        textcoord_node = new_node(type="ShaderNodeTexCoord")
-        textcoord_node.location = (-500,-450) # x,y
-        link(textcoord_node.outputs[2], map_node.inputs[0])
-
-    
-    #open the propstxt file for the material and find the
-    #texture locations from it
-    #with just means open and close file
-    with open(props_txt_path, 'r') as f:
-        #read entire file to one string
-        data = f.read()
-        #find all matches through regex to the string Texture2D' with capture group 
-        #any character zero to unlimited times and ending with '
-        #also store capture groups into a list variable
-        match_list = re.findall("Texture2D\'(.*)\.", data)
-    
-    #only add image textures nodes if Include Image Textures
-    #in panel is true
-    if pathtool.is_load_img_textures:
-        #---------------add image texture nodes    
-        #example loading image
-        #texImage.image = bpy.dat.images.load(
-        #"C:\Users\myName\Downloads\Textures\Downloaded\flooring5.jpg")
-        
-        #add height map if Add Skin Related Nodes is checked and 
-        #add Height Map Skin Texture is checked
-        #add the height map image texture and load the user defined
-        #height map image
-        
-        if pathtool.is_load_img_textures == True and pathtool.is_material_skin == True and pathtool.is_add_height_map == True:
-            height_map_path = pathtool.height_map_path
-            
-            height_map_node = new_node('ShaderNodeTexImage')
-            height_map_node.location = (-100,-450) #x,y
-            height_map_node.image = bpy.data.images.load(height_map_path)
-            link(height_map_node.outputs[0], bump_node.inputs[2])
-            link(map_node.outputs[0], height_map_node.inputs[0])
-            height_map_node.interpolation = "Cubic"
-        
-        
-        #use loop to go through all locations
-        #specified in props.txt file
-        #and create image texture nodes + 
-        #load all images for image textures
-        for tex_location in match_list:
-            
-            #fetch last 6 characters in path which will tell you what
-            #the current texture is in charge of e.g slice _BC off
-            #/Game/Characters/Slashers/Bear/Textures/Outfit01/T_BEHead01_BC
-            #longest id is _ORM or _BDE 4 characters 
-            tex_id = tex_location[-6:]
-            
-            #if the folder path is a relative path
-            #turn it into an absolute one
-            #as relative paths cause problems
-            #when trying to load an image
-            abs_export_folder_path = bpy.path.abspath(pathtool.export_folder_path)
-            
-            # Returns user specified export game folder path
-            # with first character removed
-            # reason why is there would be double up of \/ when 
-            #concatenating strings
-            user_tex_folder = abs_export_folder_path[:-1]
-            
-            #replace forward slash with backslash reason why is
-            # when concatenating complete path looks like this
-            #if no replace path looks like e.g. C:\Nyan\Dwight Recolor\Game/Characters/Slashers/Bear/Textures/Outfit01/T_BEHead01_BC
-            #which is weird
-            #backslash is used to escape backslash character
-            tex_location = tex_location.replace("/","\\")
-            
-            #if the user selects the game folder instead of the
-            #parent folder, the first 5 characters of 
-            #the user input box: user_tex_folder will be "Game"
-            #so we remove "Game\" from the tex_location
-            #to avoid a double up
-            #this is extra redundancy so if the
-            #user chooses either the Game folder or
-            #the parent folder of the Game folder
-            #both options will work
-            if user_tex_folder[-4:] == "Game":
-                #backslash is used to escape backslash character
-                tex_location = tex_location.replace("\\Game","")
-     
-            #must string concatenate the user specified texture location path to 
-            #the texture location
-            #as the tex_location will only be 
-            #e.g /Game/Characters/Slashers/Bear/Textures/Outfit01/T_BEHead01_BC
-            #this does not provide a complete path to where the user exported
-            #the texture
-            #we need e.g. C:\Nyan\Dwight Recolor\Game\Characters
-            #\Slashers\Bear\Textures\Outfit01\T_BEHead01_BC
-            #using join because it's faster
-            #also join requires a tuple so there are two circle brackets used
-            complete_path = "".join((user_tex_folder, tex_location, ".tga"))
-
-            #If the texture is listed in the 
-            #props.txt file and it is one of the
-            #image textures we are interested in we will add the node
-            #and load the corresponding image
-                 
-            #check what the last two/three characters are of the id
-            #and look for the specific ids we are interested in
-            #identifier
-            if tex_id.endswith("_BC"):
-                bc_node = new_node('ShaderNodeTexImage')
-                bc_node.location = (-300,450) #x,y
-                bc_node.image = bpy.data.images.load(complete_path)
-                link(bc_node.outputs[0], principled_node.inputs[0])
-                link(bc_node.outputs[0], rgbbw_node.inputs[0])
-                bc_node.interpolation = "Cubic"
-                
-            elif tex_id.endswith("_ORM"):
-                orm_node = new_node('ShaderNodeTexImage')
-                orm_node.location = (-750, 300) #x,y
-                orm_node.image = bpy.data.images.load(complete_path)
-                link(orm_node.outputs[0], srgb_node.inputs[0])
-                orm_node.image.colorspace_settings.name = "Non-Color"
-                
-            elif tex_id.endswith("_N"):
-                n_node = new_node('ShaderNodeTexImage')
-                n_node.location = (-800,-200) #x,y
-                n_node.image = bpy.data.images.load(complete_path)
-                link(n_node.outputs[0], normap_node.inputs[1])
-                n_node.image.colorspace_settings.name = "Non-Color"
-                
-            elif tex_id.endswith("_M"):
-                #add ramp node to connect to M node and control
-                #alpha if alpha transparency is required
-                ramp_node_2 = new_node("ShaderNodeValToRGB")
-                ramp_node_2.location = (-750,20) # x,y
-                ramp_node_2.color_ramp.elements[1].position = 0.95
-                link(ramp_node_2.outputs[0], principled_node.inputs["Alpha"])
-                
-                m_node = new_node('ShaderNodeTexImage')
-                m_node.location = (-1100,20) #x,y
-                m_node.image = bpy.data.images.load(complete_path)
-                link(m_node.outputs[0], ramp_node_2.inputs[0])
-                material.blend_method = 'CLIP'
-
-
 #--------reset settings for load function main panel class
 class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
     bl_idname = "loadueshaderscript.reset_settings_main_panel_operator"
@@ -2368,7 +2129,7 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
         #don't reset the paths or inputs otherwise
         #user has to set them again and again
         #pathtool.property_unset("props_txt_path")
-        #pathtool.property_unset("skin_map_path")
+        #pathtool.property_unset("skin_bump_map_path")
         #pathtool.property_unset("material_folder_path")
         #pathtool.property_unset("export_folder_path")
         #pathtool.property_unset("material_indices_list_string")
@@ -2377,12 +2138,6 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
         pathtool.property_unset("is_replace_nodes")
         pathtool.property_unset("texture_file_type_enum")
         pathtool.property_unset("clipping_method_enum")
-        pathtool.property_unset("is_normal_non_colour")
-        pathtool.property_unset("is_m_non_colour")
-        pathtool.property_unset("is_orm_non_colour")
-        pathtool.property_unset("is_hm_non_colour")
-        pathtool.property_unset("is_hair_gradient_non_colour")
-        pathtool.property_unset("is_emissive_linear")
         pathtool.property_unset("is_load_img_textures")
         pathtool.property_unset("is_delete_unused_img_texture_nodes")
         pathtool.property_unset("is_delete_unused_related_nodes")
@@ -2392,7 +2147,7 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
         pathtool.property_unset("is_reuse_node_group_with_same_name")
         pathtool.property_unset("is_reuse_img_texture_with_same_name")
         pathtool.property_unset("reverse_match_list_from_props_txt_enum")
-        pathtool.property_unset("is_add_skin_map")
+        pathtool.property_unset("is_add_skin_bump_map")
         pathtool.property_unset("is_show_abs_props_debug")
 
         #reset advanced settings as well in case
