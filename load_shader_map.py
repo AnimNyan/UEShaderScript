@@ -104,6 +104,8 @@ class PathProperties(bpy.types.PropertyGroup):
   
     is_add_skin_bump_map: bpy.props.BoolProperty(name="Add Skin Bump Texture (Optional for Skin Presets)", default = False)
 
+    is_use_recolor_values: bpy.props.BoolProperty(name="Use Recolor Colours and Values", default = True)
+
     #advanced settings
     regex_pattern_in_props_txt_file: bpy.props.StringProperty(name="Regex Pattern in props.txt (material) files:", 
                 description="Regex pattern used in files that describe materials ", default = "Texture2D\'(.*)\.")
@@ -207,9 +209,12 @@ class LOADUESHADERSCRIPT_PT_load_settings_main_panel_2(LOADUESHADERSCRIPT_shared
             layout.prop(pathtool, "is_reuse_img_texture_with_same_name")
 
             layout.prop(pathtool, "reverse_match_list_from_props_txt_enum")
+            
+            layout.prop(pathtool, "is_use_recolor_values")
 
-            #Roman Noodles related settings
+            #Skin Preset Related Settings
             layout.prop(pathtool, "is_add_skin_bump_map")
+
 
 #main panel part 3
 #inheriting the shared panel's bl_space_type, bl_region_type and bl_category
@@ -327,7 +332,7 @@ class LOADUESHADERSCRIPT_PT_advanced_settings_main_panel_5(LOADUESHADERSCRIPT_sh
         #because it looks bad with use property split
         layout.prop(pathtool, "is_show_abs_props_debug")
 
-        #formatting
+        #formatting default blender attribute
         #layout.use_property_split means that it will try and display 
         #the property fully
         layout.use_property_split = True
@@ -1451,7 +1456,7 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
                 #a Transparency node has been loaded 
                 #we might need to make the material Alpha Clip or Alpha hashed
                 #special handler does that
-                img_textures_special_handler(textures, pathtool, material, node_to_load, node_tree)
+                img_textures_special_handler(textures, pathtool, material, node_to_load, node_tree, abs_props_txt_path)
                 
                     
                 #if an image texture node has been loaded
@@ -1468,6 +1473,8 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
                 bpy.ops.ueshaderscript.show_message(message = warning_message)
             return is_img_loaded
 
+
+        
         complete_path = get_complete_path_to_texture_file(pathtool, tex_location)
             
 
@@ -1525,7 +1532,7 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
         #in the case of overlap should be written first in the props.txt file
         if pathtool.reverse_match_list_from_props_txt_enum == "Reverse Match List":
             match_list = reversed(match_list)
-        ##if it is Don't Reverse Match List don't do anything
+        #if it is false Don't Reverse Match List don't do anything
 
     #---------------------add image texture nodes 
     
@@ -1702,7 +1709,7 @@ def change_colour_space(textures, node_to_load):
         node_to_load.image.colorspace_settings.name = "Linear"
     
 
-def img_textures_special_handler(textures, pathtool, material, node_to_load, node_tree):
+def img_textures_special_handler(textures, pathtool, material, node_to_load, node_tree, abs_props_txt_path):
     #special case if the node that was loaded was a transparency node _M
     #we need to set the material blend_method to alpha clip
     #and set the alpha threshold to 0 which looks best
@@ -1729,7 +1736,111 @@ def img_textures_special_handler(textures, pathtool, material, node_to_load, nod
         #only change the emission strength if the bool checkbox is checked
         if (pathtool.is_change_principle_bsdf_emission_strength):
             change_emission_strength_principled_bsdf(node_tree, "BSDF_PRINCIPLED", pathtool.principled_bsdf_emission_strength_float)
+    
+    #so this is only for one specific 
+    #preset DBD Pit Princess's Clothing Recolor Preset
+    #if it is being used we want to read the props.txt file
+    #for more details specifically the RGB colours used for the recolor
+    #we will only look for the occurence of the tint_base_diffuse
+    #and not the tint mask
+    #because one will tell us the preset is the recolor preset
+    #and we only need to adjust the values of the dye group node
+    elif textures["texture"] == "tint_base_diffuse":
+        #if the user has checked the option to use
+        #the values that come from the props.txt file
+        #then change the dye group values
+        #to match the props.txt values
+        if pathtool.is_use_recolor_values:
+            change_dye_group_values(node_tree, abs_props_txt_path)
 
+
+
+def change_dye_group_values(node_tree, abs_props_txt_path):
+    is_dye_group_node_found, dye_node_group = search_return_dye_node_group(node_tree)
+
+    print("abs_props_txt_path: ", abs_props_txt_path)
+    
+    #if the dye group node is found we will
+    #read the props txt file for the RChannel GChannel and 
+    #BChannel values and put the values into the group node
+    #if the dye group node is not found do nothing
+    if is_dye_group_node_found:
+        #open the propstxt file for the material and find the
+        #texture locations from it
+        #with just means open and close file
+        with open(abs_props_txt_path, 'r') as f:
+            #read entire file to one string
+            data = f.read()
+            #find all matches through regex to the string:
+            #Channel_Tint }
+            #ParameterValue = { R=1, G=1, B=1, A=1 }
+            #Syntax:
+            #[A-Z] capital A-Z
+            #[\s\S] any whitespace or non whitespace character to jump over new lines
+            #[\s\S]* previous line zero to unlimited times
+            #[\s\S]*? previous line non greedy match as little as possible
+            #.* match any character zero to unlimited times
+            #.+ any character one to unlimited times 
+            #Explaining how it works:
+            #1st[0] capture group is capital A-Z telling you what channel it is for Red, Green, Blue or Alpha
+            #2nd[1] capture group is Red value
+            #3rd[2] capture group is Green value
+            #4th[3] capture group is Blue value
+            #5th[4] capture group is Alpha value
+
+            match_list = re.findall("([A-Z])Channel_Tint[\s\S]*?ParameterValue.*R=(.+), G=(.+), B=(.+), A=(.+) }", data)
+
+            #debug
+            print("match_list", match_list)
+
+            #iterate over all capture groups in match list
+            #and put all the values found from the regular expression
+            #into the group node
+            for capture_group in match_list:
+                colour_channel = ""
+                if capture_group[0] == "R":
+                    colour_channel = "(R) Primary"
+                elif capture_group[0] == "G":
+                    colour_channel = "(G) Secondary"
+                elif capture_group[0] == "B":
+                    colour_channel = "(B) Tertiary"
+                elif capture_group[0] == "A":
+                    colour_channel = "(A) Quaternary"
+
+                #using .join to concatenate strings as it's faster
+                #and more efficient remember using .join you always need a tuple
+                #so two circular brackets one for tuple one for function
+                #example of how to assign colour
+                #bpy.data.materials["Example Clothing"].node_tree.nodes["Clothing Dye"].inputs[3].default_value = (0.5, 0.125, 0.125, 1)
+                #always use default of value of 1 for alpha because RGB Alpha values
+                #since alpha value doesn't do much in blender leave it at it's default 1
+                dye_node_group.inputs["".join((colour_channel, " Colour"))].default_value = (capture_group[1], capture_group[2], capture_group[3], 1)
+                dye_node_group.inputs["".join((colour_channel, " Alpha"))].default_value = capture_group[4]
+
+
+def search_return_dye_node_group(node_tree):
+    is_dye_node_group_found = False
+
+    for node in node_tree.nodes:
+            #so if a group node exists that is the Lazy DBD X.X Clothing Dye
+            #which is identified by the node.name of Clothing Dye
+            #we will read the props.txt file for the RGB colours
+            if (node.name == "Clothing Dye"):
+                is_dye_node_group_found = True
+                dye_node_group = node
+                #debug
+                print("Clothing Dye Group Node exists")
+                
+
+                #break from for loop
+                break
+     
+    #debug
+    #if the dye group is not found 
+    if (not is_dye_node_group_found):
+        print("Clothing Dye Group Node does not exist")
+    
+    return is_dye_node_group_found, dye_node_group
 
 
 def load_image_texture(node_to_load, complete_path_to_image, pathtool):
