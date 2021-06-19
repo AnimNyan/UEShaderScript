@@ -724,7 +724,7 @@ class SaveProperties(bpy.types.PropertyGroup):
             ("DBD_GENERAL" , "DBD Generic/Clothing/Basic", ""),
             ("DBD_SKIN", "DBD Skin", ""),
             ("DBD_HAIR" , "DBD Hair", ""),
-            ("DBD_TINT" , "DBD Tint", "")
+            ("DBD_TINT_RECOLOUR" , "DBD Tint Recolour", "")
         ]
         
     )
@@ -2071,7 +2071,7 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
             savetool.m_node_name = ""
             savetool.skin_bump_node_name = "Skin Bump Node"
 
-        elif(default_suffix == "DBD_TINT"):
+        elif(default_suffix == "DBD_TINT_RECOLOUR"):
             bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
             savetool.bc_suffix = ""
             savetool.bc_node_name = ""
