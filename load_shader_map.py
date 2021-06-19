@@ -284,6 +284,7 @@ class LOADUESHADERSCRIPT_PT_color_space_main_panel_4(LOADUESHADERSCRIPT_shared_m
         #allow access to user inputted properties through pointer
         #to properties
         pathtool = scene.path_tool
+        layout.label(text = "Custom color space settings to be added")
 
             
 
