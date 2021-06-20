@@ -1827,15 +1827,19 @@ def change_dye_group_values(node_tree, abs_props_txt_path):
 def search_return_dye_node_group(node_tree):
     is_dye_node_group_found = False
 
+    #give default value for dye_node_group
+    #just in case a dye_node group is not found
+    dye_node_group = None
+
     for node in node_tree.nodes:
             #so if a group node exists that is the Lazy DBD X.X Clothing Dye
             #which is identified by the node.name of Clothing Dye
             #we will read the props.txt file for the RGB colours
-            if (node.name == "Clothing Dye"):
+            if (node.name == "Pit Princess Lazy DBD Clothing (Dye)"):
                 is_dye_node_group_found = True
                 dye_node_group = node
                 #debug
-                print("Clothing Dye Group Node exists")
+                #print("Clothing Dye Group Node exists")
                 
 
                 #break from for loop
@@ -1843,8 +1847,8 @@ def search_return_dye_node_group(node_tree):
      
     #debug
     #if the dye group is not found 
-    if (not is_dye_node_group_found):
-        print("Clothing Dye Group Node does not exist")
+    #if (not is_dye_node_group_found):
+    # print("Clothing Dye Group Node does not exist")
     
     return is_dye_node_group_found, dye_node_group
 
