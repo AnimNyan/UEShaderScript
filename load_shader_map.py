@@ -1814,8 +1814,9 @@ def change_dye_group_values(node_tree, abs_props_txt_path):
                 #bpy.data.materials["Example Clothing"].node_tree.nodes["Clothing Dye"].inputs[3].default_value = (0.5, 0.125, 0.125, 1)
                 #always use default of value of 1 for alpha because RGB Alpha values
                 #since alpha value doesn't do much in blender leave it at it's default 1
-                dye_node_group.inputs["".join((colour_channel, " Colour"))].default_value = (capture_group[1], capture_group[2], capture_group[3], 1)
-                dye_node_group.inputs["".join((colour_channel, " Alpha"))].default_value = capture_group[4]
+                #need to convert strings to float so use float()
+                dye_node_group.inputs["".join((colour_channel, " Colour"))].default_value = (float(capture_group[1]), float(capture_group[2]), float(capture_group[3]), 1)
+                dye_node_group.inputs["".join((colour_channel, " Alpha"))].default_value = float(capture_group[4])
 
 
 def search_return_dye_node_group(node_tree):
