@@ -1816,7 +1816,12 @@ def change_dye_group_values(node_tree, abs_props_txt_path):
                 #since alpha value doesn't do much in blender leave it at it's default 1
                 #need to convert strings to float so use float()
                 dye_node_group.inputs["".join((colour_channel, " Colour"))].default_value = (float(capture_group[1]), float(capture_group[2]), float(capture_group[3]), 1)
-                dye_node_group.inputs["".join((colour_channel, " Alpha"))].default_value = float(capture_group[4])
+                #commented out this because there is no longer an alpha input for the
+                #dye node group because the A value was deemed unhelpful
+                #for recolors
+                #only here so that float(capture_group[4]) that 
+                #might possibly be useful in future
+                #dye_node_group.inputs["".join((colour_channel, " Alpha"))].default_value = float(capture_group[4])
 
 
 def search_return_dye_node_group(node_tree):
