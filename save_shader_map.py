@@ -1547,7 +1547,7 @@ def json_string_to_update_default_presets(json_string, skip_autosave=False):
                 #need to get_preset_by_name_if_exist_in_folder 
                 #because need to get the preset instance from the 
                 #user preferences stored inuserprefs.blend
-                is_preset_name_exist_in_folder, preset_from_preferences = get_preset_by_name_if_exist_in_folder(new_folder.folder_name, new_name)
+                is_preset_name_exist_in_folder, preset_from_preferences = get_preset_by_name_if_exist_in_folder(new_folder.folder_name, new_name, preferences)
 
                 if is_preset_name_exist_in_folder:
                     updated_preset = preset_from_preferences
@@ -1732,13 +1732,14 @@ class SavePreferences(bpy.types.AddonPreferences):
         layout = self.layout
 
 #by default use __package__ however, if the function is being imported elsewhere to a different file
+#such as in the __init__ or load_shader_map.py file
 #the __package__ variable does not work, allow another parameter to override with the UEShaderScript string
 def get_preferences(isOverridePackage = False, package=__package__, context=None):
     """Multi version compatibility for getting preferences"""
-    if isOverridePackage:
-        #debug
-        #print("Override Package!!!!!")
-        package = "UEShaderScript"
+    # if isOverridePackage:
+    #     #debug
+    #     #print("Override Package!!!!!")
+    #     package = "UEShaderScript"
 
     if not context:
         context = bpy.context
@@ -1945,9 +1946,8 @@ def get_folder_presets_by_name(name):
     return None
 
 
-def get_preset_by_name_if_exist_in_folder(folder_name, preset_name):
-    pref = get_preferences()
-    folders_presets = pref.folders_presets
+def get_preset_by_name_if_exist_in_folder(folder_name, preset_name, preferences):
+    folders_presets = preferences.folders_presets
     for folder in folders_presets:
         if folder.folder_name == folder_name:
             for preset in folder.presets:
