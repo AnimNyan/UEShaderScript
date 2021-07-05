@@ -1313,6 +1313,14 @@ class LOADUESHADERSCRIPT_OT_use_custom_denoising(bpy.types.Operator):
 
         nodes = dict_to_nodes(nodes_dict["nodes_list"], node_tree)
         list_to_links(nodes_dict["links_list"], node_tree, nodes)
+
+        #show feedback to user
+        success_message = "Custom Denoising Setup was added succesfully!"
+        bpy.ops.ueshaderscript.show_message(
+            message = success_message)
+        #show success message in blender console
+        log(success_message)
+
         return {'FINISHED'}
 
 
