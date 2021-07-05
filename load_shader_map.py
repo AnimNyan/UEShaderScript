@@ -4,6 +4,9 @@ import bpy, re
 import glob
 from pathlib import Path
 
+import base64
+
+
 import time
 
 import os
@@ -449,7 +452,18 @@ class LOADUESHADERSCRIPT_PT_solo_material_main_panel_8(LOADUESHADERSCRIPT_shared
         layout.operator("loadueshaderscript.solo_material_operator")
         layout.operator("loadueshaderscript.use_nodes_mesh_operator")
 
-
+#main panel part 9
+#inheriting the shared panel's bl_space_type, bl_region_type and bl_category
+class LOADUESHADERSCRIPT_PT_custom_denoising_main_panel_9(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
+    bl_label = "Pit Princess Custom Denoising Setup"
+    bl_idname = "LOADUESHADERSCRIPT_PT_custom_denoising_main_panel_9"
+    bl_options = {"DEFAULT_CLOSED"}
+    
+    def draw(self, context):
+        layout = self.layout
+        layout.label(text = "Press press Use Pit Princess Custom Denoising Setup")
+        layout.label(text = "to load a custom compositing tab denoising node setup")
+        layout.operator("loadueshaderscript.use_custom_denoising_operator")
 
 #---------------------------code for Operators in Main Panel
 
@@ -1223,6 +1237,83 @@ class LOADUESHADERSCRIPT_OT_use_nodes_mesh_all(bpy.types.Operator):
             log(error_message)
 
         return {"FINISHED"}
+
+#-----------------------------------Load Compositing Node Setup
+
+
+
+class LOADUESHADERSCRIPT_OT_use_custom_denoising(bpy.types.Operator):
+    bl_label = "Use Pit Princess Custom Denoising Setup"
+    bl_description = "Use Pit Princess Compositor Denoising Setup"
+    bl_idname = "loadueshaderscript.use_custom_denoising_operator"
+    def execute(self, context):
+        #change render engine to Cycles and GPU Compute
+        bpy.context.scene.render.engine = 'CYCLES'
+        bpy.context.scene.cycles.device = 'GPU'
+
+        #change to branched path tracing
+        #and assign samples to each
+        bpy.context.scene.cycles.progressive = 'BRANCHED_PATH'
+        bpy.context.scene.cycles.aa_samples = 8
+        bpy.context.scene.cycles.preview_aa_samples = 8
+        bpy.context.scene.cycles.diffuse_samples = 3
+        bpy.context.scene.cycles.glossy_samples = 5
+        bpy.context.scene.cycles.transmission_samples = 7
+        bpy.context.scene.cycles.ao_samples = 1
+        bpy.context.scene.cycles.mesh_light_samples = 1
+        bpy.context.scene.cycles.volume_samples = 1
+        bpy.context.scene.cycles.subsurface_samples = 9
+
+        #turn on the required render passes
+        #have to use bpy.context.view_layer.cycles.denoising_store_passes = False
+        #even though the info console does not show it properly
+        #as there are different settings for eevee and cycles
+        bpy.context.scene.view_layers["View Layer"].use_pass_combined = True
+        bpy.context.scene.view_layers["View Layer"].use_pass_z = False
+        bpy.context.scene.view_layers["View Layer"].use_pass_mist = False
+        bpy.context.scene.view_layers["View Layer"].use_pass_normal = True
+        bpy.context.scene.view_layers["View Layer"].use_pass_vector = False
+        bpy.context.scene.view_layers["View Layer"].use_pass_uv = False
+        bpy.context.view_layer.cycles.denoising_store_passes = False
+        bpy.context.scene.view_layers["View Layer"].use_pass_object_index = False
+        bpy.context.scene.view_layers["View Layer"].use_pass_material_index = False
+        bpy.context.view_layer.cycles.pass_debug_render_time = False
+        bpy.context.view_layer.cycles.pass_debug_sample_count = False
+        bpy.context.scene.view_layers["View Layer"].use_pass_diffuse_direct = True
+        bpy.context.scene.view_layers["View Layer"].use_pass_diffuse_indirect = True
+        bpy.context.scene.view_layers["View Layer"].use_pass_diffuse_color = True
+        bpy.context.scene.view_layers["View Layer"].use_pass_glossy_direct = True
+        bpy.context.scene.view_layers["View Layer"].use_pass_glossy_indirect = True
+        bpy.context.scene.view_layers["View Layer"].use_pass_glossy_color = True
+        bpy.context.scene.view_layers["View Layer"].use_pass_transmission_direct = True
+        bpy.context.scene.view_layers["View Layer"].use_pass_transmission_indirect = True
+        bpy.context.scene.view_layers["View Layer"].use_pass_transmission_color = True
+        bpy.context.view_layer.cycles.use_pass_volume_direct = True
+        bpy.context.view_layer.cycles.use_pass_volume_indirect = True
+        bpy.context.scene.view_layers["View Layer"].use_pass_emit = True
+        bpy.context.scene.view_layers["View Layer"].use_pass_environment = True
+        bpy.context.scene.view_layers["View Layer"].use_pass_shadow = True
+        bpy.context.scene.view_layers["View Layer"].use_pass_ambient_occlusion = True
+
+        #make use nodes true in the compositor
+        bpy.context.scene.use_nodes = True
+        
+        #------------load the compositing node setup to the compositor window
+        #reading string from file because it would take up too much space in the code
+        #will read from the file compositing json in the current directory by default
+        file = open("ue_shader_script_compositing_json.json")
+        pit_princess_compositing_json = file.read()
+
+        file.close()
+        nodes_dict = json_to_nodes_dict(pit_princess_compositing_json)
+        node_tree = bpy.context.scene.node_tree
+        
+        clear_nodes(node_tree)
+        clear_links(node_tree)
+
+        nodes = dict_to_nodes(nodes_dict["nodes_list"], node_tree)
+        list_to_links(nodes_dict["links_list"], node_tree, nodes)
+        return {'FINISHED'}
 
 
 def get_active_world():
@@ -2292,10 +2383,13 @@ LOADUESHADERSCRIPT_PT_color_space_main_panel_4, LOADUESHADERSCRIPT_PT_advanced_s
 LOADUESHADERSCRIPT_PT_reset_settings_main_panel_6, 
 
 LOADUESHADERSCRIPT_PT_load_methods_main_panel_7,
-LOADUESHADERSCRIPT_PT_solo_material_main_panel_8, 
+LOADUESHADERSCRIPT_PT_solo_material_main_panel_8,
+LOADUESHADERSCRIPT_PT_custom_denoising_main_panel_9, 
 
 LOADUESHADERSCRIPT_OT_solo_material, LOADUESHADERSCRIPT_OT_solo_material_all,
 LOADUESHADERSCRIPT_OT_use_nodes_mesh, LOADUESHADERSCRIPT_OT_use_nodes_mesh_all,
+
+LOADUESHADERSCRIPT_OT_use_custom_denoising,
 
 LOADUESHADERSCRIPT_OT_add_to_one_material, LOADUESHADERSCRIPT_OT_add_to_multiple_materials, 
 LOADUESHADERSCRIPT_OT_add_to_selected_meshes, LOADUESHADERSCRIPT_OT_reset_settings_main_panel]

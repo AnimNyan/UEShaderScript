@@ -1,0 +1,3265 @@
+{
+    "nodes_list": [
+        {
+            "node_name": "NodeFrame",
+            "x": 332.2481689453125,
+            "y": 388.8712463378906,
+            "width": 634.87158203125,
+            "width_hidden": 42.0,
+            "height": 235.43338012695312,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.13990066945552826,
+                        0.12214483320713043
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Denoise Diffuse Indirect + Direct",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "int",
+                    "value": 64,
+                    "attr_name": "label_size"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Frame",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 1,
+                    "attr_name": "shrink"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 1,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "node_name": "NodeFrame",
+            "x": 404.82781982421875,
+            "y": 113.62613677978516,
+            "width": 617.8616943359375,
+            "width_hidden": 42.0,
+            "height": 238.70010375976562,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.5316271781921387,
+                        0.016593074426054955
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Denoise Gloss Indirect + Direct",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "int",
+                    "value": 64,
+                    "attr_name": "label_size"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Frame.001",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 1,
+                    "attr_name": "shrink"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 1,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "node_name": "NodeFrame",
+            "x": 419.7197265625,
+            "y": -140.03753662109375,
+            "width": 614.9135131835938,
+            "width_hidden": 42.0,
+            "height": 229.5921173095703,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.1605585515499115,
+                        0.5004251003265381,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Denoise Transmission Indirect + Direct",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "int",
+                    "value": 64,
+                    "attr_name": "label_size"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Frame.002",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 1,
+                    "attr_name": "shrink"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 1,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "node_name": "NodeFrame",
+            "x": 413.06658935546875,
+            "y": -383.22137451171875,
+            "width": 199.99996948242188,
+            "width_hidden": 42.0,
+            "height": 229.78115844726562,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.022627433761954308,
+                        0.4034801423549652
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Add Emit and Env",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "int",
+                    "value": 64,
+                    "attr_name": "label_size"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Frame.003",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 1,
+                    "attr_name": "shrink"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 1,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "node_name": "NodeReroute",
+            "x": 346.2575378417969,
+            "y": 108.85094451904297,
+            "width": 16.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Reroute",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketVector",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Input"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketVector",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Output"
+                }
+            ]
+        },
+        {
+            "node_name": "NodeReroute",
+            "x": 351.7010192871094,
+            "y": 162.7333984375,
+            "width": 16.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Reroute.002",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Input"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Output"
+                }
+            ]
+        },
+        {
+            "node_name": "NodeReroute",
+            "x": 511.3757019042969,
+            "y": 166.36593627929688,
+            "width": 16.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Reroute.003",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Input"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Output"
+                }
+            ]
+        },
+        {
+            "node_name": "CompositorNodeMixRGB",
+            "x": 1013.3442993164062,
+            "y": 263.9022216796875,
+            "width": 140.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "str",
+                    "value": "ADD",
+                    "attr_name": "blend_type"
+                },
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Mix.004",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_alpha"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_clamp"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketFloatFactor",
+                    "value": 1.0,
+                    "name": "Fac"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Image"
+                }
+            ]
+        },
+        {
+            "node_name": "CompositorNodeMixRGB",
+            "x": 7.356292724609375,
+            "y": -12.4378662109375,
+            "width": 140.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": 0,
+            "attrs": [
+                {
+                    "type_name": "str",
+                    "value": "ADD",
+                    "attr_name": "blend_type"
+                },
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Mix.001",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_alpha"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_clamp"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketFloatFactor",
+                    "value": 1.0,
+                    "name": "Fac"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Image"
+                }
+            ]
+        },
+        {
+            "node_name": "CompositorNodeMixRGB",
+            "x": 208.76409912109375,
+            "y": -16.6845703125,
+            "width": 140.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": 0,
+            "attrs": [
+                {
+                    "type_name": "str",
+                    "value": "MULTIPLY",
+                    "attr_name": "blend_type"
+                },
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Mix",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_alpha"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_clamp"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketFloatFactor",
+                    "value": 1.0,
+                    "name": "Fac"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Image"
+                }
+            ]
+        },
+        {
+            "node_name": "CompositorNodeDenoise",
+            "x": 442.2279052734375,
+            "y": -34.821441650390625,
+            "width": 140.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": 0,
+            "attrs": [
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Denoise",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 1,
+                    "attr_name": "use_hdr"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                },
+                {
+                    "type_name": "NodeSocketVector",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Normal"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Albedo"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Image"
+                }
+            ]
+        },
+        {
+            "node_name": "NodeReroute",
+            "x": 746.6539306640625,
+            "y": 96.74252319335938,
+            "width": 16.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Reroute.001",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketVector",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Input"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketVector",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Output"
+                }
+            ]
+        },
+        {
+            "node_name": "CompositorNodeMixRGB",
+            "x": -1.167205810546875,
+            "y": -0.4260406494140625,
+            "width": 140.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": 1,
+            "attrs": [
+                {
+                    "type_name": "str",
+                    "value": "ADD",
+                    "attr_name": "blend_type"
+                },
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Mix.002",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_alpha"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_clamp"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketFloatFactor",
+                    "value": 1.0,
+                    "name": "Fac"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Image"
+                }
+            ]
+        },
+        {
+            "node_name": "CompositorNodeMixRGB",
+            "x": 204.39947509765625,
+            "y": -8.825714111328125,
+            "width": 140.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": 1,
+            "attrs": [
+                {
+                    "type_name": "str",
+                    "value": "MULTIPLY",
+                    "attr_name": "blend_type"
+                },
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Mix.003",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_alpha"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_clamp"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketFloatFactor",
+                    "value": 1.0,
+                    "name": "Fac"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Image"
+                }
+            ]
+        },
+        {
+            "node_name": "CompositorNodeDenoise",
+            "x": 416.69451904296875,
+            "y": -14.889190673828125,
+            "width": 140.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": 1,
+            "attrs": [
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Denoise.001",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 1,
+                    "attr_name": "use_hdr"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                },
+                {
+                    "type_name": "NodeSocketVector",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Normal"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Albedo"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Image"
+                }
+            ]
+        },
+        {
+            "node_name": "NodeReroute",
+            "x": 525.3193969726562,
+            "y": -91.46969604492188,
+            "width": 16.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Reroute.006",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Input"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Output"
+                }
+            ]
+        },
+        {
+            "node_name": "NodeReroute",
+            "x": 815.2288818359375,
+            "y": -93.16614532470703,
+            "width": 16.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Reroute.007",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Input"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Output"
+                }
+            ]
+        },
+        {
+            "node_name": "NodeReroute",
+            "x": 362.1953125,
+            "y": -344.0474853515625,
+            "width": 16.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Reroute.008",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Input"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Output"
+                }
+            ]
+        },
+        {
+            "node_name": "NodeReroute",
+            "x": 540.6203002929688,
+            "y": -349.49188232421875,
+            "width": 16.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Reroute.009",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Input"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Output"
+                }
+            ]
+        },
+        {
+            "node_name": "NodeReroute",
+            "x": 797.0682373046875,
+            "y": -356.1461486816406,
+            "width": 16.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Reroute.010",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Input"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Output"
+                }
+            ]
+        },
+        {
+            "node_name": "NodeReroute",
+            "x": 352.0553894042969,
+            "y": -87.11444091796875,
+            "width": 16.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Reroute.005",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Input"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Output"
+                }
+            ]
+        },
+        {
+            "node_name": "NodeReroute",
+            "x": 687.331787109375,
+            "y": 161.95960998535156,
+            "width": 16.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Reroute.004",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Input"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Output"
+                }
+            ]
+        },
+        {
+            "node_name": "CompositorNodeMixRGB",
+            "x": -16.93536376953125,
+            "y": 3.6296539306640625,
+            "width": 140.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": 2,
+            "attrs": [
+                {
+                    "type_name": "str",
+                    "value": "ADD",
+                    "attr_name": "blend_type"
+                },
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Mix.005",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_alpha"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_clamp"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketFloatFactor",
+                    "value": 1.0,
+                    "name": "Fac"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Image"
+                }
+            ]
+        },
+        {
+            "node_name": "CompositorNodeMixRGB",
+            "x": 192.33596801757812,
+            "y": 3.6296539306640625,
+            "width": 140.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": 2,
+            "attrs": [
+                {
+                    "type_name": "str",
+                    "value": "MULTIPLY",
+                    "attr_name": "blend_type"
+                },
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Mix.006",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_alpha"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_clamp"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketFloatFactor",
+                    "value": 1.0,
+                    "name": "Fac"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Image"
+                }
+            ]
+        },
+        {
+            "node_name": "CompositorNodeRLayers",
+            "x": -7.58857536315918,
+            "y": 397.4125061035156,
+            "width": 240.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "View Layer",
+                    "attr_name": "layer"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Render Layers",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Image"
+                },
+                {
+                    "type_name": "NodeSocketFloat",
+                    "value": 1.0,
+                    "name": "Alpha"
+                },
+                {
+                    "type_name": "NodeSocketVector",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Normal"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Shadow"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "AO"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "DiffDir"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "DiffInd"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "DiffCol"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "GlossDir"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "GlossInd"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "GlossCol"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "TransDir"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "TransInd"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "TransCol"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Emit"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Env"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "VolumeDir"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "VolumeInd"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "AOV"
+                },
+                {
+                    "type_name": "NodeSocketFloat",
+                    "value": 1.0,
+                    "name": "Depth"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Noisy Image"
+                },
+                {
+                    "type_name": "NodeSocketVector",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Denoising Normal"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Denoising Albedo"
+                },
+                {
+                    "type_name": "NodeSocketFloat",
+                    "value": 0.0,
+                    "name": "Denoising Depth"
+                },
+                {
+                    "type_name": "NodeSocketFloat",
+                    "value": 0.0,
+                    "name": "Denoising Shadowing"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Denoising Variance"
+                },
+                {
+                    "type_name": "NodeSocketFloat",
+                    "value": 0.0,
+                    "name": "Denoising Intensity"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Denoising Clean"
+                },
+                {
+                    "type_name": "NodeSocketVector",
+                    "value": [
+                        1.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "UV"
+                },
+                {
+                    "type_name": "NodeSocketVector",
+                    "value": [
+                        1.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Vector"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Deprecated"
+                }
+            ]
+        },
+        {
+            "node_name": "CompositorNodeMixRGB",
+            "x": 2.643035888671875,
+            "y": 5.502532958984375,
+            "width": 140.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": 3,
+            "attrs": [
+                {
+                    "type_name": "str",
+                    "value": "ADD",
+                    "attr_name": "blend_type"
+                },
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Mix.007",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_alpha"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_clamp"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketFloatFactor",
+                    "value": 1.0,
+                    "name": "Fac"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Image"
+                }
+            ]
+        },
+        {
+            "node_name": "CompositorNodeDenoise",
+            "x": 397.9781188964844,
+            "y": -12.0986328125,
+            "width": 140.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": 2,
+            "attrs": [
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Denoise.002",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 1,
+                    "attr_name": "use_hdr"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                },
+                {
+                    "type_name": "NodeSocketVector",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Normal"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Albedo"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Image"
+                }
+            ]
+        },
+        {
+            "node_name": "CompositorNodeComposite",
+            "x": 1425.7373046875,
+            "y": 28.519058227539062,
+            "width": 140.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Composite",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 1,
+                    "attr_name": "use_alpha"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                },
+                {
+                    "type_name": "NodeSocketFloat",
+                    "value": 1.0,
+                    "name": "Alpha"
+                },
+                {
+                    "type_name": "NodeSocketFloat",
+                    "value": 1.0,
+                    "name": "Z"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "node_name": "CompositorNodeMixRGB",
+            "x": 1234.9202880859375,
+            "y": 244.33493041992188,
+            "width": 140.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "str",
+                    "value": "ADD",
+                    "attr_name": "blend_type"
+                },
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Mix.011",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_alpha"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_clamp"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketFloatFactor",
+                    "value": 1.0,
+                    "name": "Fac"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Image"
+                }
+            ]
+        },
+        {
+            "node_name": "CompositorNodeMixRGB",
+            "x": 1206.4779052734375,
+            "y": -96.822998046875,
+            "width": 140.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "str",
+                    "value": "ADD",
+                    "attr_name": "blend_type"
+                },
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Mix.009",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_alpha"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_clamp"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketFloatFactor",
+                    "value": 1.0,
+                    "name": "Fac"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Image"
+                }
+            ]
+        },
+        {
+            "node_name": "CompositorNodeDenoise",
+            "x": 642.8137817382812,
+            "y": -360.4939270019531,
+            "width": 140.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Denoise.003",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 1,
+                    "attr_name": "use_hdr"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                },
+                {
+                    "type_name": "NodeSocketVector",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Normal"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Albedo"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Image"
+                }
+            ]
+        },
+        {
+            "node_name": "CompositorNodeDenoise",
+            "x": 642.2090454101562,
+            "y": -525.0363159179688,
+            "width": 140.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Denoise.004",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 1,
+                    "attr_name": "use_hdr"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                },
+                {
+                    "type_name": "NodeSocketVector",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Normal"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Albedo"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Image"
+                }
+            ]
+        },
+        {
+            "node_name": "CompositorNodeMixRGB",
+            "x": 1009.324951171875,
+            "y": -234.7309112548828,
+            "width": 140.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "str",
+                    "value": "ADD",
+                    "attr_name": "blend_type"
+                },
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Mix.010",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_alpha"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_clamp"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketFloatFactor",
+                    "value": 1.0,
+                    "name": "Fac"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Image"
+                }
+            ]
+        },
+        {
+            "node_name": "CompositorNodeMixRGB",
+            "x": 859.931396484375,
+            "y": -415.0018310546875,
+            "width": 140.0,
+            "width_hidden": 42.0,
+            "height": 100.0,
+            "parent": "None",
+            "attrs": [
+                {
+                    "type_name": "str",
+                    "value": "ADD",
+                    "attr_name": "blend_type"
+                },
+                {
+                    "type_name": "Color",
+                    "value": [
+                        0.6079999804496765,
+                        0.6079999804496765,
+                        0.6079999804496765
+                    ],
+                    "attr_name": "color"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "hide"
+                },
+                {
+                    "type_name": "str",
+                    "value": "",
+                    "attr_name": "label"
+                },
+                {
+                    "type_name": "str",
+                    "value": "Mix.008",
+                    "attr_name": "name"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_alpha"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_clamp"
+                },
+                {
+                    "type_name": "bool",
+                    "value": 0,
+                    "attr_name": "use_custom_color"
+                }
+            ],
+            "inputs": [
+                {
+                    "type_name": "NodeSocketFloatFactor",
+                    "value": 1.0,
+                    "name": "Fac"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                },
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "name": "Image"
+                }
+            ],
+            "outputs": [
+                {
+                    "type_name": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Image"
+                }
+            ]
+        }
+    ],
+    "links_list": [
+        {
+            "to_node_index": 4,
+            "to_socket_index": 0,
+            "to_socket_name": "Input",
+            "from_node_index": 24,
+            "from_socket_index": 2,
+            "from_socket_name": "Normal"
+        },
+        {
+            "from_node_index": 4,
+            "from_socket_index": 0,
+            "from_socket_name": "Output",
+            "to_node_index": 11,
+            "to_socket_index": 0,
+            "to_socket_name": "Input"
+        },
+        {
+            "to_node_index": 10,
+            "to_socket_index": 1,
+            "to_socket_name": "Normal",
+            "from_node_index": 11,
+            "from_socket_index": 0,
+            "from_socket_name": "Output"
+        },
+        {
+            "to_node_index": 8,
+            "to_socket_index": 1,
+            "to_socket_name": "Image",
+            "from_node_index": 24,
+            "from_socket_index": 5,
+            "from_socket_name": "DiffDir"
+        },
+        {
+            "to_node_index": 8,
+            "to_socket_index": 2,
+            "to_socket_name": "Image",
+            "from_node_index": 24,
+            "from_socket_index": 6,
+            "from_socket_name": "DiffInd"
+        },
+        {
+            "from_node_index": 8,
+            "from_socket_index": 0,
+            "from_socket_name": "Image",
+            "to_node_index": 9,
+            "to_socket_index": 1,
+            "to_socket_name": "Image"
+        },
+        {
+            "to_node_index": 5,
+            "to_socket_index": 0,
+            "to_socket_name": "Input",
+            "from_node_index": 24,
+            "from_socket_index": 7,
+            "from_socket_name": "DiffCol"
+        },
+        {
+            "from_node_index": 5,
+            "from_socket_index": 0,
+            "from_socket_name": "Output",
+            "to_node_index": 6,
+            "to_socket_index": 0,
+            "to_socket_name": "Input"
+        },
+        {
+            "from_node_index": 6,
+            "from_socket_index": 0,
+            "from_socket_name": "Output",
+            "to_node_index": 9,
+            "to_socket_index": 2,
+            "to_socket_name": "Image"
+        },
+        {
+            "from_node_index": 6,
+            "from_socket_index": 0,
+            "from_socket_name": "Output",
+            "to_node_index": 21,
+            "to_socket_index": 0,
+            "to_socket_name": "Input"
+        },
+        {
+            "to_node_index": 10,
+            "to_socket_index": 2,
+            "to_socket_name": "Albedo",
+            "from_node_index": 21,
+            "from_socket_index": 0,
+            "from_socket_name": "Output"
+        },
+        {
+            "from_node_index": 9,
+            "from_socket_index": 0,
+            "from_socket_name": "Image",
+            "to_node_index": 10,
+            "to_socket_index": 0,
+            "to_socket_name": "Image"
+        },
+        {
+            "to_node_index": 12,
+            "to_socket_index": 1,
+            "to_socket_name": "Image",
+            "from_node_index": 24,
+            "from_socket_index": 8,
+            "from_socket_name": "GlossDir"
+        },
+        {
+            "to_node_index": 12,
+            "to_socket_index": 2,
+            "to_socket_name": "Image",
+            "from_node_index": 24,
+            "from_socket_index": 9,
+            "from_socket_name": "GlossInd"
+        },
+        {
+            "to_node_index": 20,
+            "to_socket_index": 0,
+            "to_socket_name": "Input",
+            "from_node_index": 24,
+            "from_socket_index": 10,
+            "from_socket_name": "GlossCol"
+        },
+        {
+            "from_node_index": 12,
+            "from_socket_index": 0,
+            "from_socket_name": "Image",
+            "to_node_index": 13,
+            "to_socket_index": 1,
+            "to_socket_name": "Image"
+        },
+        {
+            "to_node_index": 15,
+            "to_socket_index": 0,
+            "to_socket_name": "Input",
+            "from_node_index": 20,
+            "from_socket_index": 0,
+            "from_socket_name": "Output"
+        },
+        {
+            "to_node_index": 13,
+            "to_socket_index": 2,
+            "to_socket_name": "Image",
+            "from_node_index": 15,
+            "from_socket_index": 0,
+            "from_socket_name": "Output"
+        },
+        {
+            "from_node_index": 15,
+            "from_socket_index": 0,
+            "from_socket_name": "Output",
+            "to_node_index": 16,
+            "to_socket_index": 0,
+            "to_socket_name": "Input"
+        },
+        {
+            "to_node_index": 14,
+            "to_socket_index": 2,
+            "to_socket_name": "Albedo",
+            "from_node_index": 16,
+            "from_socket_index": 0,
+            "from_socket_name": "Output"
+        },
+        {
+            "from_node_index": 13,
+            "from_socket_index": 0,
+            "from_socket_name": "Image",
+            "to_node_index": 14,
+            "to_socket_index": 0,
+            "to_socket_name": "Image"
+        },
+        {
+            "from_node_index": 11,
+            "from_socket_index": 0,
+            "from_socket_name": "Output",
+            "to_node_index": 14,
+            "to_socket_index": 1,
+            "to_socket_name": "Normal"
+        },
+        {
+            "to_node_index": 7,
+            "to_socket_index": 1,
+            "to_socket_name": "Image",
+            "from_node_index": 10,
+            "from_socket_index": 0,
+            "from_socket_name": "Image"
+        },
+        {
+            "to_node_index": 7,
+            "to_socket_index": 2,
+            "to_socket_name": "Image",
+            "from_node_index": 14,
+            "from_socket_index": 0,
+            "from_socket_name": "Image"
+        },
+        {
+            "from_node_index": 24,
+            "from_socket_index": 1,
+            "from_socket_name": "Alpha",
+            "to_node_index": 27,
+            "to_socket_index": 1,
+            "to_socket_name": "Alpha"
+        },
+        {
+            "from_node_index": 23,
+            "from_socket_index": 0,
+            "from_socket_name": "Image",
+            "to_node_index": 26,
+            "to_socket_index": 0,
+            "to_socket_name": "Image"
+        },
+        {
+            "from_node_index": 11,
+            "from_socket_index": 0,
+            "from_socket_name": "Output",
+            "to_node_index": 26,
+            "to_socket_index": 1,
+            "to_socket_name": "Normal"
+        },
+        {
+            "from_node_index": 22,
+            "from_socket_index": 0,
+            "from_socket_name": "Image",
+            "to_node_index": 23,
+            "to_socket_index": 1,
+            "to_socket_name": "Image"
+        },
+        {
+            "to_node_index": 22,
+            "to_socket_index": 1,
+            "to_socket_name": "Image",
+            "from_node_index": 24,
+            "from_socket_index": 11,
+            "from_socket_name": "TransDir"
+        },
+        {
+            "to_node_index": 22,
+            "to_socket_index": 2,
+            "to_socket_name": "Image",
+            "from_node_index": 24,
+            "from_socket_index": 12,
+            "from_socket_name": "TransInd"
+        },
+        {
+            "to_node_index": 17,
+            "to_socket_index": 0,
+            "to_socket_name": "Input",
+            "from_node_index": 24,
+            "from_socket_index": 13,
+            "from_socket_name": "TransCol"
+        },
+        {
+            "from_node_index": 17,
+            "from_socket_index": 0,
+            "from_socket_name": "Output",
+            "to_node_index": 18,
+            "to_socket_index": 0,
+            "to_socket_name": "Input"
+        },
+        {
+            "from_node_index": 18,
+            "from_socket_index": 0,
+            "from_socket_name": "Output",
+            "to_node_index": 23,
+            "to_socket_index": 2,
+            "to_socket_name": "Image"
+        },
+        {
+            "from_node_index": 18,
+            "from_socket_index": 0,
+            "from_socket_name": "Output",
+            "to_node_index": 19,
+            "to_socket_index": 0,
+            "to_socket_name": "Input"
+        },
+        {
+            "from_node_index": 19,
+            "from_socket_index": 0,
+            "from_socket_name": "Output",
+            "to_node_index": 26,
+            "to_socket_index": 2,
+            "to_socket_name": "Albedo"
+        },
+        {
+            "from_node_index": 24,
+            "from_socket_index": 14,
+            "from_socket_name": "Emit",
+            "to_node_index": 25,
+            "to_socket_index": 1,
+            "to_socket_name": "Image"
+        },
+        {
+            "from_node_index": 24,
+            "from_socket_index": 15,
+            "from_socket_name": "Env",
+            "to_node_index": 25,
+            "to_socket_index": 2,
+            "to_socket_name": "Image"
+        },
+        {
+            "from_node_index": 24,
+            "from_socket_index": 16,
+            "from_socket_name": "VolumeDir",
+            "to_node_index": 30,
+            "to_socket_index": 0,
+            "to_socket_name": "Image"
+        },
+        {
+            "from_node_index": 24,
+            "from_socket_index": 17,
+            "from_socket_name": "VolumeInd",
+            "to_node_index": 31,
+            "to_socket_index": 0,
+            "to_socket_name": "Image"
+        },
+        {
+            "from_node_index": 30,
+            "from_socket_index": 0,
+            "from_socket_name": "Image",
+            "to_node_index": 33,
+            "to_socket_index": 1,
+            "to_socket_name": "Image"
+        },
+        {
+            "from_node_index": 31,
+            "from_socket_index": 0,
+            "from_socket_name": "Image",
+            "to_node_index": 33,
+            "to_socket_index": 2,
+            "to_socket_name": "Image"
+        },
+        {
+            "from_node_index": 25,
+            "from_socket_index": 0,
+            "from_socket_name": "Image",
+            "to_node_index": 32,
+            "to_socket_index": 1,
+            "to_socket_name": "Image"
+        },
+        {
+            "to_node_index": 32,
+            "to_socket_index": 2,
+            "to_socket_name": "Image",
+            "from_node_index": 33,
+            "from_socket_index": 0,
+            "from_socket_name": "Image"
+        },
+        {
+            "from_node_index": 26,
+            "from_socket_index": 0,
+            "from_socket_name": "Image",
+            "to_node_index": 29,
+            "to_socket_index": 1,
+            "to_socket_name": "Image"
+        },
+        {
+            "to_node_index": 29,
+            "to_socket_index": 2,
+            "to_socket_name": "Image",
+            "from_node_index": 32,
+            "from_socket_index": 0,
+            "from_socket_name": "Image"
+        },
+        {
+            "from_node_index": 7,
+            "from_socket_index": 0,
+            "from_socket_name": "Image",
+            "to_node_index": 28,
+            "to_socket_index": 1,
+            "to_socket_name": "Image"
+        },
+        {
+            "to_node_index": 28,
+            "to_socket_index": 2,
+            "to_socket_name": "Image",
+            "from_node_index": 29,
+            "from_socket_index": 0,
+            "from_socket_name": "Image"
+        },
+        {
+            "to_node_index": 27,
+            "to_socket_index": 0,
+            "to_socket_name": "Image",
+            "from_node_index": 28,
+            "from_socket_index": 0,
+            "from_socket_name": "Image"
+        }
+    ],
+    "editor_type": "CompositorNodeTree",
+    "shader_type": "OBJECT"
+}
