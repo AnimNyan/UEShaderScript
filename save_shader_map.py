@@ -1368,7 +1368,17 @@ def dict_to_string(d):
 def get_default_and_current_json_paths():
     DEFAULT_PRESETS_JSON_FILE = "ue_shader_script_default_presets_json.json"
     CURRENT_PRESETS_JSON_FILE = "ue_shader_script_current_presets_json.json"
+    
+    #this gets the path of the currently running file
+    #save_shader_map and then gets it's parent
+    #and then converts the relative path into an absolute path
+    #this is because if we just get pathlib.Path(__file__)
+    #we will get C:\Users\seabr\AppData\Roaming\Blender Foundation\Blender\2.93\scripts\addons\UEShaderScript\save_shader_map.py
+    #we want C:\Users\seabr\AppData\Roaming\Blender Foundation\Blender\2.93\scripts\addons\UEShaderScript\
+    #so we can concatenate it to form
+    #C:\Users\seabr\AppData\Roaming\Blender Foundation\Blender\2.93\scripts\addons\UEShaderScript\ue_shader_script_default_presets_json.json
     path_lib = pathlib.Path(__file__).parent.absolute()
+    #os.path.expanduser("~") expands the home directory which is C:\Users\seabr
     home = os.path.expanduser("~")
     #the current presets file always stores the current presets that the user has
     current_presets_full_path = os.path.join(home, CURRENT_PRESETS_JSON_FILE)
