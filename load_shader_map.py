@@ -6,7 +6,6 @@ from pathlib import Path
 
 import base64
 
-
 import time
 
 import os
@@ -16,6 +15,9 @@ import os
 from .save_shader_map import SHADER_PRESETS_UL_items, ShowMessageOperator, save_pref
 #import functions
 from .save_shader_map import get_preferences, get_selected_folder_presets, json_to_nodes_dict, log
+
+#import pathlib for finding current working direction for LOADUESHADERSCRIPT_OT_use_custom_denoising
+import pathlib
 
 
 from mathutils import (Vector, Euler, Color)
@@ -1239,9 +1241,6 @@ class LOADUESHADERSCRIPT_OT_use_nodes_mesh_all(bpy.types.Operator):
         return {"FINISHED"}
 
 #-----------------------------------Load Compositing Node Setup
-
-
-
 class LOADUESHADERSCRIPT_OT_use_custom_denoising(bpy.types.Operator):
     bl_label = "Use Pit Princess Custom Denoising Setup"
     bl_description = "Use Pit Princess Compositor Denoising Setup"
@@ -1297,11 +1296,18 @@ class LOADUESHADERSCRIPT_OT_use_custom_denoising(bpy.types.Operator):
 
         #make use nodes true in the compositor
         bpy.context.scene.use_nodes = True
+
+        #this gets the path of the currently running file
+        #load_shader_map and then gets it's parent
+        #and then converts the relative path into an absolute path
+        path_lib = pathlib.Path(__file__).parent.absolute()
+
+        compositing_file_path= os.path.join(path_lib, "ue_shader_script_compositing_json.json")
         
         #------------load the compositing node setup to the compositor window
         #reading string from file because it would take up too much space in the code
         #will read from the file compositing json in the current directory by default
-        file = open("ue_shader_script_compositing_json.json")
+        file = open(compositing_file_path)
         pit_princess_compositing_json = file.read()
 
         file.close()
