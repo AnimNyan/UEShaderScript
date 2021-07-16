@@ -1896,7 +1896,12 @@ def change_dye_group_values(node_tree, abs_props_txt_path):
             match_list = re.findall("([A-Z])Channel_Tint[\s\S]*?ParameterValue.*R=(.+), G=(.+), B=(.+), A=(.+) }", data)
 
             #debug
-            print("match_list", match_list)
+            #print("match_list", match_list)
+
+            #if didn't find anything in the regex match
+            #re.findall will return an empty list []
+            #so will iterate zero times and will NOT try 
+            #to change any values
 
             #iterate over all capture groups in match list
             #and put all the values found from the regular expression
@@ -1915,9 +1920,20 @@ def change_dye_group_values(node_tree, abs_props_txt_path):
                 #using .join to concatenate strings as it's faster
                 #and more efficient remember using .join you always need a tuple
                 #so two circular brackets one for tuple one for function
+
                 #example of how to assign colour
                 #bpy.data.materials["Example Clothing"].node_tree.nodes["Clothing Dye"].inputs[3].default_value = (0.5, 0.125, 0.125, 1)
-                #always use default of value of 1 for alpha because RGB Alpha values
+
+                #set the RGB values on pit princess's dye node to match what the props.txt file
+                #RGB colours should be for the specific preset
+                #The inputs to pit princess's dye group node are labelled 
+                #"(R) Primary Colour", "(G) Secondary Colour", "(B) Tertiary Colour" and "(A) Quaternary Colour" 
+                #following the system BHVR uses to recolour Dead By Daylight meshes  
+
+                #the four elements in the tuple for default_value are the (Red, Green, Blue and Alpha) 
+                #values for each Primary, Secondary, Tertiary and Quaternary Channel
+                
+                #always use default of value of 1 for alpha, the fourth value because RGB Alpha values
                 #since alpha value doesn't do much in blender leave it at it's default 1
                 #need to convert strings to float so use float()
                 dye_node_group.inputs["".join((colour_channel, " Colour"))].default_value = (float(capture_group[1]), float(capture_group[2]), float(capture_group[3]), 1)
