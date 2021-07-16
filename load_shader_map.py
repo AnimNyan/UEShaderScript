@@ -119,8 +119,12 @@ class PathProperties(bpy.types.PropertyGroup):
     props_txt_file_type: bpy.props.StringProperty(name="File extension for material info files:", 
                 description="File extension for material info files, props.txt file equivalents", default = ".props.txt")
 
-    #Option to show the abs_props_txt path in the debug console
-    is_show_abs_props_debug: bpy.props.BoolProperty(name="Show props.txt File Path in System Console for Debugging", default = False)
+    # Debug console options
+    #show textures from the props.txt file that did not match suffixes
+    #but were added to the shader map anyway for debug purposes
+    is_show_no_match_tex_debug: bpy.props.BoolProperty(name="Show Non Suffix Matching Textures in Console (Debug) ", default = False)
+    #show the abs_props_txt path in the debug console
+    is_show_abs_props_debug: bpy.props.BoolProperty(name="Show props.txt File Path in Console (Debug)", default = False)
     
 
 
@@ -336,6 +340,11 @@ class LOADUESHADERSCRIPT_PT_advanced_settings_main_panel_5(LOADUESHADERSCRIPT_sh
 
         #showing debug console file path
         #this is if debugging is required
+
+        #enable this option so you can see which textures from
+        #the props.txt file never matched anything
+        layout.prop(pathtool, "is_show_no_match_tex_debug")
+
         #enable this option so then you can see which material is causing the problem
         #do this before use_property split so it is not affected by the use_property_spli
         #because it looks bad with use property split
@@ -527,7 +536,7 @@ def create_one_material_shader_map(active_object, pathtool, time_start):
             #print the time taken to finish creating the shader map
             #don't use log so can use new line characters
             #this is inside all the checks because we only print finished if an error hasn't occcured
-            print("\n\n\n[UE Shader Script]: Finished create_one_shader_map in: %.4f sec" % (time.time() - time_start))
+            print("\n\n\n[UE Shader Script]: Finished create_one_shader_map in: %.4f sec" % (time.time() - time_start), "\n\n\n")
 
 
         #if the active_object is not a mesh
@@ -674,7 +683,7 @@ def create_multiple_materials_shader_maps(context, pathtool, time_start):
                 #print the time taken to finish creating shader maps
                 #don't use log so can use new line characters
                 #this is inside all the checks because we only print finished if an error hasn't occcured
-                print("\n\n\n[UE Shader Script]: Finished create_multiple_materials_shader_maps in: %.4f sec" % (time.time() - time_start))
+                print("\n\n\n[UE Shader Script]: Finished create_multiple_materials_shader_maps in: %.4f sec" % (time.time() - time_start), "\n\n\n")
             
 
             #if the active object type is not a mesh
@@ -801,7 +810,7 @@ def create_selected_meshes_shader_maps(context, pathtool, time_start):
         #print the time taken to finish creating shader maps
         #don't use log so can use new line characters
         #this is inside all the checks because we only print finished if an error hasn't occcured
-        print("\n\n\n[UE Shader Script]: Finished create_selected_meshes_shader_maps in: %.4f sec" % (time.time() - time_start))
+        print("\n\n\n[UE Shader Script]: Finished create_selected_meshes_shader_maps in: %.4f sec" % (time.time() - time_start), "\n\n\n")
     
     else:
         #error message if user has selected no meshes or objects
@@ -1620,7 +1629,7 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
         #if the image file name wasn't found in the suffix lists for any of Diffuse, ORM, or any other one 
         #so the image from the props.txt file was NOT loaded to an image texture node
         #this is an extra protection because if it's the opposite and is_img_loaded
-        #is true it should've returned to the normal function before this point
+        #is true it should've returned to the calling function before this point
         #and the settings boolean to add the image texture to an unconnected
         #node is enabled
         #create an empty image texture node
@@ -1635,6 +1644,11 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
             #load the image texture to the empty image texture node
             load_image_texture(img_tex_node, complete_path, pathtool)
 
+        #if no match was found for the specific texture and
+        #the boolean to show the textures that had no suffix match is enabled
+        #print these to console for debugging purposes so can create better 
+        if ((not is_img_loaded) and pathtool.is_show_no_match_tex_debug):
+            print("\nNo match for texture:", complete_path, "in material:", abs_props_txt_path)
 
                 
 
@@ -2422,6 +2436,9 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
         pathtool.property_unset("is_reuse_img_texture_with_same_name")
         pathtool.property_unset("reverse_match_list_from_props_txt_enum")
         pathtool.property_unset("is_add_skin_bump_map")
+        pathtool.property_unset("is_use_recolor_values")
+        pathtool.property_unset("is_add_non_match_textures")
+        pathtool.property_unset("is_show_no_match_tex_debug")
         pathtool.property_unset("is_show_abs_props_debug")
 
         #reset advanced settings as well in case
