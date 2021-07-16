@@ -109,7 +109,9 @@ class PathProperties(bpy.types.PropertyGroup):
   
     is_add_skin_bump_map: bpy.props.BoolProperty(name="Add Skin Bump Texture (Optional for Skin Presets)", default = False)
 
-    is_use_recolor_values: bpy.props.BoolProperty(name="Use Recolor Colours and Values", default = True)
+    is_use_recolor_values: bpy.props.BoolProperty(name="Use Recolor RGB Colour Values", default = True)
+
+    is_add_non_match_textures: bpy.props.BoolProperty(name="Add Non Matching Textures from Props.txt file", default = False)
 
     #advanced settings
     regex_pattern_in_props_txt_file: bpy.props.StringProperty(name="Regex Pattern in props.txt (material) files:", 
@@ -183,6 +185,7 @@ class LOADUESHADERSCRIPT_PT_select_preset_main_panel_1(LOADUESHADERSCRIPT_shared
 class LOADUESHADERSCRIPT_PT_load_settings_main_panel_2(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
     bl_label = "Load Shader Map Settings"
     bl_idname = "LOADUESHADERSCRIPT_PT_load_settings_main_panel_2"
+    bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
         layout = self.layout
@@ -216,6 +219,7 @@ class LOADUESHADERSCRIPT_PT_load_settings_main_panel_2(LOADUESHADERSCRIPT_shared
             layout.prop(pathtool, "reverse_match_list_from_props_txt_enum")
             
             layout.prop(pathtool, "is_use_recolor_values")
+            layout.prop(pathtool, "is_add_non_match_textures")
 
             #Skin Preset Related Settings
             layout.prop(pathtool, "is_add_skin_bump_map")
@@ -1581,7 +1585,9 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
 
         
         complete_path = get_complete_path_to_texture_file(pathtool, tex_location)
-            
+
+
+        is_img_loaded = False
 
         #If the texture is listed in the 
         #props.txt file and it is one of the
@@ -1591,6 +1597,8 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
         #this for loop will load all image textures
         #via reading the img_textures_list
         #recorded in the node_dict when the dictionary is saved
+        #it will iterate through the preset's recorded suffixes
+        #one by one and check if the tex location from the props.txt file is matches it
         for textures in img_textures_list:
             suffix_list = textures["suffix_list"]
             node_name = textures["node_name"]
@@ -1599,6 +1607,7 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
             #one texture may have one to many suffixes e.g. transparency might have "_M", "_A"
             for suffix in suffix_list:
                 is_img_loaded = if_tex_location_suffix_match_load_image()
+
                 #break out of current loop of for tex_location in match_list 
                 #because the image for the tex_location has been found
                 #there is no need to check against the next suffixes
@@ -1607,6 +1616,28 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
                 #match, thus, the image was T_DOStraps011_BC.tga/png was loaded to the image texture node
                 if is_img_loaded:
                     return is_img_loaded
+            
+        #if the image file name wasn't found in the suffix lists for any of Diffuse, ORM, or any other one 
+        #so the image from the props.txt file was NOT loaded to an image texture node
+        #this is an extra protection because if it's the opposite and is_img_loaded
+        #is true it should've returned to the normal function before this point
+        #and the settings boolean to add the image texture to an unconnected
+        #node is enabled
+        #create an empty image texture node
+        #load the image texture to it  
+        if ((not is_img_loaded) and pathtool.is_add_non_match_textures):
+            #create an empty image texture node
+            img_tex_node = node_tree.nodes.new("ShaderNodeTexImage")
+
+            #move the empty node to the left so it doesn't mix with other nodes
+            img_tex_node.location.x = -1200
+            
+            #load the image texture to the empty image texture node
+            load_image_texture(img_tex_node, complete_path, pathtool)
+
+
+                
+
 
 
 
