@@ -1880,9 +1880,12 @@ def img_textures_special_handler(textures, pathtool, material, node_to_load, nod
             log(error_message)
 
     #special case if the node loaded was an emissive BDE
+    #check through the props.txt file for emissive RGB values
+    #and if they exist use those rgb values
     #find the principled BSDF node
     #and turn the emission strength to 5
     elif textures["texture"] == "emissive":
+        use_props_txt_emissive_rgb_values(node_tree, abs_props_txt_path)
         #only change the emission strength if the bool checkbox is checked
         if (pathtool.is_change_principle_bsdf_emission_strength):
             change_emission_strength_principled_bsdf(node_tree, "BSDF_PRINCIPLED", pathtool.principled_bsdf_emission_strength_float)
@@ -1903,18 +1906,20 @@ def img_textures_special_handler(textures, pathtool, material, node_to_load, nod
         if pathtool.is_use_recolor_values:
             change_dye_group_values(node_tree, abs_props_txt_path)
 
-
+#this has to deal with two cases
+def use_props_txt_emissive_rgb_values(node_tree, abs_props_txt_path):
+     is_emissive_node_group_found, emissive_node_group = search_return_node_by_name(node_tree)
 
 def change_dye_group_values(node_tree, abs_props_txt_path):
-    is_dye_group_node_found, dye_node_group = search_return_dye_node_group(node_tree)
+    is_dye_node_group_found, dye_node_group = search_return_node_by_name(node_tree, "Pit Princess Lazy DBD Clothing (Dye)")
 
-    print("abs_props_txt_path: ", abs_props_txt_path)
+    #print("abs_props_txt_path: ", abs_props_txt_path)
     
     #if the dye group node is found we will
     #read the props txt file for the RChannel GChannel and 
     #BChannel values and put the values into the group node
     #if the dye group node is not found do nothing
-    if is_dye_group_node_found:
+    if is_dye_node_group_found:
         #open the propstxt file for the material and find the
         #texture locations from it
         #with just means open and close file
@@ -1990,33 +1995,39 @@ def change_dye_group_values(node_tree, abs_props_txt_path):
                 #dye_node_group.inputs["".join((colour_channel, " Alpha"))].default_value = float(capture_group[4])
 
 
-def search_return_dye_node_group(node_tree):
-    is_dye_node_group_found = False
+#works for both node groups and nodes
+#searches by name 
+#if it finds the node in the node tree it will:
+#return True for is_node_found and also return the found_node as a class
+#if it does NOT find the node in the node tree it will:
+#return False for is_node_found and the found_node as None
+def search_return_node_by_name(node_tree, node_name):
+    is_node_found = False
 
-    #give default value for dye_node_group
-    #just in case a dye_node group is not found
-    dye_node_group = None
+    #give default value for found_node
+    #just in case a node is not found
+    found_node = None
 
     for node in node_tree.nodes:
             #so if a group node exists that is the Lazy DBD X.X Clothing Dye
             #which is identified by the node.name of Clothing Dye
             #we will read the props.txt file for the RGB colours
-            if (node.name == "Pit Princess Lazy DBD Clothing (Dye)"):
-                is_dye_node_group_found = True
-                dye_node_group = node
+            if (node.name == node_name):
+                is_node_found = True
+                found_node = node
                 #debug
-                #print("Clothing Dye Group Node exists")
+                #print("Node exists")
                 
 
                 #break from for loop
                 break
      
     #debug
-    #if the dye group is not found 
-    #if (not is_dye_node_group_found):
-    # print("Clothing Dye Group Node does not exist")
+    #if the node is not found 
+    #if (not is_node_found):
+    # print("Node does not exist")
     
-    return is_dye_node_group_found, dye_node_group
+    return is_node_found, found_node
 
 
 def load_image_texture(node_to_load, complete_path_to_image, pathtool):
