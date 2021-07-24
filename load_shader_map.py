@@ -38,6 +38,24 @@ NOT_TO_HANDLE_ATTRS_NODES = [
     # "CompositorNodeImage"
 ]
 
+
+#need scene and context in order to be used within
+#the x_color_space, such as the diffuse_color_space
+#as a callback function for the items property
+def color_spaces_callback(scene, context):
+    
+    color_spaces = [
+        ("sRGB" , "sRGB", ""),
+        ("Non-Color" , "Non-Color", ""),
+        ("Linear" , "Linear", ""),
+        ("Filmic Log" , "Filmic Log", ""),
+        ("Linear ACES" , "Linear ACES", ""),
+        ("Raw" , "Raw", ""),
+        ("XYZ" , "XYZ", "")
+    ]
+
+    return color_spaces
+
 #define all user input properties
 class PathProperties(bpy.types.PropertyGroup):
     #user input paths for textures and materials
@@ -112,6 +130,143 @@ class PathProperties(bpy.types.PropertyGroup):
     is_use_recolor_values: bpy.props.BoolProperty(name="Use Recolor RGB Colour Values", default = True)
 
     is_add_non_match_textures: bpy.props.BoolProperty(name="Add Non Matching Textures from Props.txt file", default = False)
+
+    #---------------color space settings enums
+    #default global variables for the recommended 
+    #colour spaces for image textures
+    #srgb color space isn't used but it is there for reference purposes
+    # srgb_color_space_list = ["diffuse", "tint_base_diffuse", "cust1", "cust2", "cust3", "cust4"]
+    # non_color_space_list = ["normal", "packed_orm", "emissive", "tint_mask", "specular", "gloss"]
+    # linear_color_space_list = ["transparency", "height", "hair_gradient", "skin_bump"]
+
+    #set default for only those which are not srgb color space
+    #because the default color space is srgb the 0th option
+    #so if not stated the default is sRGB
+    diffuse_color_space: bpy.props.EnumProperty(
+        name = "Diffuse Color Space",
+        description = "Diffuse Image Texture Color Space",
+        #don't call the function immediately with () 
+        #but wait for the enum property to be defined
+        items = color_spaces_callback
+    )
+
+    packed_rgb_color_space: bpy.props.EnumProperty(
+        name = "Packed RGB Color Space",
+        description = "Packed RGB Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    normal_color_space: bpy.props.EnumProperty(
+        name = "Normal Color Space",
+        description = "Normal Map Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    alpha_color_space: bpy.props.EnumProperty(
+        name = "Alpha Color Space",
+        description = "Alpha Image Texture Color Space",
+        items = color_spaces_callback,
+        #2 means Linear
+        default = 2
+    )
+
+    emissions_color_space: bpy.props.EnumProperty(
+        name = "Emissions Color Space",
+        description = "Emissions Map Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    height_color_space: bpy.props.EnumProperty(
+        name = "Height Color Space",
+        description = "Height Map Image Texture Color Space",
+        items = color_spaces_callback,
+        #2 means Linear
+        default = 2
+    )
+
+    hair_gradient_color_space: bpy.props.EnumProperty(
+        name = "Hair Gradient Color Space",
+        description = "Hair Gradient Image Texture Color Space",
+        items = color_spaces_callback,
+        #2 means Linear
+        default = 2
+    )
+
+    specular_color_space: bpy.props.EnumProperty(
+        name = "Specular Color Space",
+        description = "Specular Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    gloss_color_space: bpy.props.EnumProperty(
+        name = "Gloss Color Space",
+        description = "Gloss Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    skin_bump_color_space: bpy.props.EnumProperty(
+        name = "Skin Bump Color Space",
+        description = "Skin Bump Image Texture Color Space",
+        items = color_spaces_callback,
+        #2 means Linear
+        default = 2
+    )
+
+    tint_base_diffuse_color_space: bpy.props.EnumProperty(
+        name = "Tint Base Diffuse Color Space",
+        description = "Tint Base Diffuse Image Texture Color Space",
+        items = color_spaces_callback
+    )
+
+    tint_mask_color_space: bpy.props.EnumProperty(
+        name = "Tint Mask Color Space",
+        description = "Tint Mask Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    #all custom textures are by default sRGB color space
+    cust1_color_space: bpy.props.EnumProperty(
+        name = "Custom1 Color Space",
+        description = "Custom1 Image Texture Color Space",
+        items = color_spaces_callback
+    )
+
+    cust2_color_space: bpy.props.EnumProperty(
+        name = "Custom2 Color Space",
+        description = "Custom2 Image Texture Color Space",
+        items = color_spaces_callback
+    )
+
+    cust3_color_space: bpy.props.EnumProperty(
+        name = "Custom3 Color Space",
+        description = "Custom3 Image Texture Color Space",
+        items = color_spaces_callback
+    )
+
+    cust4_color_space: bpy.props.EnumProperty(
+        name = "Custom4 Color Space",
+        description = "Custom4 Image Texture Color Space",
+        items = color_spaces_callback
+    )
+
+    non_match_color_space: bpy.props.EnumProperty(
+        name = "Non Match Textures Color Space",
+        description = "Non Match Image Textures Color Space",
+        items = color_spaces_callback
+    )
+
 
     #advanced settings
     regex_pattern_in_props_txt_file: bpy.props.StringProperty(name="Regex Pattern in props.txt (material) files:", 
@@ -302,9 +457,41 @@ class LOADUESHADERSCRIPT_PT_color_space_main_panel_4(LOADUESHADERSCRIPT_shared_m
         #allow access to user inputted properties through pointer
         #to properties
         pathtool = scene.path_tool
-        layout.label(text = "Custom color space settings to be added")
 
-            
+        #formatting default blender attribute
+        #layout.use_property_split means that it will try and display 
+        #the property label fully
+        layout.use_property_split = True
+
+        #prevent the animate button appearing to the right side
+        #of the enum properties
+        layout.use_property_decorate = False
+
+        layout.label(text = "Please do not change these settings unless you know what you are doing.")
+
+        layout.prop(pathtool, "diffuse_color_space")
+        layout.prop(pathtool, "packed_rgb_color_space")
+        layout.prop(pathtool, "normal_color_space")
+        layout.prop(pathtool, "alpha_color_space")
+        layout.prop(pathtool, "emissions_color_space")
+        layout.prop(pathtool, "height_color_space")
+        layout.prop(pathtool, "hair_gradient_color_space")
+        layout.prop(pathtool, "specular_color_space")
+        layout.prop(pathtool, "gloss_color_space")
+        layout.prop(pathtool, "skin_bump_color_space")
+        layout.prop(pathtool, "tint_base_diffuse_color_space")
+        layout.prop(pathtool, "tint_mask_color_space")
+        layout.prop(pathtool, "cust1_color_space")
+        layout.prop(pathtool, "cust1_color_space")
+        layout.prop(pathtool, "cust2_color_space")
+        layout.prop(pathtool, "cust3_color_space")
+        layout.prop(pathtool, "cust4_color_space")
+
+        layout.separator()
+        layout.label(text = "(Need Load Settings > Add Non Match enabled to do anything)")
+        layout.prop(pathtool, "non_match_color_space")
+        
+
 
 #main panel part 5
 #inheriting the shared panel's bl_space_type, bl_region_type and bl_category
@@ -352,7 +539,7 @@ class LOADUESHADERSCRIPT_PT_advanced_settings_main_panel_5(LOADUESHADERSCRIPT_sh
 
         #formatting default blender attribute
         #layout.use_property_split means that it will try and display 
-        #the property fully
+        #the property label fully
         layout.use_property_split = True
 
         layout.label(text = "Please only change these settings if you know what you are doing")
@@ -391,7 +578,7 @@ class LOADUESHADERSCRIPT_PT_load_methods_main_panel_7(LOADUESHADERSCRIPT_shared_
         #--------------draw load shader map methods
         #formatting
         #layout.use_property_split means that it will try and display 
-        #the property fully
+        #the property label fully
         layout.use_property_split = True
 
         
@@ -432,7 +619,7 @@ class LOADUESHADERSCRIPT_PT_load_methods_main_panel_7(LOADUESHADERSCRIPT_shared_
 
         #formatting
         #layout.use_property_split means that it will try and display 
-        #the property fully
+        #the property label fully
         layout.use_property_split = True
 
         if (pathtool.is_show_add_one_material_operator):
@@ -1567,8 +1754,8 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
                 node_to_load = node_tree.nodes[node_name]
                 load_image_texture(node_to_load, complete_path, pathtool)
 
-                #change the color space to non-colour or linear if required
-                change_colour_space(textures, node_to_load)
+                #change the color space to the user selected color space
+                change_colour_space(textures["texture"], node_to_load, pathtool)
 
                 #this handles special nodes e.g.
                 #a Transparency node has been loaded 
@@ -1643,6 +1830,10 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
             
             #load the image texture to the empty image texture node
             load_image_texture(img_tex_node, complete_path, pathtool)
+
+            #change the image texture node color 
+            #space to the user selected color space
+            img_tex_node.image.colorspace_settings.name = pathtool.non_match_color_space
 
         #if no match was found for the specific texture and
         #the boolean to show the textures that had no suffix match is enabled
@@ -1845,20 +2036,56 @@ def overlap_concat_string(string1, string2):
             n = 0
     return string1 + string2[n:]
 
-#global variables for the recommended 
+
+#default global variables for the recommended 
 #colour spaces for image textures
 #srgb color space isn't used but it is there for reference purposes
-srgb_color_space_list = ["diffuse", "tint_base_diffuse", "cust1", "cust2", "cust3", "cust4"]
-non_color_space_list = ["normal", "packed_orm", "emissive", "tint_mask", "specular", "gloss"]
-linear_color_space_list = ["transparency", "height", "hair_gradient", "skin_bump"]
+# srgb_color_space_list = ["diffuse", "tint_base_diffuse", "cust1", "cust2", "cust3", "cust4"]
+# non_color_space_list = ["normal", "packed_orm", "emissive", "tint_mask", "specular", "gloss"]
+# linear_color_space_list = ["transparency", "height", "hair_gradient", "skin_bump"]
+# using the names defined in save_shader_map.py in the suffix_and_node_name_to_list() function
 
-def change_colour_space(textures, node_to_load):
-    if textures["texture"] in non_color_space_list:
-        node_to_load.image.colorspace_settings.name = "Non-Color"
-    if textures["texture"] in linear_color_space_list:
-        node_to_load.image.colorspace_settings.name = "Linear"
-    
+def change_colour_space(texture, node_to_load, pathtool):
+    if texture == "diffuse":
+        node_to_load.image.colorspace_settings.name = pathtool.diffuse_color_space
+    elif texture == "packed_orm":
+        node_to_load.image.colorspace_settings.name = pathtool.packed_rgb_color_space
+    elif texture == "normal":
+        node_to_load.image.colorspace_settings.name = pathtool.normal_color_space
+    elif texture == "transparency":
+        node_to_load.image.colorspace_settings.name = pathtool.alpha_color_space
+    elif texture == "emissive":
+        node_to_load.image.colorspace_settings.name = pathtool.emissions_color_space
+    elif texture == "height":
+        node_to_load.image.colorspace_settings.name = pathtool.height_color_space
+    elif texture == "hair_gradient":
+        node_to_load.image.colorspace_settings.name = pathtool.hair_gradient_color_space
+    elif texture == "specular":
+        node_to_load.image.colorspace_settings.name = pathtool.specular_color_space
+    elif texture == "gloss":
+        node_to_load.image.colorspace_settings.name = pathtool.gloss_color_space
+    elif texture == "tint_base_diffuse":
+        node_to_load.image.colorspace_settings.name = pathtool.tint_base_diffuse_color_space
+    elif texture == "tint_mask":
+        node_to_load.image.colorspace_settings.name = pathtool.tint_mask_color_space
+    elif texture == "skin_bump":
+        node_to_load.image.colorspace_settings.name = pathtool.skin_bump_color_space
+    elif texture == "cust1":
+        node_to_load.image.colorspace_settings.name = pathtool.cust1_color_space
+    elif texture == "cust2":
+        node_to_load.image.colorspace_settings.name = pathtool.cust2_color_space
+    elif texture == "cust3":
+        node_to_load.image.colorspace_settings.name = pathtool.cust3_color_space
+    elif texture == "cust4":
+        node_to_load.image.colorspace_settings.name = pathtool.cust4_color_space
+    else:
+        error_message = " ".join(("Error: No texture called:", texture, "was found to change the color space!"))
+        bpy.ops.ueshaderscript.show_message(message = error_message)
+        log(error_message)
 
+
+
+# using the names defined in save_shader_map.py in the suffix_and_node_name_to_list() function
 def img_textures_special_handler(textures, pathtool, material, node_to_load, node_tree, abs_props_txt_path):
     #special case if the node that was loaded was a transparency node _M
     #we need to set the material blend_method to alpha clip
@@ -2034,11 +2261,11 @@ def load_image_texture(node_to_load, complete_path_to_image, pathtool):
     #if the user has chosen to reuse node groups we must check 
     #whether a node group exists to be reused 
     if(pathtool.is_reuse_img_texture_with_same_name):
-        check_if_should_reuse_img_texture(node_to_load, complete_path_to_image)
+        check_if_should_reuse_img_texture(node_to_load, complete_path_to_image, pathtool.texture_file_type_enum)
     else:
         #else if the user has chosen not to reuse node groups create new node groups
         #whether or not they already exist
-        create_a_new_img_texture(node_to_load, complete_path_to_image)
+        create_a_new_img_texture(node_to_load, complete_path_to_image, pathtool.texture_file_type_enum)
 
 
 def delete_unused_img_texture_nodes_and_related_nodes(not_delete_img_texture_node_name_list, interested_node_name_list, pathtool, node_tree):
@@ -2114,7 +2341,7 @@ def load_skin_bump_texture_if_needed(node_tree, pathtool, img_textures_list, not
 
 
 
-def check_if_should_reuse_img_texture(node_to_load, complete_path_to_image):
+def check_if_should_reuse_img_texture(node_to_load, complete_path_to_image, texture_file_type):
     #reminder complete_path_to_image will look like
     #C:\Nyan\Dwight Recolor\Game\Characters\Slashers\Bear\Textures\Outfit01\T_BEHead01_BC.tga
     #extract just the image texture name using basename to get only the very right bit just the file name
@@ -2137,12 +2364,66 @@ def check_if_should_reuse_img_texture(node_to_load, complete_path_to_image):
         #it will reuse it
         reuse_the_img_texture(node_to_load, img_texture_file_name)
     else:
-        create_a_new_img_texture(node_to_load, complete_path_to_image)
+        create_a_new_img_texture(node_to_load, complete_path_to_image, texture_file_type)
 
 
-def create_a_new_img_texture(node_to_load, complete_path_to_image):
-    node_to_load.image = bpy.data.images.load(complete_path_to_image)
+def create_a_new_img_texture(node_to_load, complete_path_to_image, texture_file_type):
+    #do a try and exception because some files 
+    #do not always match the texture_file_type_enum
+    #some will be not be whatever extension the user selected .tga/.png 
+    #but instead .hdr or something else
 
+    #We do it only in this function and not in reuse_the_img_texture() because if it is going into
+    #reuse_the_img_texture() there is no need to look for the img texture it has already
+    #been successfully added to the blend file
+    try:
+        node_to_load.image = bpy.data.images.load(complete_path_to_image)
+    except:
+        #replace texture_file_type_enum with nothing to get rid of extension
+        file_no_ext = replace_ending(complete_path_to_image, texture_file_type, "")
+        #use .join() as it is more efficient 
+        #need two brackets because .join only acccepts tuples
+        #tuples defined by another set of brackets and commas ()
+        glob_wildcard_file_path = "".join((file_no_ext, "*"))
+        #will return a list of matching files with matching file name with extensions
+        #e.g. ['C:/Blender/xxx/images/White_Linear.hdr', 'C:/Blender/xxx/images/doc.dds']
+        complete_path_match_list = glob.glob(glob_wildcard_file_path)
+
+        #debug
+        #print("complete_path_match_list", complete_path_match_list)
+
+        #if the match returned some results and
+        #not nothing then load the image texture
+        if complete_path_match_list != []:
+            #for every item in the complete_path_match_list
+            #load it to the image texture
+            #even though it should only be one item in the list
+            for path in complete_path_match_list:
+                node_to_load.image = bpy.data.images.load(path)
+        
+        #if nothing was found by the glob and it the match list is an empty list
+        else:
+            warning_message = " ".join(("Error: No matching textures with file path", file_no_ext, "was found to load!"))
+            bpy.ops.ueshaderscript.show_message(message = warning_message)
+            log(warning_message)
+        
+        if len(complete_path_match_list) > 1:
+            #-1 is the last item in the list in python syntax
+            warning_message = " ".join(("Warning: >1 matching texture, texture:", complete_path_match_list[-1], "was loaded."))
+            bpy.ops.ueshaderscript.show_message(message = warning_message)
+            log(warning_message)
+                
+
+
+#function only replaces the end of the string
+#so if we had a string called "mytgafile.tga"
+#and old = ".tga" and new = "" then it would 
+#just replace the end of the string returning "mytgafile"
+def replace_ending(in_string, old, new):
+    if in_string.endswith(old):
+        #-len(old) refers to pythons counting from the end of the string(-)
+        return in_string[:-len(old)] + new
+    return in_string
 
 def reuse_the_img_texture(node_to_load, img_texture_file_name):
     node_to_load.image = bpy.data.images[img_texture_file_name]
@@ -2451,6 +2732,25 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
         pathtool.property_unset("is_add_non_match_textures")
         pathtool.property_unset("is_show_no_match_tex_debug")
         pathtool.property_unset("is_show_abs_props_debug")
+
+        pathtool.property_unset("diffuse_color_space")
+        pathtool.property_unset("packed_rgb_color_space")
+        pathtool.property_unset("normal_color_space")
+        pathtool.property_unset("alpha_color_space")
+        pathtool.property_unset("emissions_color_space")
+        pathtool.property_unset("height_color_space")
+        pathtool.property_unset("hair_gradient_color_space")
+        pathtool.property_unset("specular_color_space")
+        pathtool.property_unset("gloss_color_space")
+        pathtool.property_unset("tint_base_diffuse_color_space")
+        pathtool.property_unset("tint_mask_color_space")
+        pathtool.property_unset("skin_bump_color_space")
+        pathtool.property_unset("cust1_color_space")
+        pathtool.property_unset("cust2_color_space")
+        pathtool.property_unset("cust3_color_space")
+        pathtool.property_unset("cust4_color_space")
+
+        pathtool.property_unset("non_match_color_space")
 
         #reset advanced settings as well in case
         #they were changed accidentally
