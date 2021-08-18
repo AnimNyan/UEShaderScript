@@ -724,7 +724,7 @@ class SaveProperties(bpy.types.PropertyGroup):
             ("DBD_GENERAL" , "DBD Generic/Clothing/Basic", ""),
             ("DBD_SKIN", "DBD Skin", ""),
             ("DBD_HAIR" , "DBD Hair", ""),
-            ("DBD_CLOTHING_TINT_RECOLOUR" , "DBD Tint Recolour", ""),
+            ("DBD_CLOTHING_TINT_RECOLOUR" , "DBD Tint Clothing Recolour", ""),
             ("DBD_EYES" , "DBD Eyes", "")
         ]
         
