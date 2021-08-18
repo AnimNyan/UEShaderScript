@@ -724,7 +724,8 @@ class SaveProperties(bpy.types.PropertyGroup):
             ("DBD_GENERAL" , "DBD Generic/Clothing/Basic", ""),
             ("DBD_SKIN", "DBD Skin", ""),
             ("DBD_HAIR" , "DBD Hair", ""),
-            ("DBD_CLOTHING_TINT_RECOLOUR" , "DBD Tint Recolour", "")
+            ("DBD_CLOTHING_TINT_RECOLOUR" , "DBD Tint Recolour", ""),
+            ("DBD_EYES" , "DBD Eyes", "")
         ]
         
     )
@@ -2086,11 +2087,22 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
             savetool.bc_suffix = ""
             savetool.bc_node_name = ""
             savetool.is_show_tint_textures = True
-            savetool.tint_base_diffuse_suffix = "_TintBC _Tint_BC _Tint _CV01"
+            savetool.tint_base_diffuse_suffix = "_TintBC _Tint_BC _Tint"
             savetool.tint_base_diffuse_node_name = "Tint Base Diffuse Node"
-            savetool.tint_mask_suffix = "_IDD"
+            savetool.tint_mask_suffix = "_IDD _CV01"
             savetool.tint_mask_node_name = "Tint Mask Node"
 
+        elif(default_suffix == "DBD_EYES"):
+            bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
+            savetool.orm_suffix = ""
+            savetool.orm_node_name = ""
+            savetool.n_suffix = ""
+            savetool.n_node_name = ""
+            savetool.m_suffix = ""
+            savetool.m_node_name = ""
+            savetool.bde_suffix = ""
+            savetool.bde_node_name = ""
+        
         #this is the last case because this option is unlikely to be picked
         #because it is the default selected suffix and node names when
         #the blender add on starts
