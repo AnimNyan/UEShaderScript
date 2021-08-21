@@ -2106,7 +2106,8 @@ def img_textures_special_handler(textures, pathtool, material, node_to_load, nod
 
 #this has to deal with two cases
 def use_props_txt_emissive_rgb_values(node_tree, abs_props_txt_path):
-     is_emissive_node_group_found, emissive_node_group = search_return_node_by_name(node_tree)
+    #is_emissive_node_group_found, emissive_node_group = search_return_node_by_name(node_tree)
+    pass
 
 def change_dye_group_values(node_tree, abs_props_txt_path):
     is_dye_node_group_found, dye_node_group = search_return_node_by_name(node_tree, "Pit Princess Lazy DBD Clothing (Dye)")
