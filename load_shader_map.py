@@ -61,7 +61,6 @@ class PathProperties(bpy.types.PropertyGroup):
     #user input paths for textures and materials
     props_txt_path: bpy.props.StringProperty(name="(!) Select PropsTxt File*", description="Select a props.txt file", subtype="FILE_PATH")
     skin_bump_map_path: bpy.props.StringProperty(name="Select Skin Bump Map File (Optional for Skin Presets)", description="Select a skin bump map image file", subtype="FILE_PATH")
-    material_folder_path: bpy.props.StringProperty(name="Select Materials Folder", description="Select a Materials folder", subtype="DIR_PATH")
     export_folder_path: bpy.props.StringProperty(name="(!) Select Exported Game Folder*", description="Select a Game folder", subtype="DIR_PATH")
 
     #used to show the button and box to add a shader map to one material at a time
@@ -588,7 +587,6 @@ class LOADUESHADERSCRIPT_PT_load_methods_main_panel_7(LOADUESHADERSCRIPT_shared_
         box.label(text = "Select a mesh, enter material indexes separated by a space and add shader maps to multiple materials")
         
         if(pathtool.is_load_img_textures):
-            box.prop(pathtool, "material_folder_path")
             box.prop(pathtool, "material_indices_list_string")
             box.prop(pathtool, "export_folder_path")
             if(pathtool.is_add_skin_bump_map):
@@ -604,7 +602,6 @@ class LOADUESHADERSCRIPT_PT_load_methods_main_panel_7(LOADUESHADERSCRIPT_shared_
         box.label(text = "ADD SHADER MAP TO ALL MATERIALS ON SELECTED MESHES (ALL MATERIALS)")
         box.label(text = "Select multiple meshes and add shader maps to all the materials on the selected meshes")
         if(pathtool.is_load_img_textures):
-            box.prop(pathtool, "material_folder_path")
             box.prop(pathtool, "export_folder_path")
             if(pathtool.is_add_skin_bump_map):
                 box.prop(pathtool, "skin_bump_map_path")
@@ -777,14 +774,6 @@ class LOADUESHADERSCRIPT_OT_add_to_multiple_materials(bpy.types.Operator):
 #for every material on the active object, checking if they are in the
 #pathtool list
 def create_multiple_materials_shader_maps(context, pathtool, time_start):
-    #if the folder path is a relative path
-    #turn it into an absolute one
-    #as relative paths cause problems
-    #when trying to load an image
-    #paths already absolute not affected
-    abs_mat_folder_path =  bpy.path.abspath(pathtool.material_folder_path)
-    
-    
     #To get a specific material you have to use:
     #bpy.context.selected_objects[0].data.materials[0]
     
@@ -852,7 +841,7 @@ def create_multiple_materials_shader_maps(context, pathtool, time_start):
                         #enabled, the material and material.name will not work properly
                         material.use_nodes = True
                         if(pathtool.is_load_img_textures):
-                            previous_props_txt_folder = find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, active_object, previous_props_txt_folder)
+                            previous_props_txt_folder = find_props_txt_and_create_shader_map(material, pathtool, active_object, previous_props_txt_folder)
                         else:
                             props_txt_path = "Not/Applicable"
                             create_one_shader_map(material, props_txt_path, pathtool)
@@ -930,14 +919,6 @@ class LOADUESHADERSCRIPT_OT_add_to_selected_meshes(bpy.types.Operator):
 #just runs the create one shader map function
 #for all selected objects, should be meshes and all materials
 def create_selected_meshes_shader_maps(context, pathtool, time_start):
-    #if the folder path is a relative path
-    #turn it into an absolute one
-    #as relative paths cause problems
-    #when trying to load an image
-    #paths already absolute not affected
-    abs_mat_folder_path =  bpy.path.abspath(pathtool.material_folder_path)
-    
-    
     #To get a specific material you have to use:
     #bpy.context.selected_objects[0].data.materials[0]
     
@@ -983,7 +964,7 @@ def create_selected_meshes_shader_maps(context, pathtool, time_start):
                     #enabled, the material and material.name will not work properly
                     material.use_nodes = True
                     if(pathtool.is_load_img_textures):
-                        previous_props_txt_folder = find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, selected_obj, previous_props_txt_folder)
+                        previous_props_txt_folder = find_props_txt_and_create_shader_map(material, pathtool, selected_obj, previous_props_txt_folder)
                     else:
                         props_txt_path = "Not/Applicable"
                         create_one_shader_map(material, props_txt_path, pathtool)
@@ -1009,7 +990,7 @@ def create_selected_meshes_shader_maps(context, pathtool, time_start):
 
 
 
-def find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool, selected_obj, previous_props_txt_folder):
+def find_props_txt_and_create_shader_map(material, pathtool, selected_obj, previous_props_txt_folder):
     #nested function has access to all the variables of the parent function
     def find_props_txt():
         props_txt_name = "".join((material.name, pathtool.props_txt_file_type))
@@ -1027,19 +1008,9 @@ def find_props_txt_and_create_shader_map(material, abs_mat_folder_path, pathtool
         #this allows for extra redundancy
         #so the props.txt file can be either in the current directory, or its subdirectories
 
-        #Only do a recursive glob search if optional Materials
-        #Folder Path input is not empty
-        if abs_mat_folder_path != "":
-            gen_obj_match = Path(abs_mat_folder_path).rglob(props_txt_name)
-            
-            #rglob returns a gen_object 
-            #so you must get the values from inside an object
-            #with a for loop
-            props_txt_path = get_value_in_gen_obj(gen_obj_match)
-        else:
-            #if the materials folder path input is empty 
-            #then go straight to checking the Exported Game folder
-            props_txt_path = ""
+ 
+        #go straight to checking the Exported Game folder
+        props_txt_path = ""
         
         #default assume props txt exists and
         #correct assumption later if it doesn't or cannot be found
@@ -2710,7 +2681,6 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
         #user has to set them again and again
         #pathtool.property_unset("props_txt_path")
         #pathtool.property_unset("skin_bump_map_path")
-        #pathtool.property_unset("material_folder_path")
         #pathtool.property_unset("export_folder_path")
         #pathtool.property_unset("material_indices_list_string")
 
