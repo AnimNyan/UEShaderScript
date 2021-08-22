@@ -2332,9 +2332,9 @@ def delete_unused_img_texture_nodes_and_related_nodes(not_delete_img_texture_nod
                 # and they should be added to the list of nodes to be deleted
                 # if no image texture was loaded to the emissions map node
                 if node_name == "Emissions Map Node":
-
                     #debug
-                    print("Frutto Roman and Pit Princess's nodes were added to be delete list")
+                    #print("Frutto Roman and Pit Princess's nodes were added to be delete list")
+
                     prefix_of_related_nodes_to_delete.append("Frutto Roman DBD BDE")
                     prefix_of_related_nodes_to_delete.append("Pit Princess Lazy DBD BDE")
         
