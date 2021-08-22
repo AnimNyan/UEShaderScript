@@ -2328,9 +2328,9 @@ def delete_unused_img_texture_nodes_and_related_nodes(not_delete_img_texture_nod
 
                 #special case for emissive nodes
                 #because the emissive group nodes for the default presets are called
-                # "Frutto Roman DBD BDE" and "Pit Princess Lazy DBD BDE"
-                # and they should be added to the list of nodes to be deleted
-                # if no image texture was loaded to the emissions map node
+                #"Frutto Roman DBD BDE" and "Pit Princess Lazy DBD BDE"
+                #and they should be added to the list of nodes to be deleted
+                #if no image texture was loaded to the emissions map node
                 if node_name == "Emissions Map Node":
                     #debug
                     #print("Frutto Roman and Pit Princess's nodes were added to be delete list")
