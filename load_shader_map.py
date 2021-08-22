@@ -2106,8 +2106,62 @@ def img_textures_special_handler(textures, pathtool, material, node_to_load, nod
 
 #this has to deal with two cases
 def use_props_txt_emissive_rgb_values(node_tree, abs_props_txt_path):
-    #is_emissive_node_group_found, emissive_node_group = search_return_node_by_name(node_tree)
-    pass
+    is_frutto_roman_emissive_group_found, frutto_roman_emissive_node_group = search_return_node_by_name(node_tree, "Frutto Roman DBD BDE")
+    is_pit_princess_emissive_group_found, pit_princess_emissive_node_group = search_return_node_by_name(node_tree, "Pit Princess Lazy DBD BDE")
+
+    if is_frutto_roman_emissive_group_found or is_pit_princess_emissive_group_found:
+        #open the propstxt file for the material and find the
+        #texture locations from it
+        #with just means open and close file
+        with open(abs_props_txt_path, 'r') as f:
+            #read entire file to one string
+            data = f.read()
+            #find all matches through regex to the string:
+            #EM Color }
+            #ParameterValue = { R=1, G=1, B=1, A=1 }
+            #Syntax:
+            #[\s\S] any whitespace or non whitespace character to jump over new lines
+            #[\s\S]* previous line zero to unlimited times
+            #[\s\S]*? previous line non greedy match as little as possible
+            #.* match any character zero to unlimited times
+            #.+ any character one to unlimited times 
+            #Explaining how it works:
+            #1st[0] capture group is Red value
+            #2nd[1] capture group is Green value
+            #3rd[2] capture group is Blue value
+            #4th[3] capture group is Alpha value
+            match_list = re.findall("EM Color[\s\S]*?ParameterValue.*R=(.+), G=(.+), B=(.+), A=(.+) }", data)
+
+        #debug
+        #print("match_list", match_list)
+
+        #if didn't find anything in the regex match
+        #re.findall will return an empty list []
+        #so will iterate zero times and will NOT try 
+        #to change any values
+
+        #iterate over all capture groups in match list
+        #and put all the values found from the regular expression
+        #into the group node
+        for capture_group in match_list:
+            #example of how to assign colour
+            #bpy.data.materials["Example Clothing"].node_tree.nodes["Pit Princess Lazy DBD BDE"].inputs["Secondary Colour"].default_value = (0.5, 0.125, 0.125, 1)
+
+            #set the RGB values for the default emissive node groups 
+
+            #the four elements in the tuple for default_value are the (Red, Green, Blue and Alpha) 
+            
+            #always use default of value of 1 for alpha, the fourth value because RGB Alpha values
+            #since alpha value doesn't do much in blender leave it at it's default 1
+            #need to convert strings to float so use float()
+            if is_frutto_roman_emissive_group_found:
+                frutto_roman_emissive_node_group.inputs["Emission Colour"].default_value = (float(capture_group[0]), float(capture_group[1]), float(capture_group[2]), float(capture_group[3]))
+
+            if is_pit_princess_emissive_group_found:
+                pit_princess_emissive_node_group.inputs["Secondary Colour"].default_value = (float(capture_group[0]), float(capture_group[1]), float(capture_group[2]), float(capture_group[3]))
+
+
+
 
 def change_dye_group_values(node_tree, abs_props_txt_path):
     is_dye_node_group_found, dye_node_group = search_return_node_by_name(node_tree, "Pit Princess Lazy DBD Clothing (Dye)")
@@ -2145,7 +2199,7 @@ def change_dye_group_values(node_tree, abs_props_txt_path):
             match_list = re.findall("([A-Z])Channel_Tint[\s\S]*?ParameterValue.*R=(.+), G=(.+), B=(.+), A=(.+) }", data)
 
 
-        
+
         #debug
         #print("match_list", match_list)
 
@@ -2269,9 +2323,20 @@ def delete_unused_img_texture_nodes_and_related_nodes(not_delete_img_texture_nod
             if node.type == "TEX_IMAGE" and not(node_name in not_delete_img_texture_node_name_list) and (node_name in interested_node_name_list): 
                 #delete node and mark all related nodes to delete list
                 #that is mark all nodes which starts with the same name
-                prefix_of_related_nodes_to_delete.append(node.name)
-                nodes.remove(node) 
+                prefix_of_related_nodes_to_delete.append(node_name)
+                nodes.remove(node)
 
+                #special case for emissive nodes
+                #because the emissive group nodes for the default presets are called
+                # "Frutto Roman DBD BDE" and "Pit Princess Lazy DBD BDE"
+                # and they should be added to the list of nodes to be deleted
+                # if no image texture was loaded to the emissions map node
+                if node_name == "Emissions Map Node":
+
+                    #debug
+                    print("Frutto Roman and Pit Princess's nodes were added to be delete list")
+                    prefix_of_related_nodes_to_delete.append("Frutto Roman DBD BDE")
+                    prefix_of_related_nodes_to_delete.append("Pit Princess Lazy DBD BDE")
         
         #do one more loop through all nodes to check for related nodes
         #to delete if option is checked
