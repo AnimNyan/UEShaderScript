@@ -1430,8 +1430,14 @@ class LOADUESHADERSCRIPT_OT_use_custom_denoising(bpy.types.Operator):
         bpy.context.scene.render.engine = 'CYCLES'
         bpy.context.scene.cycles.device = 'GPU'
 
+        #set performance > Tiles to 256 by 256
+        #as this is the best setting for GPU performance
+        bpy.context.scene.render.tile_x = 256
+        bpy.context.scene.render.tile_y = 256
+
         #change to branched path tracing
         #and assign samples to each
+        #Note: This was removed in Blender 3.0+ may need to be removed at some point
         bpy.context.scene.cycles.progressive = 'BRANCHED_PATH'
         bpy.context.scene.cycles.aa_samples = 8
         bpy.context.scene.cycles.preview_aa_samples = 8
