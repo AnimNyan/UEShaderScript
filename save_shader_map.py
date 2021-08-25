@@ -2075,7 +2075,7 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
             #We are using the reset to default operator so we do not
             #need to explicitly state all the suffix and node names 
             bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
-            savetool.bc_suffix = "_BC _BC_01 _BC_02 _BC_03 _BC_04 _BC_3 _BC_4"
+            savetool.bc_suffix = "_BC _BC_01 _BC_02 _BC_03 _BC_04 _BC_2 _BC_3 _BC_4"
             savetool.bc_node_name = "Diffuse Node"
             savetool.orm_suffix = ""
             savetool.orm_node_name = ""
@@ -2083,7 +2083,7 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
             savetool.bde_node_name = ""
             savetool.hm_suffix = "_Height _Heigth _D _Depth"
             savetool.hm_node_name = "Height Map Node"
-            savetool.hair_gradient_suffix = "_verticalGradient _verticalGradient2 _Gradient _RootTop _BC_2 _Gradiant _Gradiant_02 _Gradiant_03 _Gradiant_04 _Gradiant_05"
+            savetool.hair_gradient_suffix = "_verticalGradient _verticalGradient2 _Gradient _RootTop _Gradiant _Gradiant_02 _Gradiant_03 _Gradiant_04 _Gradiant_05"
             savetool.hair_gradient_node_name = "Hair Gradient Map Node"
         
         elif(default_suffix == "DBD_SKIN"):
@@ -2122,7 +2122,7 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
             savetool.bc_suffix = ""
             savetool.bc_node_name = ""
             savetool.is_show_tint_textures = True
-            savetool.hair_tint_id_suffix = "_BC _ID _BC_01 _BC_02 _BC_03 _BC_04 _BC_3 _BC_4"
+            savetool.hair_tint_id_suffix = "_BC _ID _BC_01 _BC_02 _BC_03 _BC_04 _BC_2 _BC_3 _BC_4"
             savetool.hair_tint_id_node_name = "Hair Tint ID Node"
             savetool.orm_suffix = ""
             savetool.orm_node_name = ""
@@ -2130,7 +2130,7 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
             savetool.bde_node_name = ""
             savetool.hm_suffix = "_Height _Heigth _D _Depth"
             savetool.hm_node_name = "Height Map Node"
-            savetool.hair_gradient_suffix = "_verticalGradient _verticalGradient2 _Gradient _RootTop _BC_2 _Gradiant _Gradiant_02 _Gradiant_03 _Gradiant_04 _Gradiant_05"
+            savetool.hair_gradient_suffix = "_verticalGradient _verticalGradient2 _Gradient _RootTop _Gradiant _Gradiant_02 _Gradiant_03 _Gradiant_04 _Gradiant_05"
             savetool.hair_gradient_node_name = "Hair Gradient Map Node"
         
         else:
