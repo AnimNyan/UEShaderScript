@@ -2075,7 +2075,7 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
             #We are using the reset to default operator so we do not
             #need to explicitly state all the suffix and node names 
             bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
-            savetool.bc_suffix = "_BC _BC_01 _BC_02 _BC_03 _BC_04 _BC_2 _BC_3 _BC_4"
+            savetool.bc_suffix = "_BC _BC_01 _BC_02 _BC_03 _BC_04 _BC_3 _BC_4"
             savetool.bc_node_name = "Diffuse Node"
             savetool.orm_suffix = ""
             savetool.orm_node_name = ""
@@ -2122,7 +2122,7 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
             savetool.bc_suffix = ""
             savetool.bc_node_name = ""
             savetool.is_show_tint_textures = True
-            savetool.hair_tint_id_suffix = "_BC _ID _BC_01 _BC_02 _BC_03 _BC_04 _BC_2 _BC_3 _BC_4"
+            savetool.hair_tint_id_suffix = "_BC _ID _BC_01 _BC_02 _BC_03 _BC_04 _BC_3 _BC_4"
             savetool.hair_tint_id_node_name = "Hair Tint ID Node"
             savetool.orm_suffix = ""
             savetool.orm_node_name = ""
