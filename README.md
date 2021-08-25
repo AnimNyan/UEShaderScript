@@ -35,7 +35,7 @@ Again find me on my discord here: https://discord.gg/rkkWSH2EMz to send me scree
 
 # Installation
 ### To install UEShaderScript:
-1. Go here: https://github.com/AnimNyan/UEShaderScript/releases Right click on "UEShaderScript_v.X.X.X.zip" > Save Link As do NOT unzip it. 
+1. Go here: https://github.com/AnimNyan/UEShaderScript/releases Right click on "UEShaderScript_v.X.X.X.zip" > "Save Link As" and do NOT unzip it. 
 2. Open Blender and click Edit > Preferences > Add-Ons > Install > in the file explorer find "UEShaderScript_v.X.X.X.zip" and select it.
 3. In the Add-Ons search, search for UE Shader Maps and enable the Add On to complete the installation.
 
@@ -47,7 +47,7 @@ browse local files > a file explorer should have opened with your game folder > 
 
 # Usage
 ## Using Prerequisite Software to setup for UEShaderScript
-### Installing Prequisite Software
+### Installing Prerequisite Software
 1. Download the latest version of [UModel/UE Viewer](https://www.gildor.org/en/projects/umodel#files) for your operating system, 
 right click on the umodel zip file > Extract All which will create an unzipped folder.
 2. We have to find the path to the Unreal Engine Game For Steam Games select the game in your library > press the cog icon >
