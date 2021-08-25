@@ -235,6 +235,14 @@ class PathProperties(bpy.types.PropertyGroup):
         default = 1
     )
 
+    hair_tint_id_color_space: bpy.props.EnumProperty(
+        name = "Hair Tint ID Color Space",
+        description = "Hair Tint ID Image Texture Color Space",
+        items = color_spaces_callback,
+        #2 means Linear
+        default = 2
+    )
+
     #all custom textures are by default sRGB color space
     cust1_color_space: bpy.props.EnumProperty(
         name = "Custom1 Color Space",
@@ -480,6 +488,7 @@ class LOADUESHADERSCRIPT_PT_color_space_main_panel_4(LOADUESHADERSCRIPT_shared_m
         layout.prop(pathtool, "skin_bump_color_space")
         layout.prop(pathtool, "tint_base_diffuse_color_space")
         layout.prop(pathtool, "tint_mask_color_space")
+        layout.prop(pathtool, "hair_tint_id_color_space")
         layout.prop(pathtool, "cust1_color_space")
         layout.prop(pathtool, "cust1_color_space")
         layout.prop(pathtool, "cust2_color_space")
@@ -2039,6 +2048,8 @@ def change_colour_space(texture, node_to_load, pathtool):
         node_to_load.image.colorspace_settings.name = pathtool.tint_base_diffuse_color_space
     elif texture == "tint_mask":
         node_to_load.image.colorspace_settings.name = pathtool.tint_mask_color_space
+    elif texture == "hair_tint_id":
+        node_to_load.image.colorspace_settings.name = pathtool.hair_tint_id_color_space
     elif texture == "skin_bump":
         node_to_load.image.colorspace_settings.name = pathtool.skin_bump_color_space
     elif texture == "cust1":
@@ -2782,6 +2793,8 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
         pathtool.property_unset("gloss_color_space")
         pathtool.property_unset("tint_base_diffuse_color_space")
         pathtool.property_unset("tint_mask_color_space")
+        pathtool.property_unset("hair_tint_id_color_space")
+        
         pathtool.property_unset("skin_bump_color_space")
         pathtool.property_unset("cust1_color_space")
         pathtool.property_unset("cust2_color_space")
