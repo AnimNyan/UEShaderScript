@@ -643,6 +643,7 @@ def textures_to_list(savetool, nodes):
     #tint textures
     suffix_and_node_name_to_list(savetool.tint_base_diffuse_suffix, savetool.tint_base_diffuse_node_name, "tint_base_diffuse")
     suffix_and_node_name_to_list(savetool.tint_mask_suffix, savetool.tint_mask_node_name, "tint_mask")
+    suffix_and_node_name_to_list(savetool.hair_tint_id_suffix, savetool.hair_tint_id_node_name, "hair_tint_id")
 
     #skin bump texture is always added and is found from the user chosen path
     #not from the exported game folder
@@ -698,6 +699,8 @@ class SaveProperties(bpy.types.PropertyGroup):
     tint_base_diffuse_node_name: bpy.props.StringProperty(name="Tint Base Diffuse Node Name", description="Tint Base Diffuse image texture node name", default="")
     tint_mask_suffix: bpy.props.StringProperty(name="Tint Mask Suffix", description="Suffix of Tint Mask Texture", default="")
     tint_mask_node_name: bpy.props.StringProperty(name="Tint Mask Node Name", description="Tint Mask image texture node name", default="")
+    hair_tint_id_suffix: bpy.props.StringProperty(name="Hair Tint ID Suffix", description="Suffix of Hair Tint ID Texture", default="")
+    hair_tint_id_node_name: bpy.props.StringProperty(name="Hair Tint ID Node Name", description="Hair Tint image texture node name", default="")
 
     #custom textures
     is_show_custom_textures: bpy.props.BoolProperty(name="Show Custom Suffix and Node Names", default= False)
@@ -722,10 +725,11 @@ class SaveProperties(bpy.types.PropertyGroup):
         items = 
         [
             ("DBD_GENERAL" , "DBD Generic/Clothing/Basic", ""),
-            ("DBD_SKIN", "DBD Skin", ""),
             ("DBD_HAIR" , "DBD Hair", ""),
+            ("DBD_SKIN", "DBD Skin", ""),
+            ("DBD_EYES" , "DBD Eyes", ""),
             ("DBD_CLOTHING_TINT_RECOLOUR" , "DBD Tint Clothing Recolour", ""),
-            ("DBD_EYES" , "DBD Eyes", "")
+            ("DBD_HAIR_TINT_RECOLOUR" , "DBD Tint Hair Recolour", "")
         ]
         
     )
@@ -863,6 +867,8 @@ class SAVEUESHADERSCRIPT_PT_save_custom_preset_main_panel_2(SAVEUESHADERSCRIPT_s
                 box.prop(savetool, "tint_base_diffuse_node_name")
                 box.prop(savetool, "tint_mask_suffix")
                 box.prop(savetool, "tint_mask_node_name")
+                box.prop(savetool, "hair_tint_id_suffix")
+                box.prop(savetool, "hair_tint_id_node_name")
 
             #custom texture inputs
             box.prop(savetool, "is_show_custom_textures")
@@ -2056,12 +2062,20 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
         #load the suffixes into the
         #suffix and node input boxes required 
         #for the different hardcoded cases
-        if(default_suffix == "DBD_HAIR"):
+
+        #This is the default selected suffix and node names when
+        #the blender add on starts
+        #this is for general or clothing presets
+        if(default_suffix == "DBD_GENERAL"):
+            #the dbd general suffix and node names are the default ones
+            #so reset to the default inputs
+            bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
+
+        elif(default_suffix == "DBD_HAIR"):
             #We are using the reset to default operator so we do not
             #need to explicitly state all the suffix and node names 
             bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
-
-            savetool.bc_suffix = "_BC _ID _BC_01 _BC_02 _BC_03 _BC_04 _BC_2 _BC_3 _BC_4"
+            savetool.bc_suffix = "_BC _BC_01 _BC_02 _BC_03 _BC_04 _BC_2 _BC_3 _BC_4"
             savetool.bc_node_name = "Diffuse Node"
             savetool.orm_suffix = ""
             savetool.orm_node_name = ""
@@ -2069,7 +2083,7 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
             savetool.bde_node_name = ""
             savetool.hm_suffix = "_Height _Heigth _D _Depth"
             savetool.hm_node_name = "Height Map Node"
-            savetool.hair_gradient_suffix = "_verticalGradient _verticalGradient2 _Gradient"
+            savetool.hair_gradient_suffix = "_verticalGradient _verticalGradient2 _Gradient _RootTop _BC_2 _Gradiant _Gradiant_02 _Gradiant_03 _Gradiant_04 _Gradiant_05"
             savetool.hair_gradient_node_name = "Hair Gradient Map Node"
         
         elif(default_suffix == "DBD_SKIN"):
@@ -2091,7 +2105,7 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
             savetool.tint_base_diffuse_node_name = "Tint Base Diffuse Node"
             savetool.tint_mask_suffix = "_IDD _CV01"
             savetool.tint_mask_node_name = "Tint Mask Node"
-
+        
         elif(default_suffix == "DBD_EYES"):
             bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
             savetool.orm_suffix = ""
@@ -2102,16 +2116,23 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
             savetool.m_node_name = ""
             savetool.bde_suffix = ""
             savetool.bde_node_name = ""
-        
-        #this is the last case because this option is unlikely to be picked
-        #because it is the default selected suffix and node names when
-        #the blender add on starts
-        #this is for general or clothing presets
-        elif(default_suffix == "DBD_GENERAL"):
-            #the dbd general suffix and node names are the default ones
-            #so reset to the default inputs
-            bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
 
+        elif(default_suffix == "DBD_HAIR_TINT_RECOLOUR"):
+            bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
+            savetool.bc_suffix = ""
+            savetool.bc_node_name = ""
+            savetool.is_show_tint_textures = True
+            savetool.hair_tint_id_suffix = "_BC _ID _BC_01 _BC_02 _BC_03 _BC_04 _BC_2 _BC_3 _BC_4"
+            savetool.hair_tint_id_node_name = "Hair Tint ID Node"
+            savetool.orm_suffix = ""
+            savetool.orm_node_name = ""
+            savetool.bde_suffix = ""
+            savetool.bde_node_name = ""
+            savetool.hm_suffix = "_Height _Heigth _D _Depth"
+            savetool.hm_node_name = "Height Map Node"
+            savetool.hair_gradient_suffix = "_verticalGradient _verticalGradient2 _Gradient _RootTop _BC_2 _Gradiant _Gradiant_02 _Gradiant_03 _Gradiant_04 _Gradiant_05"
+            savetool.hair_gradient_node_name = "Hair Gradient Map Node"
+        
         else:
             error_message = "".join("Error: the default_suffix", default_suffix, "was not found, please contact the plugin author.")
             bpy.ops.ueshaderscript.show_message(message = error_message)
@@ -2165,6 +2186,8 @@ class SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel(bpy.types.Operator):
         savetool.property_unset("tint_base_diffuse_node_name")
         savetool.property_unset("tint_mask_suffix")
         savetool.property_unset("tint_mask_node_name")
+        savetool.property_unset("hair_tint_id_suffix")
+        savetool.property_unset("hair_tint_id_node_name")
 
         savetool.property_unset("is_show_custom_textures")
         savetool.property_unset("cust1_suffix")
