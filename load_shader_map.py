@@ -490,7 +490,6 @@ class LOADUESHADERSCRIPT_PT_color_space_main_panel_4(LOADUESHADERSCRIPT_shared_m
         layout.prop(pathtool, "tint_mask_color_space")
         layout.prop(pathtool, "hair_tint_id_color_space")
         layout.prop(pathtool, "cust1_color_space")
-        layout.prop(pathtool, "cust1_color_space")
         layout.prop(pathtool, "cust2_color_space")
         layout.prop(pathtool, "cust3_color_space")
         layout.prop(pathtool, "cust4_color_space")
