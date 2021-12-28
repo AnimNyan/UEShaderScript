@@ -235,6 +235,14 @@ class PathProperties(bpy.types.PropertyGroup):
         default = 1
     )
 
+    tint_mask_2_color_space: bpy.props.EnumProperty(
+        name = "Tint Mask 2 Color Space",
+        description = "Tint Mask 2 Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
     hair_tint_id_color_space: bpy.props.EnumProperty(
         name = "Hair Tint ID Color Space",
         description = "Hair Tint ID Image Texture Color Space",
@@ -488,6 +496,7 @@ class LOADUESHADERSCRIPT_PT_color_space_main_panel_4(LOADUESHADERSCRIPT_shared_m
         layout.prop(pathtool, "skin_bump_color_space")
         layout.prop(pathtool, "tint_base_diffuse_color_space")
         layout.prop(pathtool, "tint_mask_color_space")
+        layout.prop(pathtool, "tint_mask_2_color_space")
         layout.prop(pathtool, "hair_tint_id_color_space")
         layout.prop(pathtool, "cust1_color_space")
         layout.prop(pathtool, "cust2_color_space")
@@ -495,7 +504,7 @@ class LOADUESHADERSCRIPT_PT_color_space_main_panel_4(LOADUESHADERSCRIPT_shared_m
         layout.prop(pathtool, "cust4_color_space")
 
         layout.separator()
-        layout.label(text = "(Need Load Settings > Add Non Match enabled to do anything)")
+        layout.label(text = "(Need Load Shader Map Settings > Add Non Match enabled to do anything)")
         layout.prop(pathtool, "non_match_color_space")
         
 
@@ -550,7 +559,6 @@ class LOADUESHADERSCRIPT_PT_advanced_settings_main_panel_5(LOADUESHADERSCRIPT_sh
         layout.use_property_split = True
 
         layout.label(text = "Please only change these settings if you know what you are doing")
-        layout.prop(pathtool, "regex_pattern_in_props_txt_file")
         layout.prop(pathtool, "props_txt_file_type")
 
 #main panel part 6
@@ -1224,7 +1232,7 @@ def load_preset(material, abs_props_txt_path, pathtool):
         nodes = dict_to_nodes(nodes_dict["nodes_list"], node_tree)
         list_to_links(nodes_dict["links_list"], node_tree, nodes)
         if pathtool.is_load_img_textures:
-            dict_to_textures(nodes_dict["img_textures_list"], material, node_tree, abs_props_txt_path, pathtool)
+            dict_to_textures(nodes_dict["img_textures_list"], nodes_dict["regex_props_txt"], nodes_dict["total_capture_groups"], nodes_dict["texture_type_capture_group_index"], material, node_tree, abs_props_txt_path, pathtool)
     else:
          bpy.ops.ueshaderscript.show_message(
                     message = "Only Shader Editor Restores are supported currently not Compositor editor restores.")
@@ -1712,56 +1720,71 @@ def list_to_links(links_list, tree, nodes):
         links.new(from_socket, to_socket)
 
 
-def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path, pathtool):
+def dict_to_textures(img_textures_list, regex_pattern_in_props_txt_file, total_capture_groups, texture_type_capture_group_index, material, node_tree, abs_props_txt_path, pathtool):
     #nested function so that don't have to copy all 
     #attributes
     def check_should_load_image():
         #nested function inside nested function so that don't have to copy all 
         #attributes
-        def if_tex_location_suffix_match_load_image():
+        def if_tex_type_or_location_match_suffix_load_image():
             #by default assume no image has been loaded
             is_img_loaded = False
-            #check what the last two/three characters are of the id
-            #and look for the specific ids we are interested in
-            #identifier
+
+            #look for the specific ids we are interested in
+            #if there are two capture groups in the regex
+            #check if the tex_type, the ParameterInfo value from the props.txt matches
+            #the recorded texture type from the node dict which we call suffix 
+            if total_capture_groups == "2" and tex_type == suffix and suffix != "":
+                load_image()
+
             #tex_location is from the props txt file comparing against 
             #suffix which is what is recorded from the node_dict
             #the suffix also cannot be an accidental empty space
-            if tex_location.endswith(suffix) and suffix != "":
-                #looks like this normally
-                #node_to_load = bpy.context.active_object.active_material.node_tree.nodes["Diffuse Node"]
-                #node_to_load.image = bpy.data.images.load("C:\Seabrook\Dwight Recolor\Game\Characters\Campers\Dwight\Textures\Outfit01\T_DFHair01_BC.tga")
+            # if there is only one capture group in the regex
+            #check if the tex_location, the ParamterValue value from the props.txt ends with 
+            #the recorded suffix from node_dict 
+            if total_capture_groups == "1" and tex_location.endswith(suffix) and suffix != "":
+                load_image()
 
-                #use node_tree which is the current node tree
-                #we're trying to texture
-                #and node_name which is the Node Name in the Items panel in the shader editor
-                #this will uniquely identify a single node
-                node_to_load = node_tree.nodes[node_name]
-                load_image_texture(node_to_load, complete_path, pathtool)
-
-                #change the color space to the user selected color space
-                change_colour_space(textures["texture"], node_to_load, pathtool)
-
-                #this handles special nodes e.g.
-                #a Transparency node has been loaded 
-                #we might need to make the material Alpha Clip or Alpha hashed
-                #special handler does that
-                img_textures_special_handler(textures, pathtool, material, node_to_load, node_tree, abs_props_txt_path)
-                
-                    
-                #if an image texture node has been loaded
-                #and the option to delete image texture nodes who
-                #have not had an image loaded to them is True
-                #then we will add it to a whitelist
-                #so it does not get deleted
-                if pathtool.is_delete_unused_img_texture_nodes:
-                    not_delete_img_texture_node_name_list.append(node_to_load.name)
-                
-                is_img_loaded = True
             if suffix == "":
                 warning_message = " ".join(("Warning:", node_name, "has an empty suffix that was ignored, likely from an extra space, please remake this shader map!"))
                 bpy.ops.ueshaderscript.show_message(message = warning_message)
             return is_img_loaded
+
+
+        def load_image():
+            #looks like this normally
+            #node_to_load = bpy.context.active_object.active_material.node_tree.nodes["Diffuse Node"]
+            #node_to_load.image = bpy.data.images.load("C:\Seabrook\Dwight Recolor\Game\Characters\Campers\Dwight\Textures\Outfit01\T_DFHair01_BC.tga")
+
+            #use node_tree which is the current node tree
+            #we're trying to texture
+            #and node_name which is the Node Name in the Items panel in the shader editor
+            #this will uniquely identify a single node
+            node_to_load = node_tree.nodes[node_name]
+            load_image_texture(node_to_load, complete_path, pathtool)
+
+            #change the color space to the user selected color space
+            change_colour_space(textures["texture"], node_to_load, pathtool)
+
+            #this handles special nodes e.g.
+            #a Transparency node has been loaded 
+            #we might need to make the material Alpha Clip or Alpha hashed
+            #special handler does that
+            img_textures_special_handler(textures, pathtool, material, node_to_load, node_tree, abs_props_txt_path)
+            
+                
+            #if an image texture node has been loaded
+            #and the option to delete image texture nodes who
+            #have not had an image loaded to them is True
+            #then we will add it to a whitelist
+            #so it does not get deleted
+            if pathtool.is_delete_unused_img_texture_nodes:
+                not_delete_img_texture_node_name_list.append(node_to_load.name)
+            
+            is_img_loaded = True
+
+            
 
 
         
@@ -1787,7 +1810,7 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
             #we must check a match against all the suffixes in the suffix list
             #one texture may have one to many suffixes e.g. transparency might have "_M", "_A"
             for suffix in suffix_list:
-                is_img_loaded = if_tex_location_suffix_match_load_image()
+                is_img_loaded = if_tex_type_or_location_match_suffix_load_image()
 
                 #break out of current loop of for tex_location in match_list 
                 #because the image for the tex_location has been found
@@ -1848,13 +1871,17 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
         #any character zero to unlimited times and ending with '
         #also store capture groups into a list variable
         #match_list = re.findall("Texture2D\'(.*)\.", data)
-        match_list = re.findall(pathtool.regex_pattern_in_props_txt_file, data)
+        
+        
+        #default match list will look like this 
+        #[('AO_Rough_Metal', '/Game/ShadingAssets/Textures/TEX_GlamRockFreddy_EyeMat_OcclusionRoughnessMetallic'),('Base_Color', '/Game/ShadingAssets/Textures/TEX_GlamRockFreddy_EyeMat_BaseColor.TEX_GlamRockFreddy_EyeMat_BaseColor')]
+        match_list = re.findall(regex_pattern_in_props_txt_file, data)
 
         #reverse match list as in the case of overlap the most 
         #important materials are listed first
         #want the final image textures on the object to be the 
         #most important ones
-        #convention says the most important textures that want to be last
+        #from a few examples usually the most important textures that want to be last
         #in the case of overlap should be written first in the props.txt file
         if pathtool.reverse_match_list_from_props_txt_enum == "Reverse Match List":
             match_list = reversed(match_list)
@@ -1903,16 +1930,51 @@ def dict_to_textures(img_textures_list, material, node_tree, abs_props_txt_path,
                 load_skin_bump_texture_if_needed(node_tree, pathtool, img_textures_list, not_delete_img_texture_node_name_list, node_name, texture_id)
 
     #iterate through texture locations
-    #reminder match list looks like
+    #default match list will look like this 
+    #[('AO_Rough_Metal', '/Game/ShadingAssets/Textures/TEX_GlamRockFreddy_EyeMat_OcclusionRoughnessMetallic'),
+    # ('Base_Color', '/Game/ShadingAssets/Textures/TEX_GlamRockFreddy_EyeMat_BaseColor.TEX_GlamRockFreddy_EyeMat_BaseColor')]
+    #in order to access the value 'AO_Rough_Metal' use match_list[0][0]
+    #total capture groups 2 means that one capture group is used to identify the texture type
+    #and one is the texture's location
+    if total_capture_groups == "2":
+        for tex_tuple in match_list:
+            #iterate through the tuple not seeing the inside these groups 
+            # (),()
+            #we are accessing the index 0 position or index 1 position 
+            #which will say the type e.g. 'AO_Rough_Metal'
+            #texture_type_capture_group_index is a string so must be converted to int
+            #so then it can reference the items in the tuple
+            tex_type = tex_tuple[int(texture_type_capture_group_index)]
+
+            #we have to find the index of the location capture group
+            #if there is 2 capture groups the location capture group will always
+            #be the opposite of the texture type capture group
+            #e.g. texture type capture group index 0
+            #location capture group index is 1
+            #so we need to swap 0 to 1 or 1 to 0 which 1 - texture_type_capture_group_index does 
+            location_capture_group_index = 1 - int(texture_type_capture_group_index)
+
+            tex_location = tex_tuple[location_capture_group_index]
+
+
+            #iterate the tuple values inside the tuple
+            #'AO_Rough_Metal', '/Game/ShadingAssets/Textures/TEX_GlamRockFreddy_EyeMat_OcclusionRoughnessMetallic'
+            check_should_load_image()
+
+    #reminder match list can also look like
     #match_list ['/Game/Characters/Slashers/Doctor/Textures/Outfit011/T_DOStraps011_BC', 
     #'/Game/Characters/Slashers/Doctor/Textures/Outfit011/T_DOStraps011_ORM', 
     # '/Game/Characters/Slashers/Doctor/Textures/Outfit011/T_DOStraps011_N']
-    for tex_location in match_list:
-        check_should_load_image()
+    # don't need to check texture_type_capture_group_index because 
+    # if there is only one capture group the single capture group will also 
+    # identify the texture type with the suffix
+    elif total_capture_groups == "1":
+        for tex_location in match_list:
+            check_should_load_image()
     
     #will delete img_texture_nodes if needed
     delete_unused_img_texture_nodes_and_related_nodes(not_delete_img_texture_node_name_list, 
-            interested_node_name_list, pathtool, node_tree)
+        interested_node_name_list, pathtool, node_tree)
        
 
 
@@ -2053,6 +2115,8 @@ def change_colour_space(texture, node_to_load, pathtool):
         node_to_load.image.colorspace_settings.name = pathtool.tint_base_diffuse_color_space
     elif texture == "tint_mask":
         node_to_load.image.colorspace_settings.name = pathtool.tint_mask_color_space
+    elif texture == "tint_mask_2":
+        node_to_load.image.colorspace_settings.name = pathtool.tint_mask_2_color_space
     elif texture == "hair_tint_id":
         node_to_load.image.colorspace_settings.name = pathtool.hair_tint_id_color_space
     elif texture == "skin_bump":
@@ -2798,6 +2862,7 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
         pathtool.property_unset("gloss_color_space")
         pathtool.property_unset("tint_base_diffuse_color_space")
         pathtool.property_unset("tint_mask_color_space")
+        pathtool.property_unset("tint_mask_2_color_space")
         pathtool.property_unset("hair_tint_id_color_space")
         
         pathtool.property_unset("skin_bump_color_space")
@@ -2810,7 +2875,6 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
 
         #reset advanced settings as well in case
         #they were changed accidentally
-        pathtool.property_unset("regex_pattern_in_props_txt_file")
         pathtool.property_unset("props_txt_file_type")
         return {'FINISHED'}
 

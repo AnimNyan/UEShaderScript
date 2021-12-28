@@ -91,10 +91,13 @@ class SAVEUESHADERSCRIPT_OT_save_shader_map(bpy.types.Operator):
         #print("context.area.spaces[0].node_tree: ", tree)
         #print("tree.nodes[0].bl_idname", tree.nodes[0].bl_idname)
         
-        nodes_list, links_list, img_textures_list = nodes_to_dict(tree, savetool)
+        nodes_list, links_list, img_textures_list, regex_props_txt, total_capture_groups, texture_type_capture_group_index = nodes_to_dict(tree, savetool)
         
-        #img_textures_list will be blank {} if add_image_textures is False or if no image textures should be loaded
-        nodes_dict = {"nodes_list": nodes_list, "links_list": links_list, "img_textures_list": img_textures_list}
+        #img_textures_list will be blank [] and regex_props_txt will be an empty string ""
+        #if add_image_textures is False or if no image textures should be loaded
+        nodes_dict = {"nodes_list": nodes_list, "links_list": links_list, "img_textures_list": img_textures_list, "regex_props_txt": regex_props_txt, 
+            "total_capture_groups": total_capture_groups, "texture_type_capture_group_index": texture_type_capture_group_index}
+        
         nodes_dict["editor_type"] = editor_type
         shader_type = area.spaces[0].shader_type
         nodes_dict["shader_type"] = shader_type
@@ -216,17 +219,25 @@ def nodes_to_dict(tree, savetool, is_in_node_group = False):
     
     #if the option to load image textures is true then record
     #what image texture suffixes and node names the user has written 
-    #only record textures to list if not in a node group
+    #and the regex they have decided to use
     if(savetool.is_add_img_textures == True and not is_in_node_group):
         nodes = tree.nodes
         img_textures_list = textures_to_list(savetool, nodes)
+        regex_props_txt = savetool.regex_props_txt
+        total_capture_groups = savetool.total_capture_groups
+        texture_type_capture_group_index = savetool.texture_type_capture_group_index
     else:
         img_textures_list = []
+        regex_props_txt = ""
+        total_capture_groups = ""
+        texture_type_capture_group_index = ""
 
+    #only record textures to list and regex_props_txt if not in a node group
+    #because the node group has no textures to load
     if(is_in_node_group):
         return (nodes_list, links_list)
     else:
-        return (nodes_list, links_list, img_textures_list)
+        return (nodes_list, links_list, img_textures_list, regex_props_txt, total_capture_groups, texture_type_capture_group_index)
 
 def socket_to_dict_output(output):
     return socket_to_dict_input(output)
@@ -595,8 +606,11 @@ def textures_to_list(savetool, nodes):
                 #every suffix should be separated by a space
                 #so we are separating every suffix with .split()
                 #.split generates a list so no need for extra square brackets
-                #around suffix.split(" ")
-                suffix_list = suffix.split(" ")
+                #around suffix.split(", ")
+                #"Base Color Texture, Diffuse" becomes
+                #['Base Color Texture', 'Diffuse']
+                #extra space gets rid of the space between the suffixes
+                suffix_list = suffix.split(", ")
                 img_textures_dict["suffix_list"] = suffix_list
 
         #if node name is missing but suffix is there
@@ -643,6 +657,7 @@ def textures_to_list(savetool, nodes):
     #tint textures
     suffix_and_node_name_to_list(savetool.tint_base_diffuse_suffix, savetool.tint_base_diffuse_node_name, "tint_base_diffuse")
     suffix_and_node_name_to_list(savetool.tint_mask_suffix, savetool.tint_mask_node_name, "tint_mask")
+    suffix_and_node_name_to_list(savetool.tint_mask_suffix_2, savetool.tint_mask_node_name_2, "tint_mask_2")
     suffix_and_node_name_to_list(savetool.hair_tint_id_suffix, savetool.hair_tint_id_node_name, "hair_tint_id")
 
     #skin bump texture is always added and is found from the user chosen path
@@ -672,13 +687,13 @@ def textures_to_list(savetool, nodes):
 #define all user input properties
 class SaveProperties(bpy.types.PropertyGroup):
     cust_map_name: bpy.props.StringProperty(name="Name of Shader Map", description="Name of your custom shader map")
-    bc_suffix: bpy.props.StringProperty(name="Diffuse Suffix", description="Suffix of Diffuse", default="_BC _BC_01 _BC_02 _BC_03 _BC_04")
+    bc_suffix: bpy.props.StringProperty(name="Diffuse Suffix", description="Suffix of Diffuse", default="Base Color Texture, Diffuse")
     bc_node_name: bpy.props.StringProperty(name="Diffuse Node Name", description="Diffuse image texture node name", default="Diffuse Node")
-    orm_suffix: bpy.props.StringProperty(name="Packed RGB ARM Suffix", description="Suffix of Packed RGB (AO, Rough, Metallic)", default="_ORM")
+    orm_suffix: bpy.props.StringProperty(name="Packed RGB ARM Suffix", description="Suffix of Packed RGB (AO, Rough, Metallic)", default="AORoughnessMetallic")
     orm_node_name: bpy.props.StringProperty(name="Packed RGB Node Name", description="Packed RGB image texture node name", default="Packed RGB Node")
-    n_suffix: bpy.props.StringProperty(name="Normal Map Suffix", description="Suffix of Normal Map", default="_N")
+    n_suffix: bpy.props.StringProperty(name="Normal Map Suffix", description="Suffix of Normal Map", default="NormalMap Texture")
     n_node_name: bpy.props.StringProperty(name="Normal Map Node Name", description="Normal Map image texture node name", default="Normal Map Node")
-    m_suffix: bpy.props.StringProperty(name="Alpha Map Suffix", description="Suffix of Alpha (Transparency) Map", default="_M _A")
+    m_suffix: bpy.props.StringProperty(name="Alpha Map Suffix", description="Suffix of Alpha (Transparency) Map", default="Opacity Mask Texture")
     m_node_name: bpy.props.StringProperty(name="Alpha Map Node Name", description="Alpha Map image texture node name", default="Transparency Map Node")
     bde_suffix: bpy.props.StringProperty(name="Emissions Map Suffix", description="Suffix of Emissions Map", default="_BDE _BDE_EventGlowEyes _BDE_02 _BDE_PW01 _BDE_Eye")
     bde_node_name: bpy.props.StringProperty(name="Emissions Map Node Name", description="Emissions Map image texture node name", default="Emissions Map Node")
@@ -699,6 +714,8 @@ class SaveProperties(bpy.types.PropertyGroup):
     tint_base_diffuse_node_name: bpy.props.StringProperty(name="Tint Base Diffuse Node Name", description="Tint Base Diffuse image texture node name", default="")
     tint_mask_suffix: bpy.props.StringProperty(name="Tint Mask Suffix", description="Suffix of Tint Mask Texture", default="")
     tint_mask_node_name: bpy.props.StringProperty(name="Tint Mask Node Name", description="Tint Mask image texture node name", default="")
+    tint_mask_suffix_2: bpy.props.StringProperty(name="Tint Mask Suffix 2", description="Suffix of Tint Mask 2 Texture", default="")
+    tint_mask_node_name_2: bpy.props.StringProperty(name="Tint Mask Node Name 2", description="Tint Mask 2 image texture node name", default="")
     hair_tint_id_suffix: bpy.props.StringProperty(name="Hair Tint ID Suffix", description="Suffix of Hair Tint ID Texture", default="")
     hair_tint_id_node_name: bpy.props.StringProperty(name="Hair Tint ID Node Name", description="Hair Tint image texture node name", default="")
 
@@ -733,6 +750,44 @@ class SaveProperties(bpy.types.PropertyGroup):
         ]
         
     )
+
+    is_show_regex_options: bpy.props.BoolProperty(name="Show Regex Advanced Options", default= False)
+
+    default_regex_props_txt_enum: bpy.props.EnumProperty(
+        name = "Regex Method for Textures and Type",
+        description = "Regex pattern used for finding texture Textures",
+        items = 
+        [
+            ("PARAMETER_INFO" , "props.txt ParameterInfo (e.g. Diffuse)", ""),
+            ("SUFFIX" , "props.txt ParameterValue Suffix (e.g. _BC)", ""),
+            ("OTHER", "Custom Regular Expression", "")
+        ]
+        
+    )
+
+    regex_props_txt: bpy.props.StringProperty(name="Custom Regex Pattern:",
+        description="Custom Regex pattern used for finding textures", default = "TextureParameterValues\[\d+\][\s\S]+?ParameterInfo = { Name=(.+) }[\s\S]+?Texture2D'(.*)\.")
+
+    total_capture_groups: bpy.props.EnumProperty(
+        name = "Total Capture Groups in Regular Expression",
+        description = "Total Number of Capture Groups in Regular Expression",
+        items = 
+        [
+            ("1" , "1", ""),
+            ("2" , "2", ""),
+        ]
+    )
+
+    texture_type_capture_group_index: bpy.props.EnumProperty(
+        name = "Texture Type Capture Group Index",
+        description = "Texture Type Capture Group Index",
+        items = 
+        [
+            ("0" , "0", ""),
+            ("1" , "1", ""),
+        ]
+    )
+
 
 
 
@@ -837,9 +892,11 @@ class SAVEUESHADERSCRIPT_PT_save_custom_preset_main_panel_2(SAVEUESHADERSCRIPT_s
             box.label(text = "Image Texture Suffixes and Node Names")
             box.label(text = "(leave suffix and node name empty if you do NOT want to load the specific image texture)")
             box.label(text = "Node Names can be found/changed by selecting an image texture node > Press n > Item > Name")
-            box.label(text = "Separate different suffixes with a single space")
+            box.label(text = "Separate different suffixes with a comma and space \", \"")
             box.prop(savetool, "default_suffix_enum")
             box.operator("saveueshaderscript.load_default_suffixes_operator")
+
+            #suffixes and node names
             box.prop(savetool, "bc_suffix")
             box.prop(savetool, "bc_node_name")
             box.prop(savetool, "orm_suffix")
@@ -867,11 +924,14 @@ class SAVEUESHADERSCRIPT_PT_save_custom_preset_main_panel_2(SAVEUESHADERSCRIPT_s
                 box.prop(savetool, "tint_base_diffuse_node_name")
                 box.prop(savetool, "tint_mask_suffix")
                 box.prop(savetool, "tint_mask_node_name")
+                box.prop(savetool, "tint_mask_suffix_2")
+                box.prop(savetool, "tint_mask_node_name_2")
                 box.prop(savetool, "hair_tint_id_suffix")
                 box.prop(savetool, "hair_tint_id_node_name")
 
             #custom texture inputs
             box.prop(savetool, "is_show_custom_textures")
+            #only show extra options if bool is true to avoid clutter
             if(savetool.is_show_custom_textures == True):
                 box.prop(savetool, "cust1_suffix")
                 box.prop(savetool, "cust1_node_name")
@@ -882,13 +942,34 @@ class SAVEUESHADERSCRIPT_PT_save_custom_preset_main_panel_2(SAVEUESHADERSCRIPT_s
                 box.prop(savetool, "cust4_suffix")
                 box.prop(savetool, "cust4_node_name")
 
+            #formatting empty row
             row = box.row()
 
             box.label(text = "Skin Bump Texture Node (Special Case No Suffix)")
-            box.label(text = "Skin Bump Map Texture is always added regardless of the props.txt files")
+            box.label(text = "Skin Bump Texture is always added regardless of the props.txt files")
             box.prop(savetool, "skin_bump_node_name")
+
+            #formatting empty row
+            row = box.row()
+
+            #Regular Expression Texture + Texture Type Match Method
+            box.prop(savetool, "is_show_regex_options")
+            #only show extra options if bool is true to avoid clutter
+            if(savetool.is_show_regex_options == True):
+                box.label(text = "Regular Expression Method")
+                box.label(text = "How the texture and type of Texture is found in props.txt files")
+                box.prop(savetool, "default_regex_props_txt_enum")
+                box.operator("saveueshaderscript.load_default_regexes_operator")
+
+                box.label(text = "Regular Expression can only have 1 or 2 capture groups")
+                box.prop(savetool, "regex_props_txt")
+                box.prop(savetool, "total_capture_groups")
+                box.prop(savetool, "texture_type_capture_group_index")
+
+
             box.operator("SAVEUESHADERSCRIPT.reset_inputs_main_panel_operator")
-        
+
+
         layout.operator("SAVEUESHADERSCRIPT.saveshadermap_operator")
 
 
@@ -2075,7 +2156,7 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
             #We are using the reset to default operator so we do not
             #need to explicitly state all the suffix and node names 
             bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
-            savetool.bc_suffix = "_BC _BC_01 _BC_02 _BC_03 _BC_04 _BC_2 _BC_3 _BC_4"
+            savetool.bc_suffix = "Base Color Texture, Diffuse"
             savetool.bc_node_name = "Diffuse Node"
             savetool.orm_suffix = ""
             savetool.orm_node_name = ""
@@ -2140,6 +2221,61 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
 
         return {'FINISHED'}
 
+
+#--------load default suffixes so don't need to type in all the suffixes and node names
+class SAVEUESHADERSCRIPT_OT_load_default_regexes(bpy.types.Operator):
+    bl_idname = "saveueshaderscript.load_default_regexes_operator"
+    bl_label = "Load Preset Regular Expressions"
+    bl_description = "Load Preset Regular Expressions"
+    bl_options = {'REGISTER'}
+
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def execute(self, context):
+        #store active/selected scene to variable
+        scene = context.scene
+        
+        #allow access to user inputted properties through pointer
+        #to properties
+        savetool = scene.save_tool
+
+        default_regex_enum = savetool.default_regex_props_txt_enum
+
+        #debug
+        #print("default_suffix", default_suffix)
+
+        #load the suffixes into the
+        #suffix and node input boxes required 
+        #for the different hardcoded cases
+
+        #This is the default selected suffix and node names when
+        #the blender add on starts
+        #this is for general or clothing presets
+        if(default_regex_enum == "PARAMETER_INFO"):
+            savetool.regex_props_txt = "TextureParameterValues\[\d+\][\s\S]+?ParameterInfo = { Name=(.+) }[\s\S]+?Texture2D'(.*)\."
+            savetool.total_capture_groups = "2"
+            savetool.texture_type_capture_group_index = "0"
+
+        elif(default_regex_enum == "SUFFIX"):
+            savetool.regex_props_txt = "Texture2D\'(.*)\."
+            savetool.total_capture_groups = "1"
+            savetool.texture_type_capture_group_index = "0"
+        
+        elif(default_regex_enum == "OTHER"):
+            savetool.regex_props_txt = "Type your own regular expression"
+            savetool.total_capture_groups = "2"
+            savetool.texture_type_capture_group_index = "0"
+        
+        else:
+            error_message = "".join("Error: the default_regex_enum", default_regex_enum, "was not found, please contact the plugin author.")
+            bpy.ops.ueshaderscript.show_message(message = error_message)
+            log(error_message)
+
+        return {'FINISHED'}
+
+
 #--------reset save function main panel class
 class SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel(bpy.types.Operator):
     bl_idname = "saveueshaderscript.reset_inputs_main_panel_operator"
@@ -2186,6 +2322,8 @@ class SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel(bpy.types.Operator):
         savetool.property_unset("tint_base_diffuse_node_name")
         savetool.property_unset("tint_mask_suffix")
         savetool.property_unset("tint_mask_node_name")
+        savetool.property_unset("tint_mask_suffix_2")
+        savetool.property_unset("tint_mask_node_name_2")
         savetool.property_unset("hair_tint_id_suffix")
         savetool.property_unset("hair_tint_id_node_name")
 
@@ -2201,6 +2339,14 @@ class SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel(bpy.types.Operator):
 
         savetool.property_unset("skin_bump_node_name")
         savetool.property_unset("is_add_img_textures")
+
+        savetool.property_unset("is_show_regex_options")
+        savetool.property_unset("default_regex_props_txt_enum")
+        savetool.property_unset("regex_props_txt")
+
+        savetool.property_unset("total_capture_groups")
+        savetool.property_unset("texture_type_capture_group_index")
+
         return {'FINISHED'}
 
 #don't register SAVEUESHADERSCRIPT_shared_main_panel 
@@ -2218,7 +2364,7 @@ classes = [SaveProperties, PresetCollection, FolderPresetsCollection, SavePrefer
     Shader_RemoveFolderOperator, Shader_RenameFolderOperator, SAVEUESHADERSCRIPT_OT_remove_preset, ShowMessageOperator,
     RenamePresetOperator, MovePresetUpOperator, MovePresetDownOperator, MovePresetOperator, 
     
-    SAVEUESHADERSCRIPT_OT_load_default_suffixes, SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel,
+    SAVEUESHADERSCRIPT_OT_load_default_suffixes, SAVEUESHADERSCRIPT_OT_load_default_regexes, SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel,
 
     SAVEUESHADERSCRIPT_OT_save_shader_map]
  
