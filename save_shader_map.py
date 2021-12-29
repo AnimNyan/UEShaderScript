@@ -694,8 +694,8 @@ class SaveProperties(bpy.types.PropertyGroup):
     n_suffix: bpy.props.StringProperty(name="Normal Map Suffix", description="Suffix of Normal Map", default="NormalMap Texture, Normal")
     n_node_name: bpy.props.StringProperty(name="Normal Map Node Name", description="Normal Map image texture node name", default="Normal Map Node")
     m_suffix: bpy.props.StringProperty(name="Alpha Map Suffix", description="Suffix of Alpha (Transparency) Map", default="Opacity Mask Texture")
-    m_node_name: bpy.props.StringProperty(name="Alpha Map Node Name", description="Alpha Map image texture node name", default="Transparency Map Node")
-    bde_suffix: bpy.props.StringProperty(name="Emissions Map Suffix", description="Suffix of Emissions Map", default="_BDE _BDE_EventGlowEyes _BDE_02 _BDE_PW01 _BDE_Eye")
+    m_node_name: bpy.props.StringProperty(name="Alpha Map Node Name", description="Alpha Map image texture node name", default="Transparency Map Node, Alpha_Mask")
+    bde_suffix: bpy.props.StringProperty(name="Emissions Map Suffix", description="Suffix of Emissions Map", default="Blood Dirt Emissive")
     bde_node_name: bpy.props.StringProperty(name="Emissions Map Node Name", description="Emissions Map image texture node name", default="Emissions Map Node")
     hm_suffix: bpy.props.StringProperty(name="Height Map Suffix", description="Suffix of Height Map", default="")
     hm_node_name: bpy.props.StringProperty(name="Height Map Node Name", description="Height Map image texture node name", default="")
@@ -2156,8 +2156,6 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
             #We are using the reset to default operator so we do not
             #need to explicitly state all the suffix and node names 
             bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
-            savetool.bc_suffix = "Base Color Texture, Diffuse"
-            savetool.bc_node_name = "Diffuse Node"
             savetool.orm_suffix = ""
             savetool.orm_node_name = ""
             savetool.bde_suffix = ""
@@ -2182,9 +2180,9 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
             savetool.bc_suffix = ""
             savetool.bc_node_name = ""
             savetool.is_show_tint_textures = True
-            savetool.tint_base_diffuse_suffix = "_TintBC _Tint_BC _Tint"
+            savetool.tint_base_diffuse_suffix = "Base Color Texture, Diffuse"
             savetool.tint_base_diffuse_node_name = "Tint Base Diffuse Node"
-            savetool.tint_mask_suffix = "_IDD _CV01"
+            savetool.tint_mask_suffix = "ColorMask_Tint"
             savetool.tint_mask_node_name = "Tint Mask Node"
         
         elif(default_suffix == "DBD_EYES"):
@@ -2203,15 +2201,15 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
             savetool.bc_suffix = ""
             savetool.bc_node_name = ""
             savetool.is_show_tint_textures = True
-            savetool.hair_tint_id_suffix = "_BC _ID _BC_01 _BC_02 _BC_03 _BC_04 _BC_2 _BC_3 _BC_4"
+            savetool.hair_tint_id_suffix = "Base Color Texture, Diffuse"
             savetool.hair_tint_id_node_name = "Hair Tint ID Node"
             savetool.orm_suffix = ""
             savetool.orm_node_name = ""
             savetool.bde_suffix = ""
             savetool.bde_node_name = ""
-            savetool.hm_suffix = "_Height _Heigth _D _Depth"
+            savetool.hm_suffix = "Depth_Mask"
             savetool.hm_node_name = "Height Map Node"
-            savetool.hair_gradient_suffix = "_verticalGradient _verticalGradient2 _Gradient _RootTop _Gradiant _Gradiant_02 _Gradiant_03 _Gradiant_04 _Gradiant_05"
+            savetool.hair_gradient_suffix = "RootTip_Mask"
             savetool.hair_gradient_node_name = "Hair Gradient Map Node"
         
         else:
