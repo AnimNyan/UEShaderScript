@@ -691,7 +691,7 @@ class SaveProperties(bpy.types.PropertyGroup):
     bc_node_name: bpy.props.StringProperty(name="Diffuse Node Name", description="Diffuse image texture node name", default="Diffuse Node")
     orm_suffix: bpy.props.StringProperty(name="Packed RGB ARM Suffix", description="Suffix of Packed RGB (AO, Rough, Metallic)", default="AORoughnessMetallic")
     orm_node_name: bpy.props.StringProperty(name="Packed RGB Node Name", description="Packed RGB image texture node name", default="Packed RGB Node")
-    n_suffix: bpy.props.StringProperty(name="Normal Map Suffix", description="Suffix of Normal Map", default="NormalMap Texture")
+    n_suffix: bpy.props.StringProperty(name="Normal Map Suffix", description="Suffix of Normal Map", default="NormalMap Texture, Normal")
     n_node_name: bpy.props.StringProperty(name="Normal Map Node Name", description="Normal Map image texture node name", default="Normal Map Node")
     m_suffix: bpy.props.StringProperty(name="Alpha Map Suffix", description="Suffix of Alpha (Transparency) Map", default="Opacity Mask Texture")
     m_node_name: bpy.props.StringProperty(name="Alpha Map Node Name", description="Alpha Map image texture node name", default="Transparency Map Node")
@@ -2162,9 +2162,9 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
             savetool.orm_node_name = ""
             savetool.bde_suffix = ""
             savetool.bde_node_name = ""
-            savetool.hm_suffix = "_Height _Heigth _D _Depth"
+            savetool.hm_suffix = "Depth_Mask"
             savetool.hm_node_name = "Height Map Node"
-            savetool.hair_gradient_suffix = "_verticalGradient _verticalGradient2 _Gradient _RootTop _Gradiant _Gradiant_02 _Gradiant_03 _Gradiant_04 _Gradiant_05"
+            savetool.hair_gradient_suffix = "RootTip_Mask"
             savetool.hair_gradient_node_name = "Hair Gradient Map Node"
         
         elif(default_suffix == "DBD_SKIN"):
