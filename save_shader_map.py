@@ -745,6 +745,7 @@ class SaveProperties(bpy.types.PropertyGroup):
             ("DBD_HAIR" , "DBD Hair", ""),
             ("DBD_SKIN", "DBD Skin", ""),
             ("DBD_EYES" , "DBD Eyes", ""),
+            ("DBD_ENVIRONMENT", "DBD Environment", ""),
             ("DBD_CLOTHING_TINT_RECOLOUR" , "DBD Tint Clothing Recolour", ""),
             ("DBD_HAIR_TINT_RECOLOUR" , "DBD Tint Hair Recolour", "")
         ]
@@ -2195,6 +2196,16 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
             savetool.m_node_name = ""
             savetool.bde_suffix = ""
             savetool.bde_node_name = ""
+        
+        elif(default_suffix == "DBD_ENVIRONMENT"):
+            bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
+            savetool.bc_suffix = "Main_BaseColor, Base Color Texture, Diffuse"
+            savetool.bc_node_name = "Diffuse Node"
+            savetool.orm_suffix = "Main_ORM, AORoughnessMetallic"
+            savetool.orm_node_name = "Packed RGB Node"
+            savetool.n_suffix = "Main_Normal, NormalMap Texture, Normal"
+            savetool.n_node_name = "Normal Map Node"
+
 
         elif(default_suffix == "DBD_HAIR_TINT_RECOLOUR"):
             bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
