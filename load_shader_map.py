@@ -1036,7 +1036,7 @@ def find_props_txt_and_create_shader_map(material, pathtool, selected_obj, previ
             #show an error message and ignore the material
             #do not create a shader map for it
             if props_txt_path == "":
-                warning_message = "".join(("Warning: props.txt for\"", selected_obj.name, "\" \"", material.name, 
+                warning_message = "".join(("Warning: props.txt for \"", selected_obj.name, "\" \"", material.name, 
                             "\" was not found in Game Folder so it was ignored!"))
                 bpy.ops.ueshaderscript.show_message(message = warning_message)
                 log(warning_message)
