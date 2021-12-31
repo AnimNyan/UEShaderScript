@@ -662,7 +662,6 @@ def textures_to_list(savetool, nodes):
 
     #skin bump texture is always added and is found from the user chosen path
     #not from the exported game folder
-    suffix_and_node_name_to_list("Not/Applicable", savetool.skin_bump_node_name, "skin_bump")
     suffix_and_node_name_to_list(savetool.cust1_suffix, savetool.cust1_node_name, "cust1")
     suffix_and_node_name_to_list(savetool.cust2_suffix, savetool.cust2_node_name, "cust2")
     suffix_and_node_name_to_list(savetool.cust3_suffix, savetool.cust3_node_name, "cust3")
@@ -730,9 +729,6 @@ class SaveProperties(bpy.types.PropertyGroup):
     cust4_suffix: bpy.props.StringProperty(name="Custom4 Suffix", description="Suffix of Custom4 Texture", default="")
     cust4_node_name: bpy.props.StringProperty(name="Custom4 Node Name", description="Custom4 image texture node name", default="")
 
-    #skin only needs a node name as it is not from the game files
-    #rather it is externally added by the user themself
-    skin_bump_node_name: bpy.props.StringProperty(name="Skin Bump Node Name", description="Skin Bump image texture node name", default="")
     is_add_img_textures: bpy.props.BoolProperty(name="Load Image Textures to Shader Map Dynamically", default= True)
     
     #enum property for using default suffixes
@@ -942,13 +938,6 @@ class SAVEUESHADERSCRIPT_PT_save_custom_preset_main_panel_2(SAVEUESHADERSCRIPT_s
                 box.prop(savetool, "cust3_node_name")
                 box.prop(savetool, "cust4_suffix")
                 box.prop(savetool, "cust4_node_name")
-
-            #formatting empty row
-            row = box.row()
-
-            box.label(text = "Skin Bump Texture Node (Special Case No Suffix)")
-            box.label(text = "Skin Bump Texture is always added regardless of the props.txt files")
-            box.prop(savetool, "skin_bump_node_name")
 
             #formatting empty row
             row = box.row()
@@ -2171,11 +2160,10 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
             #We are using the reset to default operator so we do not
             #need to explicitly state all the suffix and node names 
             #The skin preset is very similar to the default inputs except for the m_suffix,
-            #m_node_name and skin_bump_node_name
+            #and m_node_name
             bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
             savetool.m_suffix = ""
             savetool.m_node_name = ""
-            savetool.skin_bump_node_name = "Skin Bump Node"
 
         elif(default_suffix == "DBD_CLOTHING_TINT_RECOLOUR"):
             bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
@@ -2347,7 +2335,6 @@ class SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel(bpy.types.Operator):
         savetool.property_unset("cust4_suffix")
         savetool.property_unset("cust4_node_name")
 
-        savetool.property_unset("skin_bump_node_name")
         savetool.property_unset("is_add_img_textures")
 
         savetool.property_unset("is_show_regex_options")
