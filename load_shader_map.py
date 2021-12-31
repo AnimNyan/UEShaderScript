@@ -60,7 +60,6 @@ def color_spaces_callback(scene, context):
 class PathProperties(bpy.types.PropertyGroup):
     #user input paths for textures and materials
     props_txt_path: bpy.props.StringProperty(name="(!) Select PropsTxt File*", description="Select a props.txt file", subtype="FILE_PATH")
-    skin_bump_map_path: bpy.props.StringProperty(name="Select Skin Bump Map File (Optional for Skin Presets)", description="Select a skin bump map image file", subtype="FILE_PATH")
     export_folder_path: bpy.props.StringProperty(name="(!) Select Exported Game Folder*", description="Select a Game folder", subtype="DIR_PATH")
 
     #used to show the button and box to add a shader map to one material at a time
@@ -123,8 +122,6 @@ class PathProperties(bpy.types.PropertyGroup):
         ]
         
     )
-  
-    is_add_skin_bump_map: bpy.props.BoolProperty(name="Add Skin Bump Texture (Optional for Skin Presets)", default = False)
 
     is_use_recolor_values: bpy.props.BoolProperty(name="Use Recolor RGB Colour Values", default = True)
 
@@ -136,7 +133,7 @@ class PathProperties(bpy.types.PropertyGroup):
     #srgb color space isn't used but it is there for reference purposes
     # srgb_color_space_list = ["diffuse", "tint_base_diffuse", "cust1", "cust2", "cust3", "cust4"]
     # non_color_space_list = ["normal", "packed_orm", "emissive", "tint_mask", "specular", "gloss"]
-    # linear_color_space_list = ["transparency", "height", "hair_gradient", "skin_bump"]
+    # linear_color_space_list = ["transparency", "height", "hair_gradient"]
 
     #set default for only those which are not srgb color space
     #because the default color space is srgb the 0th option
@@ -211,14 +208,6 @@ class PathProperties(bpy.types.PropertyGroup):
         items = color_spaces_callback,
         #1 means Non-Color
         default = 1
-    )
-
-    skin_bump_color_space: bpy.props.EnumProperty(
-        name = "Skin Bump Color Space",
-        description = "Skin Bump Image Texture Color Space",
-        items = color_spaces_callback,
-        #2 means Linear
-        default = 2
     )
 
     tint_base_diffuse_color_space: bpy.props.EnumProperty(
@@ -395,9 +384,6 @@ class LOADUESHADERSCRIPT_PT_load_settings_main_panel_2(LOADUESHADERSCRIPT_shared
             layout.prop(pathtool, "is_use_recolor_values")
             layout.prop(pathtool, "is_add_non_match_textures")
 
-            #Skin Preset Related Settings
-            layout.prop(pathtool, "is_add_skin_bump_map")
-
 
 #main panel part 3
 #inheriting the shared panel's bl_space_type, bl_region_type and bl_category
@@ -493,7 +479,6 @@ class LOADUESHADERSCRIPT_PT_color_space_main_panel_4(LOADUESHADERSCRIPT_shared_m
         layout.prop(pathtool, "hair_gradient_color_space")
         layout.prop(pathtool, "specular_color_space")
         layout.prop(pathtool, "gloss_color_space")
-        layout.prop(pathtool, "skin_bump_color_space")
         layout.prop(pathtool, "tint_base_diffuse_color_space")
         layout.prop(pathtool, "tint_mask_color_space")
         layout.prop(pathtool, "tint_mask_2_color_space")
@@ -605,8 +590,6 @@ class LOADUESHADERSCRIPT_PT_load_methods_main_panel_7(LOADUESHADERSCRIPT_shared_
         if(pathtool.is_load_img_textures):
             box.prop(pathtool, "material_indices_list_string")
             box.prop(pathtool, "export_folder_path")
-            if(pathtool.is_add_skin_bump_map):
-                box.prop(pathtool, "skin_bump_map_path")
         else:
             box.prop(pathtool, "material_indices_list_string")
         box.operator("loadueshaderscript.add_to_multiple_materials_operator")
@@ -619,8 +602,7 @@ class LOADUESHADERSCRIPT_PT_load_methods_main_panel_7(LOADUESHADERSCRIPT_shared_
         box.label(text = "Select multiple meshes and add shader maps to all the materials on the selected meshes")
         if(pathtool.is_load_img_textures):
             box.prop(pathtool, "export_folder_path")
-            if(pathtool.is_add_skin_bump_map):
-                box.prop(pathtool, "skin_bump_map_path")
+        
         box.operator("loadueshaderscript.add_to_selected_meshes_operator" )
 
         layout.use_property_split = False
@@ -643,8 +625,7 @@ class LOADUESHADERSCRIPT_PT_load_methods_main_panel_7(LOADUESHADERSCRIPT_shared_
             if(pathtool.is_load_img_textures):
                 box.prop(pathtool, "props_txt_path")
                 box.prop(pathtool, "export_folder_path")
-                if(pathtool.is_add_skin_bump_map):
-                    box.prop(pathtool, "skin_bump_map_path")
+            
             box.operator("loadueshaderscript.add_to_one_material_operator")
 
 
@@ -1910,12 +1891,11 @@ def dict_to_textures(img_textures_list, regex_pattern_in_props_txt_file, total_c
     #if either of these conditions is true we must iterate 
     #through the image textures list
     #once
-    if (pathtool.is_delete_unused_img_texture_nodes or pathtool.is_add_skin_bump_map):
+    if (pathtool.is_delete_unused_img_texture_nodes):
         #go through the textures list once to load all the node_names to interested_node_name_list
         #we are interested in that might have something loaded to them
         #if nothing is loaded to the nodes from interested_node_name_list
         #we know they should be deleted
-        #also go through textures list to load the skin texture if it is needed
         for textures in img_textures_list:
             node_name = textures["node_name"]
             texture_id = textures["texture"]
@@ -1926,8 +1906,6 @@ def dict_to_textures(img_textures_list, regex_pattern_in_props_txt_file, total_c
             if pathtool.is_delete_unused_img_texture_nodes:
                 interested_node_name_list.append(node_name)
             
-            if (pathtool.is_add_skin_bump_map):
-                load_skin_bump_texture_if_needed(node_tree, pathtool, img_textures_list, not_delete_img_texture_node_name_list, node_name, texture_id)
 
     #iterate through texture locations
     #default match list will look like this 
@@ -2089,7 +2067,7 @@ def overlap_concat_string(string1, string2):
 #srgb color space isn't used but it is there for reference purposes
 # srgb_color_space_list = ["diffuse", "tint_base_diffuse", "cust1", "cust2", "cust3", "cust4"]
 # non_color_space_list = ["normal", "packed_orm", "emissive", "tint_mask", "specular", "gloss"]
-# linear_color_space_list = ["transparency", "height", "hair_gradient", "skin_bump"]
+# linear_color_space_list = ["transparency", "height", "hair_gradient"]
 # using the names defined in save_shader_map.py in the suffix_and_node_name_to_list() function
 
 def change_colour_space(texture, node_to_load, pathtool):
@@ -2119,8 +2097,6 @@ def change_colour_space(texture, node_to_load, pathtool):
         node_to_load.image.colorspace_settings.name = pathtool.tint_mask_2_color_space
     elif texture == "hair_tint_id":
         node_to_load.image.colorspace_settings.name = pathtool.hair_tint_id_color_space
-    elif texture == "skin_bump":
-        node_to_load.image.colorspace_settings.name = pathtool.skin_bump_color_space
     elif texture == "cust1":
         node_to_load.image.colorspace_settings.name = pathtool.cust1_color_space
     elif texture == "cust2":
@@ -2438,28 +2414,6 @@ def delete_unused_img_texture_nodes_and_related_nodes(not_delete_img_texture_nod
 
 
 
-def load_skin_bump_texture_if_needed(node_tree, pathtool, img_textures_list, not_delete_img_texture_node_name_list, node_name, texture_id):
-    #turn the path to the skin bump map to an absolute path instead of a relative one
-    #to avoid errors
-    abs_skin_bump_map_path = bpy.path.abspath(pathtool.skin_bump_map_path)
-    #if the node is a skin texture node
-    #always load skin height map texture regardless
-    #because it doesn't come from the props.txt file
-    #it is externally added from skin_bump_map_path
-    #and the skin_bump_map path is not empty
-    #so do not need to check the suffix for a match against the propstxt file
-    #always load
-    #also require that is_add_skin_bump_map is checked by the user to add a skin bump map
-    if  texture_id == "skin_bump" and abs_skin_bump_map_path !="" and pathtool.is_add_skin_bump_map:
-        node_to_load = node_tree.nodes[node_name]
-        #bpy.data.images.load(abs_skin_bump_map_path)
-        load_image_texture(node_to_load, abs_skin_bump_map_path, pathtool)
-        #add to whitelist
-        if pathtool.is_delete_unused_img_texture_nodes:
-            not_delete_img_texture_node_name_list.append(node_to_load.name)
-
-
-
 def check_if_should_reuse_img_texture(node_to_load, complete_path_to_image, texture_file_type):
     #reminder complete_path_to_image will look like
     #C:\Nyan\Dwight Recolor\Game\Characters\Slashers\Bear\Textures\Outfit01\T_BEHead01_BC.tga
@@ -2684,15 +2638,37 @@ def dict_to_attr(node, attr_dict, repeated=False):
     if t == "Image":
         image = bpy.data.images.get(v)
         if image is None:
+            #if we are having errors loading the image
+            #we want to first try and see if the texture is in the UEShaderScript plugin textures folder
+            #folder and try to load it from there
+            #because it might be a texture that comes with the plugin
             try:
-                bpy.ops.image.open(filepath=attr_dict["image_filepath"])
-            except Exception as e:
-                log("file path of image attributes not found: ",
-                      attr_dict["image_filepath"])
-            filename = os.path.basename(attr_dict["image_filepath"])
-            image = bpy.data.images.get(filename)
-            if image is not None:
-                image.source = attr_dict["image_source"]
+                #this gets the path of the currently running file
+                #save_shader_map and then gets it's parent
+                #and then converts the relative path into an absolute path
+                #this is because if we just get pathlib.Path(__file__).absolute()
+                #we will get C:\Users\seabr\AppData\Roaming\Blender Foundation\Blender\2.93\scripts\addons\UEShaderScript\save_shader_map.py
+                #so we get the parent of it
+                #to get this C:\Users\seabr\AppData\Roaming\Blender Foundation\Blender\2.93\scripts\addons\UEShaderScript\
+                path_lib = pathlib.Path(__file__).parent.absolute()
+                #C:\Users\seabr\AppData\Roaming\Blender Foundation\Blender\2.93\scripts\addons\UEShaderScript\textures
+                path_lib = os.path.join(path_lib, "textures")
+
+                texture_path_in_plugin_folder = os.path.join(path_lib, v)
+                bpy.ops.image.open(filepath=texture_path_in_plugin_folder)
+            
+            except:
+
+                try:
+                    bpy.ops.image.open(filepath=attr_dict["image_filepath"])
+                except Exception as e:
+                    log("".join(("file path of image attributes not found: ", attr_dict["image_filepath"])))
+                filename = os.path.basename(attr_dict["image_filepath"])
+                image = bpy.data.images.get(filename)
+                if image is not None:
+                    image.source = attr_dict["image_source"]
+
+
         if image is not None:
             image.source = attr_dict["image_source"]
         v = image
@@ -2828,7 +2804,6 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
         #don't reset the paths or inputs otherwise
         #user has to set them again and again
         #pathtool.property_unset("props_txt_path")
-        #pathtool.property_unset("skin_bump_map_path")
         #pathtool.property_unset("export_folder_path")
         #pathtool.property_unset("material_indices_list_string")
 
@@ -2845,7 +2820,6 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
         pathtool.property_unset("is_reuse_node_group_with_same_name")
         pathtool.property_unset("is_reuse_img_texture_with_same_name")
         pathtool.property_unset("reverse_match_list_from_props_txt_enum")
-        pathtool.property_unset("is_add_skin_bump_map")
         pathtool.property_unset("is_use_recolor_values")
         pathtool.property_unset("is_add_non_match_textures")
         pathtool.property_unset("is_show_no_match_tex_debug")
@@ -2865,7 +2839,6 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
         pathtool.property_unset("tint_mask_2_color_space")
         pathtool.property_unset("hair_tint_id_color_space")
         
-        pathtool.property_unset("skin_bump_color_space")
         pathtool.property_unset("cust1_color_space")
         pathtool.property_unset("cust2_color_space")
         pathtool.property_unset("cust3_color_space")
