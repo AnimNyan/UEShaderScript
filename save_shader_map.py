@@ -91,7 +91,18 @@ class SAVEUESHADERSCRIPT_OT_save_shader_map(bpy.types.Operator):
         #print("context.area.spaces[0].node_tree: ", tree)
         #print("tree.nodes[0].bl_idname", tree.nodes[0].bl_idname)
         
-        nodes_list, links_list, img_textures_list, regex_props_txt, total_capture_groups, texture_type_capture_group_index = nodes_to_dict(tree, savetool)
+        try:
+            nodes_list, links_list, img_textures_list, regex_props_txt, total_capture_groups, texture_type_capture_group_index = nodes_to_dict(tree, savetool)
+        except emptySuffixError:
+            warning_message = "Error: Delete the extra comma and/or space for suffixes before saving"
+            bpy.ops.ueshaderscript.show_message(message = warning_message)
+            log(warning_message)
+            return {"FINISHED"}
+        except captureGroupNotInRangeError:
+            warning_message = "Error: Texture Type Index is invalid must 0 not 1 for 2 Total Capture Groups"
+            bpy.ops.ueshaderscript.show_message(message = warning_message)
+            log(warning_message)
+            return {"FINISHED"}
         
         #img_textures_list will be blank [] and regex_props_txt will be an empty string ""
         #if add_image_textures is False or if no image textures should be loaded
@@ -226,6 +237,12 @@ def nodes_to_dict(tree, savetool, is_in_node_group = False):
         regex_props_txt = savetool.regex_props_txt
         total_capture_groups = savetool.total_capture_groups
         texture_type_capture_group_index = savetool.texture_type_capture_group_index
+
+        #if total capture groups is one then texture_type_capture_group_index cannot be 1
+        #because 1 refers to the non existent second capture group
+        #thus, raise an error and prevent the preset from being saved
+        if(total_capture_groups=="1" and texture_type_capture_group_index=="1"):
+            raise captureGroupNotInRangeError
     else:
         img_textures_list = []
         regex_props_txt = ""
@@ -238,6 +255,14 @@ def nodes_to_dict(tree, savetool, is_in_node_group = False):
         return (nodes_list, links_list)
     else:
         return (nodes_list, links_list, img_textures_list, regex_props_txt, total_capture_groups, texture_type_capture_group_index)
+
+
+#this class is just used as a custom error
+#so can get out of any depth
+#and stop preset being created
+class captureGroupNotInRangeError(Exception):
+    pass
+
 
 def socket_to_dict_output(output):
     return socket_to_dict_input(output)
@@ -611,6 +636,13 @@ def textures_to_list(savetool, nodes):
                 #['Base Color Texture', 'Diffuse']
                 #extra space gets rid of the space between the suffixes
                 suffix_list = suffix.split(", ")
+
+                #if there is empty suffixes, 
+                #don't allow the preset to be saved
+                #and exit early out of all functions by raising an error
+                if "" in suffix_list or " " in suffix_list:
+                    raise emptySuffixError
+
                 img_textures_dict["suffix_list"] = suffix_list
 
         #if node name is missing but suffix is there
@@ -677,6 +709,13 @@ def textures_to_list(savetool, nodes):
     #print("img_textures_list length: ", len(img_textures_list))
     
     return img_textures_list
+
+
+#this class is just used as a custom error
+#so can get out of any depth
+#and stop preset being created
+class emptySuffixError(Exception):
+    pass
 
 
 
