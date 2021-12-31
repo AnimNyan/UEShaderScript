@@ -774,8 +774,8 @@ class SaveProperties(bpy.types.PropertyGroup):
         description = "Total Number of Capture Groups in Regular Expression",
         items = 
         [
-            ("1" , "1", ""),
             ("2" , "2", ""),
+            ("1" , "1", "")
         ]
     )
 
@@ -1461,9 +1461,10 @@ def get_default_and_current_json_paths():
     #this gets the path of the currently running file
     #save_shader_map and then gets it's parent
     #and then converts the relative path into an absolute path
-    #this is because if we just get pathlib.Path(__file__)
+    #this is because if we just get pathlib.Path(__file__).absolute()
     #we will get C:\Users\seabr\AppData\Roaming\Blender Foundation\Blender\2.93\scripts\addons\UEShaderScript\save_shader_map.py
-    #we want C:\Users\seabr\AppData\Roaming\Blender Foundation\Blender\2.93\scripts\addons\UEShaderScript\
+    #so we get the parent of it
+    #to get this C:\Users\seabr\AppData\Roaming\Blender Foundation\Blender\2.93\scripts\addons\UEShaderScript\
     #so we can concatenate it to form
     #C:\Users\seabr\AppData\Roaming\Blender Foundation\Blender\2.93\scripts\addons\UEShaderScript\ue_shader_script_default_presets_json.json
     path_lib = pathlib.Path(__file__).parent.absolute()
