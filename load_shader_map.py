@@ -659,7 +659,11 @@ class LOADUESHADERSCRIPT_PT_custom_denoising_main_panel_9(LOADUESHADERSCRIPT_sha
         layout = self.layout
         layout.label(text = "Press press Use Pit Princess Custom Denoising Setup")
         layout.label(text = "to load a custom compositing tab denoising node setup")
-        layout.operator("loadueshaderscript.use_custom_denoising_operator")
+        #this is for Blender 3.0+
+        layout.operator("loadueshaderscript.use_custom_denoising_operator_new")
+
+        #this is for Blender 2.93 and below
+        layout.operator("loadueshaderscript.use_custom_denoising_operator_old")
 
 #---------------------------code for Operators in Main Panel
 
@@ -1032,8 +1036,8 @@ def find_props_txt_and_create_shader_map(material, pathtool, selected_obj, previ
             #show an error message and ignore the material
             #do not create a shader map for it
             if props_txt_path == "":
-                warning_message = "".join(("Warning: the props.txt file for object \"", selected_obj.name, "\" material \"", material.name, 
-                            "\" was not found in the Game Folder so the material was ignored!"))
+                warning_message = "".join(("Warning: props.txt for\"", selected_obj.name, "\" \"", material.name, 
+                            "\" was not found in Game Folder so it was ignored!"))
                 bpy.ops.ueshaderscript.show_message(message = warning_message)
                 log(warning_message)
                 is_props_txt_exist_for_material = False
@@ -1409,10 +1413,89 @@ class LOADUESHADERSCRIPT_OT_use_nodes_mesh_all(bpy.types.Operator):
         return {"FINISHED"}
 
 #-----------------------------------Load Compositing Node Setup
-class LOADUESHADERSCRIPT_OT_use_custom_denoising(bpy.types.Operator):
-    bl_label = "Use Pit Princess Custom Denoising Setup"
-    bl_description = "Use Pit Princess Compositor Denoising Setup"
-    bl_idname = "loadueshaderscript.use_custom_denoising_operator"
+#works for blender 3.0+
+class LOADUESHADERSCRIPT_OT_use_custom_denoising_new(bpy.types.Operator):
+    bl_label = "(Blender 3.0+) Use Pit Princess Custom Denoising Setup"
+    bl_description = "(Blender 3.0+) Use Pit Princess Compositor Denoising Setup"
+    bl_idname = "loadueshaderscript.use_custom_denoising_operator_new"
+    def execute(self, context):
+        #change render engine to Cycles and GPU Compute
+        bpy.context.scene.render.engine = 'CYCLES'
+        bpy.context.scene.cycles.device = 'GPU'
+
+        #turn on the required render passes
+        #have to use bpy.context.view_layer.cycles.denoising_store_passes = False
+        #even though the info console does not show it properly
+        #as there are different settings for eevee and cycles
+        bpy.context.scene.view_layers["ViewLayer"].use_pass_combined = True
+        bpy.context.scene.view_layers["ViewLayer"].use_pass_z = False
+        bpy.context.scene.view_layers["ViewLayer"].use_pass_mist = False
+        bpy.context.scene.view_layers["ViewLayer"].use_pass_normal = True
+        bpy.context.scene.view_layers["ViewLayer"].use_pass_vector = False
+        bpy.context.scene.view_layers["ViewLayer"].use_pass_uv = False
+        bpy.context.view_layer.cycles.denoising_store_passes = False
+        bpy.context.scene.view_layers["ViewLayer"].use_pass_object_index = False
+        bpy.context.scene.view_layers["ViewLayer"].use_pass_material_index = False
+        bpy.context.view_layer.cycles.pass_debug_render_time = False
+        bpy.context.view_layer.cycles.pass_debug_sample_count = False
+        bpy.context.scene.view_layers["ViewLayer"].use_pass_diffuse_direct = True
+        bpy.context.scene.view_layers["ViewLayer"].use_pass_diffuse_indirect = True
+        bpy.context.scene.view_layers["ViewLayer"].use_pass_diffuse_color = True
+        bpy.context.scene.view_layers["ViewLayer"].use_pass_glossy_direct = True
+        bpy.context.scene.view_layers["ViewLayer"].use_pass_glossy_indirect = True
+        bpy.context.scene.view_layers["ViewLayer"].use_pass_glossy_color = True
+        bpy.context.scene.view_layers["ViewLayer"].use_pass_transmission_direct = True
+        bpy.context.scene.view_layers["ViewLayer"].use_pass_transmission_indirect = True
+        bpy.context.scene.view_layers["ViewLayer"].use_pass_transmission_color = True
+        bpy.context.view_layer.cycles.use_pass_volume_direct = True
+        bpy.context.view_layer.cycles.use_pass_volume_indirect = True
+        bpy.context.scene.view_layers["ViewLayer"].use_pass_emit = True
+        bpy.context.scene.view_layers["ViewLayer"].use_pass_environment = True
+        bpy.context.scene.view_layers["ViewLayer"].use_pass_shadow = True
+        bpy.context.scene.view_layers["ViewLayer"].use_pass_ambient_occlusion = True
+
+        #make use nodes true in the compositor
+        bpy.context.scene.use_nodes = True
+
+        #this gets the path of the currently running file
+        #load_shader_map and then gets it's parent
+        #and then converts the relative path into an absolute path
+        #so it gets C:\Users\seabr\AppData\Roaming\Blender Foundation\Blender\3.0\scripts\addons\UEShaderScript\
+        path_lib = pathlib.Path(__file__).parent.absolute()
+
+        compositing_file_path= os.path.join(path_lib, "ue_shader_script_compositing_json.json")
+        
+        #------------load the compositing node setup to the compositor window
+        #reading string from file because it would take up too much space in the code
+        #will read from the file compositing json in the current directory by default
+        file = open(compositing_file_path)
+        pit_princess_compositing_json = file.read()
+
+        file.close()
+        nodes_dict = json_to_nodes_dict(pit_princess_compositing_json)
+        node_tree = bpy.context.scene.node_tree
+        
+        clear_nodes(node_tree)
+        clear_links(node_tree)
+
+        nodes = dict_to_nodes(nodes_dict["nodes_list"], node_tree)
+        list_to_links(nodes_dict["links_list"], node_tree, nodes)
+
+        #show feedback to user
+        success_message = "Custom Denoising Setup was added succesfully!"
+        bpy.ops.ueshaderscript.show_message(
+            message = success_message)
+        #show success message in blender console
+        log(success_message)
+
+        return {'FINISHED'}
+
+
+#works for blender 2.93 and below
+class LOADUESHADERSCRIPT_OT_use_custom_denoising_old(bpy.types.Operator):
+    bl_label = "(Blender 2.93-) Use Pit Princess Custom Denoising Setup"
+    bl_description = "(Blender 2.93 and Below) Use Pit Princess Compositor Denoising Setup"
+    bl_idname = "loadueshaderscript.use_custom_denoising_operator_old"
     def execute(self, context):
         #change render engine to Cycles and GPU Compute
         bpy.context.scene.render.engine = 'CYCLES'
@@ -1728,7 +1811,7 @@ def dict_to_textures(img_textures_list, regex_pattern_in_props_txt_file, total_c
                 load_image()
 
             if suffix == "":
-                warning_message = " ".join(("Warning:", node_name, "has an empty suffix that was ignored, likely from an extra space, please remake this shader map!"))
+                warning_message = " ".join(("Warning:", node_name, "has an empty space suffix that was ignored, please remake this shader map!"))
                 bpy.ops.ueshaderscript.show_message(message = warning_message)
             return is_img_loaded
 
@@ -2871,7 +2954,7 @@ LOADUESHADERSCRIPT_PT_custom_denoising_main_panel_9,
 LOADUESHADERSCRIPT_OT_solo_material, LOADUESHADERSCRIPT_OT_solo_material_all,
 LOADUESHADERSCRIPT_OT_use_nodes_mesh, LOADUESHADERSCRIPT_OT_use_nodes_mesh_all,
 
-LOADUESHADERSCRIPT_OT_use_custom_denoising,
+LOADUESHADERSCRIPT_OT_use_custom_denoising_new, LOADUESHADERSCRIPT_OT_use_custom_denoising_old,
 
 LOADUESHADERSCRIPT_OT_add_to_one_material, LOADUESHADERSCRIPT_OT_add_to_multiple_materials, 
 LOADUESHADERSCRIPT_OT_add_to_selected_meshes, LOADUESHADERSCRIPT_OT_reset_settings_main_panel]
