@@ -2472,9 +2472,8 @@ def delete_unused_img_texture_nodes_and_related_nodes(not_delete_img_texture_nod
                 #if no image texture was loaded to the emissions map node
                 if node_name == "Emissions Map Node":
                     #debug
-                    #print("Frutto Roman and Pit Princess's nodes were added to be delete list")
+                    #print("Pit Princess's group node was added to be delete list")
 
-                    prefix_of_related_nodes_to_delete.append("Frutto Roman DBD BDE")
                     prefix_of_related_nodes_to_delete.append("Pit Princess Lazy DBD BDE")
         
         #do one more loop through all nodes to check for related nodes
@@ -2487,7 +2486,7 @@ def delete_unused_img_texture_nodes_and_related_nodes(not_delete_img_texture_nod
             #that start with the prefix
             for node in nodes:
                 #print("node:", node)
-                #the line below must not be int he loop otherwise the loop fails
+                #the line below must not be in the loop otherwise the loop fails
                 node_name = node.name
                 #for every node check against every prefix that is on the blacklist
                 for prefix in prefix_of_related_nodes_to_delete:
