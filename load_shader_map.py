@@ -660,10 +660,10 @@ class LOADUESHADERSCRIPT_PT_custom_denoising_main_panel_9(LOADUESHADERSCRIPT_sha
         layout.label(text = "Press press Use Pit Princess Custom Denoising Setup")
         layout.label(text = "to load a custom compositing tab denoising node setup")
         #this is for Blender 3.0+
-        layout.operator("loadueshaderscript.use_custom_denoising_operator_new")
+        layout.operator("loadueshaderscript.use_custom_denoising_blender_3_0_plus_operator")
 
         #this is for Blender 2.93 and below
-        layout.operator("loadueshaderscript.use_custom_denoising_operator_old")
+        layout.operator("loadueshaderscript.use_custom_denoising_blender_2_93_below_operator")
 
 #---------------------------code for Operators in Main Panel
 
@@ -1414,45 +1414,24 @@ class LOADUESHADERSCRIPT_OT_use_nodes_mesh_all(bpy.types.Operator):
 
 #-----------------------------------Load Compositing Node Setup
 #works for blender 3.0+
-class LOADUESHADERSCRIPT_OT_use_custom_denoising_new(bpy.types.Operator):
+class LOADUESHADERSCRIPT_OT_use_custom_denoising_blender_3_0_plus(bpy.types.Operator):
     bl_label = "(Blender 3.0+) Use Pit Princess Custom Denoising Setup"
     bl_description = "(Blender 3.0+) Use Pit Princess Compositor Denoising Setup"
-    bl_idname = "loadueshaderscript.use_custom_denoising_operator_new"
+    bl_idname = "loadueshaderscript.use_custom_denoising_blender_3_0_plus_operator"
     def execute(self, context):
         #change render engine to Cycles and GPU Compute
         bpy.context.scene.render.engine = 'CYCLES'
         bpy.context.scene.cycles.device = 'GPU'
+        
+        #we have to try both strings as sometimes 
+        #it can be bpy.context.scene.view_layers["ViewLayer"].use_pass_combined = True
+        #or bpy.context.scene.view_layers["View Layer"].use_pass_combined = True
+        #for blender 3.0+
+        try:
+            enable_render_layers_blender_3_0_plus("ViewLayer")
+        except:
+            enable_render_layers_blender_3_0_plus("View Layer")
 
-        #turn on the required render passes
-        #have to use bpy.context.view_layer.cycles.denoising_store_passes = False
-        #even though the info console does not show it properly
-        #as there are different settings for eevee and cycles
-        bpy.context.scene.view_layers["ViewLayer"].use_pass_combined = True
-        bpy.context.scene.view_layers["ViewLayer"].use_pass_z = False
-        bpy.context.scene.view_layers["ViewLayer"].use_pass_mist = False
-        bpy.context.scene.view_layers["ViewLayer"].use_pass_normal = True
-        bpy.context.scene.view_layers["ViewLayer"].use_pass_vector = False
-        bpy.context.scene.view_layers["ViewLayer"].use_pass_uv = False
-        bpy.context.view_layer.cycles.denoising_store_passes = False
-        bpy.context.scene.view_layers["ViewLayer"].use_pass_object_index = False
-        bpy.context.scene.view_layers["ViewLayer"].use_pass_material_index = False
-        bpy.context.view_layer.cycles.pass_debug_render_time = False
-        bpy.context.view_layer.cycles.pass_debug_sample_count = False
-        bpy.context.scene.view_layers["ViewLayer"].use_pass_diffuse_direct = True
-        bpy.context.scene.view_layers["ViewLayer"].use_pass_diffuse_indirect = True
-        bpy.context.scene.view_layers["ViewLayer"].use_pass_diffuse_color = True
-        bpy.context.scene.view_layers["ViewLayer"].use_pass_glossy_direct = True
-        bpy.context.scene.view_layers["ViewLayer"].use_pass_glossy_indirect = True
-        bpy.context.scene.view_layers["ViewLayer"].use_pass_glossy_color = True
-        bpy.context.scene.view_layers["ViewLayer"].use_pass_transmission_direct = True
-        bpy.context.scene.view_layers["ViewLayer"].use_pass_transmission_indirect = True
-        bpy.context.scene.view_layers["ViewLayer"].use_pass_transmission_color = True
-        bpy.context.view_layer.cycles.use_pass_volume_direct = True
-        bpy.context.view_layer.cycles.use_pass_volume_indirect = True
-        bpy.context.scene.view_layers["ViewLayer"].use_pass_emit = True
-        bpy.context.scene.view_layers["ViewLayer"].use_pass_environment = True
-        bpy.context.scene.view_layers["ViewLayer"].use_pass_shadow = True
-        bpy.context.scene.view_layers["ViewLayer"].use_pass_ambient_occlusion = True
 
         #make use nodes true in the compositor
         bpy.context.scene.use_nodes = True
@@ -1491,11 +1470,45 @@ class LOADUESHADERSCRIPT_OT_use_custom_denoising_new(bpy.types.Operator):
         return {'FINISHED'}
 
 
+def enable_render_layers_blender_3_0_plus(view_layer_string):
+    #turn on the required render passes
+    #have to use bpy.context.view_layer.cycles.denoising_store_passes = False
+    #even though the info console does not show it properly
+    #as there are different settings for eevee and cycles
+    bpy.context.scene.view_layers[view_layer_string].use_pass_combined = True
+    bpy.context.scene.view_layers[view_layer_string].use_pass_z = False
+    bpy.context.scene.view_layers[view_layer_string].use_pass_mist = False
+    bpy.context.scene.view_layers[view_layer_string].use_pass_normal = True
+    bpy.context.scene.view_layers[view_layer_string].use_pass_vector = False
+    bpy.context.scene.view_layers[view_layer_string].use_pass_uv = False
+    bpy.context.view_layer.cycles.denoising_store_passes = False
+    bpy.context.scene.view_layers[view_layer_string].use_pass_object_index = False
+    bpy.context.scene.view_layers[view_layer_string].use_pass_material_index = False
+    bpy.context.view_layer.cycles.pass_debug_render_time = False
+    bpy.context.view_layer.cycles.pass_debug_sample_count = False
+    bpy.context.scene.view_layers[view_layer_string].use_pass_diffuse_direct = True
+    bpy.context.scene.view_layers[view_layer_string].use_pass_diffuse_indirect = True
+    bpy.context.scene.view_layers[view_layer_string].use_pass_diffuse_color = True
+    bpy.context.scene.view_layers[view_layer_string].use_pass_glossy_direct = True
+    bpy.context.scene.view_layers[view_layer_string].use_pass_glossy_indirect = True
+    bpy.context.scene.view_layers[view_layer_string].use_pass_glossy_color = True
+    bpy.context.scene.view_layers[view_layer_string].use_pass_transmission_direct = True
+    bpy.context.scene.view_layers[view_layer_string].use_pass_transmission_indirect = True
+    bpy.context.scene.view_layers[view_layer_string].use_pass_transmission_color = True
+    bpy.context.view_layer.cycles.use_pass_volume_direct = True
+    bpy.context.view_layer.cycles.use_pass_volume_indirect = True
+    bpy.context.scene.view_layers[view_layer_string].use_pass_emit = True
+    bpy.context.scene.view_layers[view_layer_string].use_pass_environment = True
+    bpy.context.scene.view_layers[view_layer_string].use_pass_shadow = True
+    bpy.context.scene.view_layers[view_layer_string].use_pass_ambient_occlusion = True
+
+
+
 #works for blender 2.93 and below
-class LOADUESHADERSCRIPT_OT_use_custom_denoising_old(bpy.types.Operator):
+class LOADUESHADERSCRIPT_OT_use_custom_denoising_blender_2_93_below(bpy.types.Operator):
     bl_label = "(Blender 2.93-) Use Pit Princess Custom Denoising Setup"
     bl_description = "(Blender 2.93 and Below) Use Pit Princess Compositor Denoising Setup"
-    bl_idname = "loadueshaderscript.use_custom_denoising_operator_old"
+    bl_idname = "loadueshaderscript.use_custom_denoising_blender_2_93_below_operator"
     def execute(self, context):
         #change render engine to Cycles and GPU Compute
         bpy.context.scene.render.engine = 'CYCLES'
@@ -2953,7 +2966,7 @@ LOADUESHADERSCRIPT_PT_custom_denoising_main_panel_9,
 LOADUESHADERSCRIPT_OT_solo_material, LOADUESHADERSCRIPT_OT_solo_material_all,
 LOADUESHADERSCRIPT_OT_use_nodes_mesh, LOADUESHADERSCRIPT_OT_use_nodes_mesh_all,
 
-LOADUESHADERSCRIPT_OT_use_custom_denoising_new, LOADUESHADERSCRIPT_OT_use_custom_denoising_old,
+LOADUESHADERSCRIPT_OT_use_custom_denoising_blender_3_0_plus, LOADUESHADERSCRIPT_OT_use_custom_denoising_blender_2_93_below,
 
 LOADUESHADERSCRIPT_OT_add_to_one_material, LOADUESHADERSCRIPT_OT_add_to_multiple_materials, 
 LOADUESHADERSCRIPT_OT_add_to_selected_meshes, LOADUESHADERSCRIPT_OT_reset_settings_main_panel]
