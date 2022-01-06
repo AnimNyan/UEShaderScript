@@ -1428,9 +1428,9 @@ class LOADUESHADERSCRIPT_OT_cust_denoise_blender_3_0_plus(bpy.types.Operator):
         #or bpy.context.scene.view_layers["View Layer"].use_pass_combined = True
         #for blender 3.0+
         try:
-            enable_render_layers_blender_3_0_plus("View Layer")
-        except:
             enable_render_layers_blender_3_0_plus("ViewLayer")
+        except:
+            enable_render_layers_blender_3_0_plus("View Layer")
 
 
         #make use nodes true in the compositor
