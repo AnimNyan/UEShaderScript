@@ -650,9 +650,9 @@ class LOADUESHADERSCRIPT_PT_solo_material_main_panel_8(LOADUESHADERSCRIPT_shared
 
 #main panel part 9
 #inheriting the shared panel's bl_space_type, bl_region_type and bl_category
-class LOADUESHADERSCRIPT_PT_custom_denoising_main_panel_9(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
+class LOADUESHADERSCRIPT_PT_custom_denoise_main_panel_9(LOADUESHADERSCRIPT_shared_main_panel, bpy.types.Panel):
     bl_label = "Pit Princess Custom Denoising Setup"
-    bl_idname = "LOADUESHADERSCRIPT_PT_custom_denoising_main_panel_9"
+    bl_idname = "LOADUESHADERSCRIPT_PT_custom_denoise_main_panel_9"
     bl_options = {"DEFAULT_CLOSED"}
     
     def draw(self, context):
@@ -660,10 +660,10 @@ class LOADUESHADERSCRIPT_PT_custom_denoising_main_panel_9(LOADUESHADERSCRIPT_sha
         layout.label(text = "Press press Use Pit Princess Custom Denoising Setup")
         layout.label(text = "to load a custom compositing tab denoising node setup")
         #this is for Blender 3.0+
-        layout.operator("loadueshaderscript.use_custom_denoising_blender_3_0_plus_operator")
+        layout.operator("loadueshaderscript.cust_denoise_blender_3_0_plus_operator")
 
         #this is for Blender 2.93 and below
-        layout.operator("loadueshaderscript.use_custom_denoising_blender_2_93_below_operator")
+        layout.operator("loadueshaderscript.cust_denoise_blender_2_93_below_operator")
 
 #---------------------------code for Operators in Main Panel
 
@@ -1414,10 +1414,10 @@ class LOADUESHADERSCRIPT_OT_use_nodes_mesh_all(bpy.types.Operator):
 
 #-----------------------------------Load Compositing Node Setup
 #works for blender 3.0+
-class LOADUESHADERSCRIPT_OT_use_custom_denoising_blender_3_0_plus(bpy.types.Operator):
+class LOADUESHADERSCRIPT_OT_cust_denoise_blender_3_0_plus(bpy.types.Operator):
     bl_label = "(Blender 3.0+) Use Pit Princess Custom Denoising Setup"
     bl_description = "(Blender 3.0+) Use Pit Princess Compositor Denoising Setup"
-    bl_idname = "loadueshaderscript.use_custom_denoising_blender_3_0_plus_operator"
+    bl_idname = "loadueshaderscript.cust_denoise_blender_3_0_plus_operator"
     def execute(self, context):
         #change render engine to Cycles and GPU Compute
         bpy.context.scene.render.engine = 'CYCLES'
@@ -1428,9 +1428,9 @@ class LOADUESHADERSCRIPT_OT_use_custom_denoising_blender_3_0_plus(bpy.types.Oper
         #or bpy.context.scene.view_layers["View Layer"].use_pass_combined = True
         #for blender 3.0+
         try:
-            enable_render_layers_blender_3_0_plus("ViewLayer")
-        except:
             enable_render_layers_blender_3_0_plus("View Layer")
+        except:
+            enable_render_layers_blender_3_0_plus("ViewLayer")
 
 
         #make use nodes true in the compositor
@@ -1505,10 +1505,10 @@ def enable_render_layers_blender_3_0_plus(view_layer_string):
 
 
 #works for blender 2.93 and below
-class LOADUESHADERSCRIPT_OT_use_custom_denoising_blender_2_93_below(bpy.types.Operator):
+class LOADUESHADERSCRIPT_OT_cust_denoise_blender_2_93_below(bpy.types.Operator):
     bl_label = "(Blender 2.93-) Use Pit Princess Custom Denoising Setup"
     bl_description = "(Blender 2.93 and Below) Use Pit Princess Compositor Denoising Setup"
-    bl_idname = "loadueshaderscript.use_custom_denoising_blender_2_93_below_operator"
+    bl_idname = "loadueshaderscript.cust_denoise_blender_2_93_below_operator"
     def execute(self, context):
         #change render engine to Cycles and GPU Compute
         bpy.context.scene.render.engine = 'CYCLES'
@@ -2961,12 +2961,12 @@ LOADUESHADERSCRIPT_PT_reset_settings_main_panel_6,
 
 LOADUESHADERSCRIPT_PT_load_methods_main_panel_7,
 LOADUESHADERSCRIPT_PT_solo_material_main_panel_8,
-LOADUESHADERSCRIPT_PT_custom_denoising_main_panel_9, 
+LOADUESHADERSCRIPT_PT_custom_denoise_main_panel_9, 
 
 LOADUESHADERSCRIPT_OT_solo_material, LOADUESHADERSCRIPT_OT_solo_material_all,
 LOADUESHADERSCRIPT_OT_use_nodes_mesh, LOADUESHADERSCRIPT_OT_use_nodes_mesh_all,
 
-LOADUESHADERSCRIPT_OT_use_custom_denoising_blender_3_0_plus, LOADUESHADERSCRIPT_OT_use_custom_denoising_blender_2_93_below,
+LOADUESHADERSCRIPT_OT_cust_denoise_blender_3_0_plus, LOADUESHADERSCRIPT_OT_cust_denoise_blender_2_93_below,
 
 LOADUESHADERSCRIPT_OT_add_to_one_material, LOADUESHADERSCRIPT_OT_add_to_multiple_materials, 
 LOADUESHADERSCRIPT_OT_add_to_selected_meshes, LOADUESHADERSCRIPT_OT_reset_settings_main_panel]
