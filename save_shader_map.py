@@ -725,11 +725,11 @@ class emptySuffixError(Exception):
 #define all user input properties
 class SaveProperties(bpy.types.PropertyGroup):
     cust_map_name: bpy.props.StringProperty(name="Name of Shader Map", description="Name of your custom shader map")
-    bc_suffix: bpy.props.StringProperty(name="Diffuse Suffix", description="Suffix of Diffuse", default="Base Color Texture, Diffuse")
+    bc_suffix: bpy.props.StringProperty(name="Diffuse Suffix", description="Suffix of Diffuse", default="Base Color Texture, Diffuse, BaseColor Map, Main_BaseColor")
     bc_node_name: bpy.props.StringProperty(name="Diffuse Node Name", description="Diffuse image texture node name", default="Diffuse Node")
-    orm_suffix: bpy.props.StringProperty(name="Packed RGB ARM Suffix", description="Suffix of Packed RGB (AO, Rough, Metallic)", default="AORoughnessMetallic")
+    orm_suffix: bpy.props.StringProperty(name="Packed RGB ARM Suffix", description="Suffix of Packed RGB (AO, Rough, Metallic)", default="AORoughnessMetallic, HRM\ORM Map, Main_ORM")
     orm_node_name: bpy.props.StringProperty(name="Packed RGB Node Name", description="Packed RGB image texture node name", default="Packed RGB Node")
-    n_suffix: bpy.props.StringProperty(name="Normal Map Suffix", description="Suffix of Normal Map", default="NormalMap Texture, Normal")
+    n_suffix: bpy.props.StringProperty(name="Normal Map Suffix", description="Suffix of Normal Map", default="NormalMap Texture, Normal, Normal Map, Main_Normal")
     n_node_name: bpy.props.StringProperty(name="Normal Map Node Name", description="Normal Map image texture node name", default="Normal Map Node")
     m_suffix: bpy.props.StringProperty(name="Alpha Map Suffix", description="Suffix of Alpha (Transparency) Map", default="Opacity Mask Texture, Transparency Map Node, Alpha_Mask")
     m_node_name: bpy.props.StringProperty(name="Alpha Map Node Name", description="Alpha Map image texture node name", default="Transparency Map Node")
@@ -2209,7 +2209,7 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
             savetool.bc_suffix = ""
             savetool.bc_node_name = ""
             savetool.is_show_tint_textures = True
-            savetool.tint_base_diffuse_suffix = "Base Color Texture, Diffuse"
+            savetool.tint_base_diffuse_suffix = "Base Color Texture, Diffuse, BaseColor Map, Main_BaseColor"
             savetool.tint_base_diffuse_node_name = "Tint Base Diffuse Node"
             savetool.tint_mask_suffix = "ColorMask_Tint"
             savetool.tint_mask_node_name = "Tint Mask Node"
@@ -2227,12 +2227,6 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
         
         elif(default_suffix == "DBD_ENVIRONMENT"):
             bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
-            savetool.bc_suffix = "Main_BaseColor, Base Color Texture, Diffuse"
-            savetool.bc_node_name = "Diffuse Node"
-            savetool.orm_suffix = "Main_ORM, AORoughnessMetallic"
-            savetool.orm_node_name = "Packed RGB Node"
-            savetool.n_suffix = "Main_Normal, NormalMap Texture, Normal"
-            savetool.n_node_name = "Normal Map Node"
 
 
         elif(default_suffix == "DBD_HAIR_TINT_RECOLOUR"):
@@ -2240,7 +2234,7 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
             savetool.bc_suffix = ""
             savetool.bc_node_name = ""
             savetool.is_show_tint_textures = True
-            savetool.hair_tint_id_suffix = "Base Color Texture, Diffuse"
+            savetool.hair_tint_id_suffix = "Base Color Texture, Diffuse, BaseColor Map, Main_BaseColor"
             savetool.hair_tint_id_node_name = "Hair Tint ID Node"
             savetool.orm_suffix = ""
             savetool.orm_node_name = ""
