@@ -10,6 +10,9 @@ import time
 
 import os
 
+import os.path
+from os import path
+
 #import with relative imports
 #import classes 
 from .save_shader_map import SHADER_PRESETS_UL_items, ShowMessageOperator, save_pref
@@ -273,8 +276,6 @@ class PathProperties(bpy.types.PropertyGroup):
 
 
     #advanced settings
-    regex_pattern_in_props_txt_file: bpy.props.StringProperty(name="Regex Pattern in props.txt (material) files:", 
-                description="Regex pattern used in files that describe materials ", default = "Texture2D\'(.*)\.")
     props_txt_file_type: bpy.props.StringProperty(name="File extension for material info files:", 
                 description="File extension for material info files, props.txt file equivalents", default = ".props.txt")
 
@@ -1951,9 +1952,9 @@ def dict_to_textures(img_textures_list, regex_pattern_in_props_txt_file, total_c
         
         
         #default match list will look like this 
-        #[('AO_Rough_Metal', '/Game/ShadingAssets/Textures/TEX_GlamRockFreddy_EyeMat_OcclusionRoughnessMetallic'),('Base_Color', '/Game/ShadingAssets/Textures/TEX_GlamRockFreddy_EyeMat_BaseColor.TEX_GlamRockFreddy_EyeMat_BaseColor')]
+        #[('AO_Rough_Metal', '/Game/Model_Assets/MergedActors/GatorGolf/SM_MERGED_GatorGolf_51.T_SM_MERGED_GatorGolf_51_AmbientOcclusion'),('Base_Color', '/Game/ShadingAssets/Textures/TEX_GlamRockFreddy_EyeMat_BaseColor.TEX_GlamRockFreddy_EyeMat_BaseColor')]
         match_list = re.findall(regex_pattern_in_props_txt_file, data)
-
+   
         #reverse match list as in the case of overlap the most 
         #important materials are listed first
         #want the final image textures on the object to be the 
@@ -2030,6 +2031,50 @@ def dict_to_textures(img_textures_list, regex_pattern_in_props_txt_file, total_c
 
             tex_location = tex_tuple[location_capture_group_index]
 
+            #so we need to clean tex_location up can be either 
+            #"/Game/ShadingAssets/Textures/TEX_GlamRockFreddy_ORM.TEX_GlamRockFreddy_ORM"
+            #or "/Game/ShadingAssets/Textures/SM_MERGED_GatorGolf_51.TEX_GlamRockFreddy_ORM" 
+            #First is more common so using "/Game/ShadingAssets/Textures/SM_MERGED_GatorGolf_51.TEX_GlamRockFreddy_ORM" 
+            #we will check if the texture exists at the path removing "SM_MERGED_GatorGolf_51."
+            #"/Game/ShadingAssets/Textures/TEX_GlamRockFreddy_ORM"
+
+            #first step is to get the basename "SM_MERGED_GatorGolf_51.TEX_GlamRockFreddy_ORM"
+            tex_loc_base = os.path.basename(tex_location)
+
+            #.split here means limit to one split and get the second item in the list that was created
+            #this extracts this here: TEX_GlamRockFreddy_ORM
+            tex_loc_file = tex_loc_base.split(",",1)[1]
+
+            #os.path.name gives "/Game/ShadingAssets/Textures/"
+            tex_dir_name = os.path.dirname(tex_location)
+
+            #Now we have "/Game/ShadingAssets/Textures/TEX_GlamRockFreddy_ORM"
+            tmp_tex_loc = "".join((tex_dir_name, tex_loc_file))
+
+            is_tex_exist = path.exists(tmp_tex_loc)
+
+            if (is_tex_exist):
+                #change the real tex_location to be the temporary one
+                #as tmp_tex_loc is confirmed to exist
+                tex_location = tmp_tex_loc
+            else:
+                #try the path replaced by a "/"" character 
+                #from this "/Game/ShadingAssets/Textures/SM_MERGED_GatorGolf_51.TEX_GlamRockFreddy_ORM" 
+                #to this "/Game/ShadingAssets/Textures/SM_MERGED_GatorGolf_51/TEX_GlamRockFreddy_ORM"
+                tmp_tex_loc = replace_from_right(tex_location,".","/","1")
+                
+                is_tex_exist = path.exists(tmp_tex_loc)
+
+                #check if this different path exists otherwise return a custom error
+                if(is_tex_exist):
+                    #change the real tex_location to be the temporary one
+                    #as tmp_tex_loc is confirmed to exist
+                    tex_location = tmp_tex_loc
+                else:
+                    error_message = "".join(("Error: tex_location in props.txt does not exist!"))
+                    bpy.ops.ueshaderscript.show_message(message = error_message)
+
+                    
 
             #iterate the tuple values inside the tuple
             #'AO_Rough_Metal', '/Game/ShadingAssets/Textures/TEX_GlamRockFreddy_EyeMat_OcclusionRoughnessMetallic'
@@ -2049,7 +2094,13 @@ def dict_to_textures(img_textures_list, regex_pattern_in_props_txt_file, total_c
     #will delete img_texture_nodes if needed
     delete_unused_img_texture_nodes_and_related_nodes(not_delete_img_texture_node_name_list, 
         interested_node_name_list, pathtool, node_tree)
-       
+
+#used to replace characters from the right hand side a limited number of times
+#output: replace_from_right('1232425', '2', ' ', 2)
+#input: '1232425', output: '123 4 5'
+def replace_from_right(string, old, new, num_to_replace):
+    tmp_list = string.rsplit(old, num_to_replace)
+    return new.join(tmp_list)
 
 
 def get_complete_path_to_texture_file(pathtool, tex_location):
