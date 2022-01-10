@@ -782,7 +782,8 @@ class SaveProperties(bpy.types.PropertyGroup):
             ("DBD_EYES" , "DBD Eyes", ""),
             ("DBD_ENVIRONMENT", "DBD Environment", ""),
             ("DBD_CLOTHING_TINT_RECOLOUR" , "DBD Tint Clothing Recolour", ""),
-            ("DBD_HAIR_TINT_RECOLOUR" , "DBD Tint Hair Recolour", "")
+            ("DBD_HAIR_TINT_RECOLOUR" , "DBD Tint Hair Recolour", ""),
+            ("FNAF_SECURITY_BREACH_ENVIRONMENT", "FNAF Security Breach Environment", "")
         ]
         
     )
@@ -802,7 +803,7 @@ class SaveProperties(bpy.types.PropertyGroup):
     )
 
     regex_props_txt: bpy.props.StringProperty(name="Custom Regex Pattern:",
-        description="Custom Regex pattern used for finding textures", default = "TextureParameterValues\[\d+\][\s\S]+?ParameterInfo = { Name=(.+) }[\s\S]+?Texture2D'(.*)\.")
+        description="Custom Regex pattern used for finding textures", default = "TextureParameterValues\[\d+\][\s\S]+?ParameterInfo = { Name=(.+) }[\s\S]+?Texture2D'(.*)\'")
 
     total_capture_groups: bpy.props.EnumProperty(
         name = "Total Capture Groups in Regular Expression",
@@ -2244,7 +2245,15 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
             savetool.hm_node_name = "Height Map Node"
             savetool.hair_gradient_suffix = "RootTip_Mask"
             savetool.hair_gradient_node_name = "Hair Gradient Map Node"
-        
+
+        elif(default_suffix == "FNAF_SECURITY_BREACH_ENVIRONMENT"):
+            bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
+            savetool.bc_suffix = "Albedo, D, Color Texture, BASECOLOR, AlbedoTexture, Base_Color, Tiling_Diffuse, DiffuseTexture"
+            savetool.n_suffix = "Normal, N, Normal Texture, NORMAL_BASE_TEXTURE, MainNormalInput, Normal, Tiling_Normal, NormalTexture, normal"
+            savetool.orm_suffix = "RMA, PackedTexture, ORM Texture, AO_Rough_Metal, Roughenss & Metallic"
+            savetool.m_suffix = "MaskSelection, Mask, Tiling_Alpha, OpacityMaskTexture"
+            savetool.bde_suffix = "EMISSION, Emissive"
+
         else:
             error_message = "".join("Error: the default_suffix", default_suffix, "was not found, please contact the plugin author.")
             bpy.ops.ueshaderscript.show_message(message = error_message)
@@ -2285,12 +2294,12 @@ class SAVEUESHADERSCRIPT_OT_load_default_regexes(bpy.types.Operator):
         #the blender add on starts
         #this is for general or clothing presets
         if(default_regex_enum == "PARAMETER_INFO"):
-            savetool.regex_props_txt = "TextureParameterValues\[\d+\][\s\S]+?ParameterInfo = { Name=(.+) }[\s\S]+?Texture2D'(.*)\."
+            savetool.regex_props_txt = "TextureParameterValues\[\d+\][\s\S]+?ParameterInfo = { Name=(.+) }[\s\S]+?Texture2D'(.*)\'"
             savetool.total_capture_groups = "2"
             savetool.texture_type_capture_group_index = "0"
 
         elif(default_regex_enum == "SUFFIX"):
-            savetool.regex_props_txt = "Texture2D\'(.*)\."
+            savetool.regex_props_txt = "Texture2D\'(.*)\'"
             savetool.total_capture_groups = "1"
             savetool.texture_type_capture_group_index = "0"
         
