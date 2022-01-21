@@ -2248,9 +2248,9 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
 
         elif(default_suffix == "FNAF_SECURITY_BREACH_ENVIRONMENT"):
             bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
-            savetool.bc_suffix = "Albedo, D, Color Texture, BASECOLOR, AlbedoTexture, Base_Color, Tiling_Diffuse, DiffuseTexture"
-            savetool.n_suffix = "Normal, N, Normal Texture, NORMAL_BASE_TEXTURE, MainNormalInput, Normal, Tiling_Normal, NormalTexture, normal"
-            savetool.orm_suffix = "RMA, PackedTexture, ORM Texture, AO_Rough_Metal, Roughenss & Metallic"
+            savetool.bc_suffix = "Albedo, D, Color Texture, BASECOLOR, AlbedoTexture, Base_Color, Tiling_Diffuse, Diffuse, BaseColor, albedo, DiffuseTexture"
+            savetool.n_suffix = "Normal, N, Normal Texture, NORMAL_BASE_TEXTURE, MainNormalInput, normal, Tiling_Normal, NormalTexture"
+            savetool.orm_suffix = "RMA, ORM Texture, AO_Rough_Metal, MergeMapInput, AORM, Roughenss & Metallic, PackedTexture, RAM, SRMH, surface_map, Surface_map, Reflection"
             savetool.m_suffix = "MaskSelection, Mask, Tiling_Alpha, OpacityMaskTexture"
             savetool.bde_suffix = "EMISSION, Emissive"
 
