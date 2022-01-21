@@ -10,9 +10,6 @@ import time
 
 import os
 
-import os.path
-from os import path
-
 #import with relative imports
 #import classes 
 from .save_shader_map import SHADER_PRESETS_UL_items, ShowMessageOperator, save_pref
@@ -93,8 +90,8 @@ class PathProperties(bpy.types.PropertyGroup):
         description = "Dropdown List of all the texture file types",
         items = 
         [
-            ("HASHED" , "Alpha Hashed", ""),
-            ("CLIP" , "Alpha Clip", "")
+            ("CLIP" , "Alpha Clip", ""),
+            ("HASHED" , "Alpha Hashed", "")
         ]
   
         
@@ -243,35 +240,45 @@ class PathProperties(bpy.types.PropertyGroup):
         default = 2
     )
 
-    #all custom textures are by default sRGB color space
+    #all custom textures are by default Non-Color color space
     cust1_color_space: bpy.props.EnumProperty(
         name = "Custom1 Color Space",
         description = "Custom1 Image Texture Color Space",
-        items = color_spaces_callback
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
     )
 
     cust2_color_space: bpy.props.EnumProperty(
         name = "Custom2 Color Space",
         description = "Custom2 Image Texture Color Space",
-        items = color_spaces_callback
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
     )
 
     cust3_color_space: bpy.props.EnumProperty(
         name = "Custom3 Color Space",
         description = "Custom3 Image Texture Color Space",
-        items = color_spaces_callback
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
     )
 
     cust4_color_space: bpy.props.EnumProperty(
         name = "Custom4 Color Space",
         description = "Custom4 Image Texture Color Space",
-        items = color_spaces_callback
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
     )
 
     non_match_color_space: bpy.props.EnumProperty(
         name = "Non Match Textures Color Space",
         description = "Non Match Image Textures Color Space",
-        items = color_spaces_callback
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
     )
 
 
@@ -1433,6 +1440,8 @@ class LOADUESHADERSCRIPT_OT_cust_denoise_blender_3_0_plus(bpy.types.Operator):
         except:
             enable_render_layers_blender_3_0_plus("View Layer")
 
+        #turn off default denoising so plugin doesn't denoise twice
+        bpy.context.scene.cycles.use_denoising = False
 
         #make use nodes true in the compositor
         bpy.context.scene.use_nodes = True
@@ -2002,7 +2011,9 @@ def dict_to_textures(img_textures_list, regex_pattern_in_props_txt_file, total_c
             #not random image texture nodes
             if pathtool.is_delete_unused_img_texture_nodes:
                 interested_node_name_list.append(node_name)
-            
+    
+    #debug
+    #print("regex_pattern_in_props_txt_file:", regex_pattern_in_props_txt_file)
 
     #iterate through texture locations
     #default match list will look like this 
@@ -2031,51 +2042,6 @@ def dict_to_textures(img_textures_list, regex_pattern_in_props_txt_file, total_c
 
             tex_location = tex_tuple[location_capture_group_index]
 
-            #so we need to clean tex_location up can be either 
-            #"/Game/ShadingAssets/Textures/TEX_GlamRockFreddy_ORM.TEX_GlamRockFreddy_ORM"
-            #or "/Game/ShadingAssets/Textures/SM_MERGED_GatorGolf_51.TEX_GlamRockFreddy_ORM" 
-            #First is more common so using "/Game/ShadingAssets/Textures/SM_MERGED_GatorGolf_51.TEX_GlamRockFreddy_ORM" 
-            #we will check if the texture exists at the path removing "SM_MERGED_GatorGolf_51."
-            #"/Game/ShadingAssets/Textures/TEX_GlamRockFreddy_ORM"
-
-            #first step is to get the basename "SM_MERGED_GatorGolf_51.TEX_GlamRockFreddy_ORM"
-            tex_loc_base = os.path.basename(tex_location)
-
-            #.split here means limit to one split and get the second item in the list that was created
-            #this extracts this here: TEX_GlamRockFreddy_ORM
-            tex_loc_file = tex_loc_base.split(",",1)[1]
-
-            #os.path.name gives "/Game/ShadingAssets/Textures/"
-            tex_dir_name = os.path.dirname(tex_location)
-
-            #Now we have "/Game/ShadingAssets/Textures/TEX_GlamRockFreddy_ORM"
-            tmp_tex_loc = "".join((tex_dir_name, tex_loc_file))
-
-            is_tex_exist = path.exists(tmp_tex_loc)
-
-            if (is_tex_exist):
-                #change the real tex_location to be the temporary one
-                #as tmp_tex_loc is confirmed to exist
-                tex_location = tmp_tex_loc
-            else:
-                #try the path replaced by a "/"" character 
-                #from this "/Game/ShadingAssets/Textures/SM_MERGED_GatorGolf_51.TEX_GlamRockFreddy_ORM" 
-                #to this "/Game/ShadingAssets/Textures/SM_MERGED_GatorGolf_51/TEX_GlamRockFreddy_ORM"
-                tmp_tex_loc = replace_from_right(tex_location,".","/","1")
-                
-                is_tex_exist = path.exists(tmp_tex_loc)
-
-                #check if this different path exists otherwise return a custom error
-                if(is_tex_exist):
-                    #change the real tex_location to be the temporary one
-                    #as tmp_tex_loc is confirmed to exist
-                    tex_location = tmp_tex_loc
-                else:
-                    error_message = "".join(("Error: tex_location in props.txt does not exist!"))
-                    bpy.ops.ueshaderscript.show_message(message = error_message)
-
-                    
-
             #iterate the tuple values inside the tuple
             #'AO_Rough_Metal', '/Game/ShadingAssets/Textures/TEX_GlamRockFreddy_EyeMat_OcclusionRoughnessMetallic'
             check_should_load_image()
@@ -2098,8 +2064,9 @@ def dict_to_textures(img_textures_list, regex_pattern_in_props_txt_file, total_c
 #used to replace characters from the right hand side a limited number of times
 #output: replace_from_right('1232425', '2', ' ', 2)
 #input: '1232425', output: '123 4 5'
-def replace_from_right(string, old, new, num_to_replace):
-    tmp_list = string.rsplit(old, num_to_replace)
+def replace_from_right(cust_string, old, new, num_to_replace):
+    tmp_list = cust_string.rsplit(old, num_to_replace)
+    print("tmp_list", tmp_list)
     return new.join(tmp_list)
 
 
@@ -2113,7 +2080,7 @@ def get_complete_path_to_texture_file(pathtool, tex_location):
     
     #replace forward slash with backslash reason why is
     #when concatenating complete path looks like this
-    #if no replace path looks like e.g. C:\Nyan\Dwight Recolor\/Game/Characters/Slashers/Bear/Textures/Outfit01/T_BEHead01_BC
+    #if no replace path looks like e.g. C:\Nyan\Dwight Recolor\/Game/Characters/Slashers/Bear/Textures/Outfit01/T_BEHead01_BC.MergedMesh.T_BEHead01_BC
     #which is weird
     #backslash is used to escape backslash character
     #if no forward slash is found this does nothing
@@ -2123,10 +2090,17 @@ def get_complete_path_to_texture_file(pathtool, tex_location):
 
     #now abs_export_folder_path looks like
     #C:\Nyan\Dwight Recolor\Game\
-    #and tex_location looks like \Game\Characters\Slashers\Bear\Textures\Outfit01\T_BEHead01_BC
+    #and tex_location looks like \Game\Characters\Slashers\Bear\Textures\Outfit01\MergedMesh.T_BEHead01_BC
     #concatenate the two strings merging overlapping parts
     texture_path = overlap_concat_string(abs_export_folder_path, tex_location)
-    
+
+    texture_file_type = pathtool.texture_file_type_enum
+
+    #need to clean tex_location because it looks like
+    #/Game/Characters/Slashers/Bear/Textures/Outfit01/MergedMesh.T_BEHead01_BC
+    #or like /Game/Characters/Slashers/Bear/Textures/Outfit01/T_BEHead01_BC.T_BEHead01_BC
+    texture_path = clean_texture_path(texture_path, texture_file_type)
+
     #debug
     #print("texture_path", texture_path)
 
@@ -2209,6 +2183,103 @@ def overlap_concat_string(string1, string2):
     return string1 + string2[n:]
 
 
+def clean_texture_path(texture_path, texture_file_type):
+    #so we need to clean tex_location up can be either 
+    #"C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\TEX_GlamRockFreddy_ORM.TEX_GlamRockFreddy_ORM"
+    #or "C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\SM_MERGED_GatorGolf_51.TEX_GlamRockFreddy_ORM"
+
+    # First case is more common 
+    # Input: "C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\SM_MERGED_GatorGolf_51.TEX_GlamRockFreddy_ORM" 
+    # Output: "C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\TEX_GlamRockFreddy_ORM.tga"
+    # Then check if the texture exists at the Ouput path
+
+    #Start with "C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\TEX_GlamRockFreddy_ORM.TEX_GlamRockFreddy_ORM"
+    #get the basename "TEX_GlamRockFreddy_ORM.TEX_GlamRockFreddy_ORM"
+    tex_path_base = os.path.basename(texture_path)
+
+    #.split(".", 1) here means limit to one split max
+    #returns a list like this ["TEX_GlamRockFreddy_ORM", "TEX_GlamRockFreddy_ORM"]
+    tex_path_list = tex_path_base.split(".", 1)
+    
+    #and get the second item in the list that was created
+    #we get the second item because the first item 
+    #refers to the parent not to the texture itself
+    #even though sometimes parent and child have the same name 
+
+    #this extracts the right of the "." character: "TEX_GlamRockFreddy_ORM"
+    file_name = tex_path_list[1]
+    
+    #have to join the file extension ".tga" on as well
+    #making "TEX_GlamRockFreddy_ORM.tga"
+    file_name = "".join((file_name, texture_file_type))
+
+    #os.path.dirname gives the parent folder name 
+    #"C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures"
+    tex_dir_name = os.path.dirname(texture_path)
+
+    #Now join them together with a backslash character to get
+    #"C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\TEX_GlamRockFreddy_ORM.tga"
+    tmp_tex_path = "\\".join((tex_dir_name, file_name))
+
+    print("tmp_tex_path", tmp_tex_path)
+    
+    #check if the texture exists at the path
+    #"C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\TEX_GlamRockFreddy_ORM.tga"
+    tex_file = pathlib.Path(tmp_tex_path)
+    is_tex_exist = tex_file.exists()
+
+    #debug
+    # print("texture_path before:", texture_path)
+    # print("tex_path_base:", tex_path_base)
+    # print("tex_loc_list: ", tex_path_list)
+    # print("is_tex_exist for first check:", is_tex_exist)
+
+    
+    if (is_tex_exist):
+        #if the tex_path exists change the real tex_location to be the temporary one
+        texture_path = tmp_tex_path
+    else:
+
+        # Second case is more rare 
+        # Input: "C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\SM_MERGED_GatorGolf_51.TEX_GlamRockFreddy_ORM" 
+        # Output: "C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\SM_MERGED_GatorGolf_51\TEX_GlamRockFreddy_ORM.tga"
+        # Then check if the texture exists at the Ouput path
+        
+        #replace only first instance of a dot from the right to a backslash character
+        #Start with "C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\SM_MERGED_GatorGolf_51.TEX_GlamRockFreddy_ORM"
+        #get "C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\SM_MERGED_GatorGolf_51\TEX_GlamRockFreddy_ORM"
+        tmp_tex_path = replace_from_right(texture_path, ".", "\\", 1)
+
+        #have to join the file extension ".tga" on as well
+        #making "C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\SM_MERGED_GatorGolf_51\TEX_GlamRockFreddy_ORM.tga"
+        tmp_tex_path = "".join((tmp_tex_path, texture_file_type))
+        
+        #check if the texture exists at the path
+        #"C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\SM_MERGED_GatorGolf_51\TEX_GlamRockFreddy_ORM.tga"
+        tex_file = pathlib.Path(tmp_tex_path)
+
+        is_tex_exist = tex_file.exists()
+
+        #debug
+        # print("texture_path before:", texture_path)
+        # print("tmp_tex_path", tmp_tex_path)
+        # print("is_tex_exist for second check:", is_tex_exist)
+
+        #check if this different path exists otherwise return a custom error
+        if(is_tex_exist):
+            #if the tex_path exists change the real tex_location to be the temporary one
+            texture_path = tmp_tex_path
+            
+        else:
+            error_message = "".join(("Error: tex_location in props.txt does not exist!"))
+            bpy.ops.ueshaderscript.show_message(message = error_message)
+        
+    
+    
+    return texture_path
+
+
+
 #default global variables for the recommended 
 #colour spaces for image textures
 #srgb color space isn't used but it is there for reference purposes
@@ -2268,13 +2339,15 @@ def img_textures_special_handler(textures, pathtool, material, node_to_load, nod
     if textures["texture"] == "transparency":        
         #change clipping method + threshold to clip
         clipping_method = pathtool.clipping_method_enum
-        if clipping_method == "HASHED":
-            material.blend_method = "HASHED"
-            material.shadow_method = "HASHED" 
-        elif clipping_method == "CLIP":
+        if clipping_method == "CLIP":
             material.blend_method = "CLIP"
             material.shadow_method = "CLIP"
             material.alpha_threshold = pathtool.material_alpha_threshold
+
+        elif clipping_method == "HASHED":
+            material.blend_method = "HASHED"
+            material.shadow_method = "HASHED" 
+        
         else:
             error_message = "Error: could not find clipping method"
             bpy.ops.ueshaderscript.show_message(message = error_message)
