@@ -2112,8 +2112,7 @@ def get_complete_path_to_texture_file(pathtool, tex_location):
     #the texture
     #we need e.g. C:\Nyan\Dwight Recolor\Game\Characters
     #\Slashers\Bear\Textures\Outfit01\T_BEHead01_BC
-    #using pathtool.texture_file_type_enum because it may be ".tga" or ".png"
-    complete_path = "".join((texture_path, pathtool.texture_file_type_enum))
+    complete_path = texture_path
     return complete_path
 
 #concatenates two strings by merging overlapping parts
