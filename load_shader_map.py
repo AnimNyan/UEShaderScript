@@ -1823,6 +1823,7 @@ def dict_to_textures(img_textures_list, regex_pattern_in_props_txt_file, total_c
             #the recorded texture type from the node dict which we call suffix 
             if total_capture_groups == "2" and tex_type == suffix and suffix != "":
                 load_image()
+                is_img_loaded = True
 
             #tex_location is from the props txt file comparing against 
             #suffix which is what is recorded from the node_dict
@@ -1832,6 +1833,7 @@ def dict_to_textures(img_textures_list, regex_pattern_in_props_txt_file, total_c
             #the recorded suffix from node_dict 
             if total_capture_groups == "1" and tex_location.endswith(suffix) and suffix != "":
                 load_image()
+                is_img_loaded = True
 
             if suffix == "":
                 warning_message = " ".join(("Warning:", node_name, "has an empty space suffix that was ignored, please remake this shader map!"))
