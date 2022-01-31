@@ -612,10 +612,28 @@ class LOADUESHADERSCRIPT_PT_color_space_main_panel_4(LOADUESHADERSCRIPT_shared_m
         layout.prop(pathtool, "hair_gradient_color_space")
         layout.prop(pathtool, "specular_color_space")
         layout.prop(pathtool, "gloss_color_space")
+
+        layout.prop(pathtool, "roughness_color_space")
+        layout.prop(pathtool, "metallic_color_space")
+        layout.prop(pathtool, "subsurface_color_color_space")
+        layout.prop(pathtool, "subsurface_color_space")
+        layout.prop(pathtool, "splat_color_space")
+        layout.prop(pathtool, "ambient_occlusion_color_space")
+        layout.prop(pathtool, "tint_color_space")
+        layout.prop(pathtool, "normal_detail_color_space")
+        layout.prop(pathtool, "roughness_detail_color_space")
+        layout.prop(pathtool, "smoothness_color_space")
+        layout.prop(pathtool, "edge_mask_color_space")
+        layout.prop(pathtool, "transmission_color_space")
+        layout.prop(pathtool, "clearcoat_color_space")
+        layout.prop(pathtool, "anisotropic_color_space")
+        layout.prop(pathtool, "sheen_color_space")
+
         layout.prop(pathtool, "tint_base_diffuse_color_space")
         layout.prop(pathtool, "tint_mask_color_space")
         layout.prop(pathtool, "tint_mask_2_color_space")
         layout.prop(pathtool, "hair_tint_id_color_space")
+
         layout.prop(pathtool, "cust1_color_space")
         layout.prop(pathtool, "cust2_color_space")
         layout.prop(pathtool, "cust3_color_space")
@@ -2433,6 +2451,36 @@ def change_colour_space(texture, node_to_load, pathtool):
         node_to_load.image.colorspace_settings.name = pathtool.specular_color_space
     elif texture == "gloss":
         node_to_load.image.colorspace_settings.name = pathtool.gloss_color_space
+    elif texture == "roughness":
+        node_to_load.image.colorspace_settings.name = pathtool.roughness_color_space
+    elif texture == "metallic":
+        node_to_load.image.colorspace_settings.name = pathtool.metallic_color_space
+    elif texture == "subsurface_color":
+        node_to_load.image.colorspace_settings.name = pathtool.subsurface_color_color_space
+    elif texture == "subsurface":
+        node_to_load.image.colorspace_settings.name = pathtool.subsurface_color_space
+    elif texture == "splat":
+        node_to_load.image.colorspace_settings.name = pathtool.splat_color_space
+    elif texture == "ambient_occlusion":
+        node_to_load.image.colorspace_settings.name = pathtool.ambient_occlusion_color_space
+    elif texture == "tint":
+        node_to_load.image.colorspace_settings.name = pathtool.tint_color_space
+    elif texture == "normal_detail":
+        node_to_load.image.colorspace_settings.name = pathtool.normal_detail_color_space
+    elif texture == "roughness_detail":
+        node_to_load.image.colorspace_settings.name = pathtool.roughness_detail_color_space
+    elif texture == "smoothness":
+        node_to_load.image.colorspace_settings.name = pathtool.smoothness_color_space
+    elif texture == "edge_mask":
+        node_to_load.image.colorspace_settings.name = pathtool.edge_mask_color_space
+    elif texture == "transmission":
+        node_to_load.image.colorspace_settings.name = pathtool.transmission_color_space
+    elif texture == "clearcoat":
+        node_to_load.image.colorspace_settings.name = pathtool.clearcoat_color_space
+    elif texture == "anisotropic":
+        node_to_load.image.colorspace_settings.name = pathtool.anisotropic_color_space
+    elif texture == "sheen":
+        node_to_load.image.colorspace_settings.name = pathtool.sheen_color_space
     elif texture == "tint_base_diffuse":
         node_to_load.image.colorspace_settings.name = pathtool.tint_base_diffuse_color_space
     elif texture == "tint_mask":
@@ -3179,6 +3227,20 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
         pathtool.property_unset("hair_gradient_color_space")
         pathtool.property_unset("specular_color_space")
         pathtool.property_unset("gloss_color_space")
+        pathtool.property_unset("roughness_color_space")
+        pathtool.property_unset("metallic_color_space")
+        pathtool.property_unset("subsurface_color_color_space")
+        pathtool.property_unset("subsurface_color_space")
+        pathtool.property_unset("ambient_occlusion_color_space")
+        pathtool.property_unset("tint_color_space")
+        pathtool.property_unset("normal_detail_color_space")
+        pathtool.property_unset("roughness_detail_color_space")
+        pathtool.property_unset("smoothness_color_space")
+        pathtool.property_unset("edge_mask_color_space")
+        pathtool.property_unset("transmission_color_space")
+        pathtool.property_unset("clearcoat_color_space")
+        pathtool.property_unset("anisotropic_color_space")
+        pathtool.property_unset("sheen_color_space")
         pathtool.property_unset("tint_base_diffuse_color_space")
         pathtool.property_unset("tint_mask_color_space")
         pathtool.property_unset("tint_mask_2_color_space")
