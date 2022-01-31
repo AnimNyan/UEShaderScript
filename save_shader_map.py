@@ -686,6 +686,23 @@ def textures_to_list(savetool, nodes):
     suffix_and_node_name_to_list(savetool.specular_suffix, savetool.specular_node_name, "specular")
     suffix_and_node_name_to_list(savetool.gloss_suffix, savetool.gloss_node_name, "gloss")
 
+    #extra textures
+    suffix_and_node_name_to_list(savetool.roughness_suffix, savetool.roughness_node_name, "roughness")
+    suffix_and_node_name_to_list(savetool.metallic_suffix, savetool.metallic_node_name, "metallic")
+    suffix_and_node_name_to_list(savetool.subsurface_color_suffix, savetool.subsurface_color_node_name, "subsurface_color")
+    suffix_and_node_name_to_list(savetool.subsurface_suffix, savetool.subsurface_node_name, "subsurface")
+    suffix_and_node_name_to_list(savetool.splat_suffix, savetool.splat_node_name, "splat")
+    suffix_and_node_name_to_list(savetool.ambient_occlusion_suffix, savetool.ambient_occlusion_node_name, "ambient_occlusion")
+    suffix_and_node_name_to_list(savetool.tint_suffix, savetool.tint_node_name, "tint")
+    suffix_and_node_name_to_list(savetool.normal_detail_suffix, savetool.normal_detail_node_name, "normal_detail")
+    suffix_and_node_name_to_list(savetool.roughness_detail_suffix, savetool.roughness_detail_node_name, "roughness_detail")
+    suffix_and_node_name_to_list(savetool.smoothness_suffix, savetool.smoothness_node_name, "smoothness")
+    suffix_and_node_name_to_list(savetool.edge_mask_suffix, savetool.edge_mask_node_name, "edge_mask")
+    suffix_and_node_name_to_list(savetool.transmission_suffix, savetool.transmission_node_name, "transmission")
+    suffix_and_node_name_to_list(savetool.anisotropic_suffix, savetool.anisotropic_suffix_node_name, "anisotropic")
+    suffix_and_node_name_to_list(savetool.sheen_suffix, savetool.sheen_node_name, "sheen")
+
+
     #tint textures
     suffix_and_node_name_to_list(savetool.tint_base_diffuse_suffix, savetool.tint_base_diffuse_node_name, "tint_base_diffuse")
     suffix_and_node_name_to_list(savetool.tint_mask_suffix, savetool.tint_mask_node_name, "tint_mask")
@@ -743,6 +760,45 @@ class SaveProperties(bpy.types.PropertyGroup):
     specular_node_name: bpy.props.StringProperty(name="Specular Map Node Name", description="Specular Map image texture node name", default="")
     gloss_suffix: bpy.props.StringProperty(name="Gloss Map Suffix", description="Suffix of Gloss Map", default="")
     gloss_node_name: bpy.props.StringProperty(name="Gloss Map Node Name", description="Gloss Map image texture node name", default="")
+
+    #extra suffixes and node names
+    is_show_extra_textures: bpy.props.BoolProperty(name="Show Extra Suffix and Node Names", default= False)
+    roughness_suffix: bpy.props.StringProperty(name="Roughness Map Suffix", description="Suffix of Roughness Map", default="")
+    roughness_node_name: bpy.props.StringProperty(name="Roughness Map Node Name", description="Roughness Map image texture node name", default="")
+    metallic_suffix: bpy.props.StringProperty(name="Metallic Map Suffix", description="Suffix of Metallic Map", default="")
+    metallic_node_name: bpy.props.StringProperty(name="Metallic Map Node Name", description="Metallic Map image texture node name", default="")
+    specular_suffix: bpy.props.StringProperty(name="Specular Map Suffix", description="Suffix of Specular Map", default="")
+    specular_node_name: bpy.props.StringProperty(name="Specular Map Node Name", description="Specular Map image texture node name", default="")
+
+    subsurface_color_suffix: bpy.props.StringProperty(name="Subsurface Color Suffix", description="Suffix of Subsurface Color", default="")
+    subsurface_color_node_name: bpy.props.StringProperty(name="Subsurface Color Node Name", description="Subsurface Color image texture node name", default="")
+    subsurface_suffix: bpy.props.StringProperty(name="Subsurface Suffix", description="Suffix of Subsurface", default="")
+    subsurface_node_name: bpy.props.StringProperty(name="Subsurface Node Name", description="Subsurface image texture node name", default="")
+
+    splat_suffix: bpy.props.StringProperty(name="Splat Suffix", description="Suffix of Splat", default="")
+    splat_node_name: bpy.props.StringProperty(name="Splat Node Name", description="Splat image texture node name", default="")
+
+    ambient_occlusion_suffix: bpy.props.StringProperty(name="Ambient Occlusion Suffix", description="Suffix of Ambient Occlusion", default="")
+    ambient_occlusion_node_name: bpy.props.StringProperty(name="Ambient Occlusion Node Name", description="Ambient Occlusion image texture node name", default="")
+
+    tint_suffix: bpy.props.StringProperty(name="Tint Suffix", description="Suffix of Tint", default="")
+    tint_node_name: bpy.props.StringProperty(name="Tint Node Name", description="Tint image texture node name", default="")
+    normal_detail_suffix: bpy.props.StringProperty(name="Normal Detail Suffix", description="Suffix of Normal Detail", default="")
+    normal_detail_node_name: bpy.props.StringProperty(name="Normal Detail Node Name", description="Normal Detail image texture node name", default="")
+    roughness_detail_suffix: bpy.props.StringProperty(name="Roughness Detail Suffix", description="Suffix of Roughness Detail", default="")
+    roughness_detail_node_name: bpy.props.StringProperty(name="Roughness Detail Node Name", description="Roughness Detail image texture node name", default="")
+
+    smoothness_suffix: bpy.props.StringProperty(name="Smoothness Suffix", description="Suffix of Smoothness", default="")
+    smoothness_node_name: bpy.props.StringProperty(name="Smoothness Node Name", description="Smoothness image texture node name", default="")
+    edge_mask_suffix: bpy.props.StringProperty(name="Edge Mask Suffix", description="Suffix of Edge Mask", default="")
+    edge_mask_node_name: bpy.props.StringProperty(name="Edge Mask Node Name", description="Edge Mask image texture node name", default="")
+    transmission_suffix: bpy.props.StringProperty(name="Transmission Suffix", description="Suffix of Transmission", default="")
+    transmission_node_name: bpy.props.StringProperty(name="Transmission Node Name", description="Transmission image texture node name", default="")
+    anisotropic_suffix: bpy.props.StringProperty(name="Anisotropic Suffix", description="Suffix of Anisotropic", default="")
+    anisotropic_suffix_node_name: bpy.props.StringProperty(name="Anisotropic Node Name", description="Anisotropic image texture node name", default="")
+    sheen_suffix: bpy.props.StringProperty(name="Sheen Suffix", description="Suffix of Sheen", default="")
+    sheen_node_name: bpy.props.StringProperty(name="Sheen Node Name", description="Sheen image texture node name", default="")
+
 
     #tint textures
     is_show_tint_textures: bpy.props.BoolProperty(name="Show Tint Suffix and Node Names", default= False)
@@ -952,6 +1008,42 @@ class SAVEUESHADERSCRIPT_PT_save_custom_preset_main_panel_2(SAVEUESHADERSCRIPT_s
             box.prop(savetool, "specular_node_name")
             box.prop(savetool, "gloss_suffix")
             box.prop(savetool, "gloss_node_name")
+
+            #extra texture inputs
+            box.prop(savetool, "is_show_extra_textures")
+            
+            if(savetool.is_show_extra_textures):
+                box.prop(savetool, "roughness_suffix")
+                box.prop(savetool, "roughness_node_name")
+                box.prop(savetool, "metallic_suffix")
+                box.prop(savetool, "metallic_node_name")
+                box.prop(savetool, "specular_suffix")
+                box.prop(savetool, "specular_node_name")
+                box.prop(savetool, "subsurface_color_suffix")
+                box.prop(savetool, "subsurface_color_node_name")
+                box.prop(savetool, "subsurface_suffix")
+                box.prop(savetool, "subsurface_node_name")
+                box.prop(savetool, "splat_suffix")
+                box.prop(savetool, "splat_node_name")
+                box.prop(savetool, "ambient_occlusion_suffix")
+                box.prop(savetool, "ambient_occlusion_node_name")
+                box.prop(savetool, "tint_suffix")
+                box.prop(savetool, "tint_node_name")
+                box.prop(savetool, "normal_detail_suffix")
+                box.prop(savetool, "normal_detail_node_name")
+                box.prop(savetool, "roughness_detail_suffix")
+                box.prop(savetool, "roughness_detail_node_name")
+                box.prop(savetool, "smoothness_suffix")
+                box.prop(savetool, "smoothness_node_name")
+                box.prop(savetool, "edge_mask_suffix")
+                box.prop(savetool, "edge_mask_node_name")
+                box.prop(savetool, "transmission_suffix")
+                box.prop(savetool, "transmission_node_name")
+                box.prop(savetool, "anisotropic_suffix")
+                box.prop(savetool, "anisotropic_suffix_node_name")
+                box.prop(savetool, "sheen_suffix")
+                box.prop(savetool, "sheen_node_name")
+
 
             #tint texture inputs
             box.prop(savetool, "is_show_tint_textures")
@@ -2357,6 +2449,40 @@ class SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel(bpy.types.Operator):
         savetool.property_unset("gloss_suffix")
         savetool.property_unset("gloss_node_name")
 
+        #extra textures inputs
+        savetool.property_unset("is_show_extra_textures")
+        savetool.property_unset("roughness_suffix")
+        savetool.property_unset("roughness_node_name")
+        savetool.property_unset("metallic_suffix")
+        savetool.property_unset("metallic_node_name")
+        savetool.property_unset("specular_suffix")
+        savetool.property_unset("specular_node_name")
+        savetool.property_unset("subsurface_color_suffix")
+        savetool.property_unset("subsurface_color_node_name")
+        savetool.property_unset("subsurface_suffix")
+        savetool.property_unset("subsurface_node_name")
+        savetool.property_unset("splat_suffix")
+        savetool.property_unset("splat_node_name")
+        savetool.property_unset("ambient_occlusion_suffix")
+        savetool.property_unset("ambient_occlusion_node_name")
+        savetool.property_unset("tint_suffix")
+        savetool.property_unset("tint_node_name")
+        savetool.property_unset("normal_detail_suffix")
+        savetool.property_unset("normal_detail_node_name")
+        savetool.property_unset("roughness_detail_suffix")
+        savetool.property_unset("roughness_detail_node_name")
+        savetool.property_unset("smoothness_suffix")
+        savetool.property_unset("smoothness_node_name")
+        savetool.property_unset("edge_mask_suffix")
+        savetool.property_unset("edge_mask_node_name")
+        savetool.property_unset("transmission_suffix")
+        savetool.property_unset("transmission_node_name")
+        savetool.property_unset("anisotropic_suffix")
+        savetool.property_unset("anisotropic_suffix_node_name")
+        savetool.property_unset("sheen_suffix")
+        savetool.property_unset("sheen_node_name")
+
+        #tint texture inputs
         savetool.property_unset("is_show_tint_textures")
         savetool.property_unset("tint_base_diffuse_suffix")
         savetool.property_unset("tint_base_diffuse_node_name")
@@ -2367,6 +2493,7 @@ class SAVEUESHADERSCRIPT_OT_reset_inputs_main_panel(bpy.types.Operator):
         savetool.property_unset("hair_tint_id_suffix")
         savetool.property_unset("hair_tint_id_node_name")
 
+        #custom texture inputs
         savetool.property_unset("is_show_custom_textures")
         savetool.property_unset("cust1_suffix")
         savetool.property_unset("cust1_node_name")
