@@ -144,6 +144,7 @@ class PathProperties(bpy.types.PropertyGroup):
         #don't call the function immediately with () 
         #but wait for the enum property to be defined
         items = color_spaces_callback
+        #no default means sRGB
     )
 
     packed_rgb_color_space: bpy.props.EnumProperty(
@@ -210,6 +211,128 @@ class PathProperties(bpy.types.PropertyGroup):
         default = 1
     )
 
+
+    #------extra texture color spaces
+    roughness_color_space: bpy.props.EnumProperty(
+        name = "Roughness Color Space",
+        description = "Roughness Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    metallic_color_space: bpy.props.EnumProperty(
+        name = "Metallic Color Space",
+        description = "Metallic Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    subsurface_color_color_space: bpy.props.EnumProperty(
+        name = "Subsurface Color Color Space",
+        description = "Subsurface Color Image Texture Color Space",
+        items = color_spaces_callback
+        #no default means sRGB
+    )
+
+    subsurface_color_space: bpy.props.EnumProperty(
+        name = "Subsurface Color Space",
+        description = "Subsurface Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    splat_color_space: bpy.props.EnumProperty(
+        name = "Splat Color Space",
+        description = "Splat Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    ambient_occlusion_color_space: bpy.props.EnumProperty(
+        name = "Ambient Occlusion Color Space",
+        description = "Ambient Occlusio Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    tint_color_space: bpy.props.EnumProperty(
+        name = "Tint Color Space",
+        description = "Tint Image Texture Color Space",
+        items = color_spaces_callback
+        #no default means sRGB
+    )
+
+    normal_detail_color_space: bpy.props.EnumProperty(
+        name = "Normal Detail Color Space",
+        description = "Normal Detail Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    roughness_detail_color_space: bpy.props.EnumProperty(
+        name = "Roughness Detail Color Space",
+        description = "Roughness Detail Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    smoothness_color_space: bpy.props.EnumProperty(
+        name = "Smoothness Color Space",
+        description = "Smoothness Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    edge_mask_color_space: bpy.props.EnumProperty(
+        name = "Edge Mask Color Space",
+        description = "Edge Mask Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    transmission_color_space: bpy.props.EnumProperty(
+        name = "Transmission Color Space",
+        description = "Transmission Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    clearcoat_color_space: bpy.props.EnumProperty(
+        name = "Clearcoat Color Space",
+        description = "Clearcoat Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    anisotropic_color_space: bpy.props.EnumProperty(
+        name = "Anisotropic Color Space",
+        description = "Anisotropic Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    sheen_color_space: bpy.props.EnumProperty(
+        name = "Sheen Color Space",
+        description = "Sheen Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+
+    #------tint color spaces
     tint_base_diffuse_color_space: bpy.props.EnumProperty(
         name = "Tint Base Diffuse Color Space",
         description = "Tint Base Diffuse Image Texture Color Space",
@@ -240,7 +363,9 @@ class PathProperties(bpy.types.PropertyGroup):
         default = 2
     )
 
-    #all custom textures are by default Non-Color color space
+
+    #------custom color spaces
+    # all custom textures are by default Non-Color color space
     cust1_color_space: bpy.props.EnumProperty(
         name = "Custom1 Color Space",
         description = "Custom1 Image Texture Color Space",
