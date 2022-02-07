@@ -691,8 +691,9 @@ def textures_to_list(savetool, nodes):
     suffix_and_node_name_to_list(savetool.metallic_suffix, savetool.metallic_node_name, "metallic")
     suffix_and_node_name_to_list(savetool.subsurface_color_suffix, savetool.subsurface_color_node_name, "subsurface_color")
     suffix_and_node_name_to_list(savetool.subsurface_suffix, savetool.subsurface_node_name, "subsurface")
-    suffix_and_node_name_to_list(savetool.splat_suffix, savetool.splat_node_name, "splat")
     suffix_and_node_name_to_list(savetool.ambient_occlusion_suffix, savetool.ambient_occlusion_node_name, "ambient_occlusion")
+    suffix_and_node_name_to_list(savetool.detail_n_suffix, savetool.detail_n_node_name, "detail_normal")
+    suffix_and_node_name_to_list(savetool.wpo_suffix, savetool.wpo_node_name, "world_offset_progress")
     suffix_and_node_name_to_list(savetool.tint_suffix, savetool.tint_node_name, "tint")
     suffix_and_node_name_to_list(savetool.normal_detail_suffix, savetool.normal_detail_node_name, "normal_detail")
     suffix_and_node_name_to_list(savetool.roughness_detail_suffix, savetool.roughness_detail_node_name, "roughness_detail")
@@ -703,6 +704,39 @@ def textures_to_list(savetool, nodes):
     suffix_and_node_name_to_list(savetool.anisotropic_suffix, savetool.anisotropic_suffix_node_name, "anisotropic")
     suffix_and_node_name_to_list(savetool.sheen_suffix, savetool.sheen_node_name, "sheen")
 
+    #splat + environment textures
+    suffix_and_node_name_to_list(savetool.splat_suffix, savetool.splat_node_name, "splat")
+    suffix_and_node_name_to_list(savetool.red_bc_suffix, savetool.red_bc_node_name, "red_bc")
+    suffix_and_node_name_to_list(savetool.red_orm_suffix, savetool.red_orm_node_name, "red_orm")
+    suffix_and_node_name_to_list(savetool.red_n_suffix, savetool.splat_node_name, "red_n")
+
+    suffix_and_node_name_to_list(savetool.green_bc_suffix, savetool.green_bc_node_name, "green_bc")
+    suffix_and_node_name_to_list(savetool.green_orm_suffix, savetool.green_orm_node_name, "green_orm")
+    suffix_and_node_name_to_list(savetool.green_n_suffix, savetool.green_n_node_name, "green_n")
+
+    suffix_and_node_name_to_list(savetool.blue_bc_suffix, savetool.blue_bc_node_name, "blue_bc")
+    suffix_and_node_name_to_list(savetool.blue_orm_suffix, savetool.blue_orm_node_name, "blue_orm")
+    suffix_and_node_name_to_list(savetool.blue_n_suffix, savetool.blue_n_node_name, "blue_n")
+
+    suffix_and_node_name_to_list(savetool.cyan_bc_suffix, savetool.cyan_bc_node_name, "cyan_bc")
+    suffix_and_node_name_to_list(savetool.cyan_orm_suffix, savetool.cyan_orm_node_name, "cyan_orm")
+    suffix_and_node_name_to_list(savetool.cyan_n_suffix, savetool.cyan_n_node_name, "cyan_n")
+
+    suffix_and_node_name_to_list(savetool.alpha_bc_suffix, savetool.alpha_bc_node_name, "alpha_bc")
+    suffix_and_node_name_to_list(savetool.alpha_orm_suffix, savetool.alpha_orm_node_name, "alpha_orm")
+    suffix_and_node_name_to_list(savetool.alpha_n_suffix, savetool.alpha_n_node_name, "alpha_n")
+
+    suffix_and_node_name_to_list(savetool.moss_bc_suffix, savetool.moss_bc_node_name, "moss_bc")
+    suffix_and_node_name_to_list(savetool.moss_orm_suffix, savetool.moss_orm_node_name, "moss_orm")
+    suffix_and_node_name_to_list(savetool.moss_mask_suffix, savetool.moss_mask_node_name, "moss_mask")
+
+    suffix_and_node_name_to_list(savetool.leaves_bc_suffix, savetool.leaves_bc_node_name, "leaves_bc")
+    suffix_and_node_name_to_list(savetool.leaves_orm_suffix, savetool.leaves_orm_node_name, "leaves_orm")
+    suffix_and_node_name_to_list(savetool.leaves_mask_suffix, savetool.leaves_mask_node_name, "leaves_mask")
+
+    suffix_and_node_name_to_list(savetool.dirt_bc_suffix, savetool.dirt_bc_node_name, "dirt_bc")
+    suffix_and_node_name_to_list(savetool.dirt_orm_suffix, savetool.dirt_orm_node_name, "dirt_orm")
+    suffix_and_node_name_to_list(savetool.dirt_mask_suffix, savetool.dirt_mask_node_name, "dirt_mask")
 
     #tint textures
     suffix_and_node_name_to_list(savetool.tint_base_diffuse_suffix, savetool.tint_base_diffuse_node_name, "tint_base_diffuse")
@@ -774,11 +808,14 @@ class SaveProperties(bpy.types.PropertyGroup):
     subsurface_suffix: bpy.props.StringProperty(name="Subsurface Suffix", description="Suffix of Subsurface", default="")
     subsurface_node_name: bpy.props.StringProperty(name="Subsurface Node Name", description="Subsurface image texture node name", default="")
 
-    splat_suffix: bpy.props.StringProperty(name="Splat Suffix", description="Suffix of Splat", default="")
-    splat_node_name: bpy.props.StringProperty(name="Splat Node Name", description="Splat image texture node name", default="")
-
     ambient_occlusion_suffix: bpy.props.StringProperty(name="Ambient Occlusion Suffix", description="Suffix of Ambient Occlusion", default="")
     ambient_occlusion_node_name: bpy.props.StringProperty(name="Ambient Occlusion Node Name", description="Ambient Occlusion image texture node name", default="")
+
+    detail_n_suffix: bpy.props.StringProperty(name="Detail Normal Map Suffix", description="Suffix of Detail Normal Map")
+    detail_n_node_name: bpy.props.StringProperty(name="Detail Normal Map Node Name", description="Detail Normal Map image texture node name")
+
+    wpo_suffix: bpy.props.StringProperty(name="World Position Offset Suffix", description="Suffix of World Position Offset", default="")
+    wpo_node_name: bpy.props.StringProperty(name="World Position Offset Node Name", description="World Position Offset image texture node name", default="")
 
     tint_suffix: bpy.props.StringProperty(name="Tint Suffix", description="Suffix of Tint", default="")
     tint_node_name: bpy.props.StringProperty(name="Tint Node Name", description="Tint image texture node name", default="")
@@ -800,6 +837,68 @@ class SaveProperties(bpy.types.PropertyGroup):
     sheen_suffix: bpy.props.StringProperty(name="Sheen Suffix", description="Suffix of Sheen", default="")
     sheen_node_name: bpy.props.StringProperty(name="Sheen Node Name", description="Sheen image texture node name", default="")
 
+
+    #splat + environment textures
+    is_show_env_textures: bpy.props.BoolProperty(name="Show Environment + Suffix Suffix and Node Names", default= False)
+    splat_suffix: bpy.props.StringProperty(name="Splat Suffix", description="Suffix of Splat", default="")
+    splat_node_name: bpy.props.StringProperty(name="Splat Node Name", description="Splat image texture node name", default="")
+
+    red_bc_suffix: bpy.props.StringProperty(name="Red Diffuse Suffix", description="Suffix of Red Diffuse", default="")
+    red_bc_node_name: bpy.props.StringProperty(name="Red Diffuse Node Name", description="Red Diffuse image texture node name", default="")
+    red_orm_suffix: bpy.props.StringProperty(name="Red Packed RGB ARM Suffix", description="Suffix of Red Packed RGB ARM", default="")
+    red_orm_node_name: bpy.props.StringProperty(name="Red Packed RGB ARM Node Name", description="Red Packed RGB ARM image texture node name", default="")
+    red_n_suffix: bpy.props.StringProperty(name="Red Normal Suffix", description="Suffix of Red Normal", default="")
+    red_n_node_name: bpy.props.StringProperty(name="Red Normal Node Name", description="Red Normal image texture node name", default="")
+
+    green_bc_suffix: bpy.props.StringProperty(name="Green Diffuse Suffix", description="Suffix of Green Diffuse", default="")
+    green_bc_node_name: bpy.props.StringProperty(name="Green Diffuse Node Name", description="Green Diffuse image texture node name", default="")
+    green_orm_suffix: bpy.props.StringProperty(name="Green Packed RGB ARM Suffix", description="Suffix of Green Packed RGB ARM", default="")
+    green_orm_node_name: bpy.props.StringProperty(name="Green Packed RGB ARM Node Name", description="Green Packed RGB ARM image texture node name", default="")
+    green_n_suffix: bpy.props.StringProperty(name="Green Normal Suffix", description="Suffix of Green Normal", default="")
+    green_n_node_name: bpy.props.StringProperty(name="Green Normal Node Name", description="Green Normal image texture node name", default="")
+
+    blue_bc_suffix: bpy.props.StringProperty(name="Blue Diffuse Suffix", description="Suffix of Blue Diffuse", default="")
+    blue_bc_node_name: bpy.props.StringProperty(name="Blue Diffuse Node Name", description="Blue Diffuse image texture node name", default="")
+    blue_orm_suffix: bpy.props.StringProperty(name="Blue Packed RGB ARM Suffix", description="Suffix of Blue Packed RGB ARM", default="")
+    blue_orm_node_name: bpy.props.StringProperty(name="Blue Packed RGB ARM Node Name", description="Blue Packed RGB ARM image texture node name", default="")
+    blue_n_suffix: bpy.props.StringProperty(name="Blue Normal Suffix", description="Suffix of Blue Normal", default="")
+    blue_n_node_name: bpy.props.StringProperty(name="Blue Normal Node Name", description="Blue Normal image texture node name", default="")
+
+    cyan_bc_suffix: bpy.props.StringProperty(name="Cyan Diffuse Suffix", description="Suffix of Cyan Diffuse", default="")
+    cyan_bc_node_name: bpy.props.StringProperty(name="Cyan Diffuse Node Name", description="Cyan Diffuse image texture node name", default="")
+    cyan_orm_suffix: bpy.props.StringProperty(name="Cyan Packed RGB ARM Suffix", description="Suffix of Cyan Packed RGB ARM", default="")
+    cyan_orm_node_name: bpy.props.StringProperty(name="Cyan Packed RGB ARM Node Name", description="Cyan Packed RGB ARM image texture node name", default="")
+    cyan_n_suffix: bpy.props.StringProperty(name="Cyan Normal Suffix", description="Suffix of Cyan Normal", default="")
+    cyan_n_node_name: bpy.props.StringProperty(name="Cyan Normal Node Name", description="Cyan Normal image texture node name", default="")
+
+    alpha_bc_suffix: bpy.props.StringProperty(name="Alpha Diffuse Suffix", description="Suffix of Alpha Diffuse", default="")
+    alpha_bc_node_name: bpy.props.StringProperty(name="Alpha Diffuse Node Name", description="Alpha Diffuse image texture node name", default="")
+    alpha_orm_suffix: bpy.props.StringProperty(name="Alpha Packed RGB ARM Suffix", description="Suffix of Alpha Packed RGB ARM", default="")
+    alpha_orm_node_name: bpy.props.StringProperty(name="Alpha Packed RGB ARM Node Name", description="Alpha Packed RGB ARM image texture node name", default="")
+    alpha_n_suffix: bpy.props.StringProperty(name="Alpha Normal Suffix", description="Suffix of Alpha Normal", default="")
+    alpha_n_node_name: bpy.props.StringProperty(name="Alpha Normal Node Name", description="Alpha Normal image texture node name", default="")
+
+    moss_bc_suffix: bpy.props.StringProperty(name="Moss Suffix", description="Suffix of Moss", default="")
+    moss_bc_node_name: bpy.props.StringProperty(name="Moss Node Name", description="Moss image texture node name", default="")
+    moss_orm_suffix: bpy.props.StringProperty(name="Moss Packed RGB ARM Suffix", description="Suffix of Moss Packed RGB ARM", default="")
+    moss_orm_node_name: bpy.props.StringProperty(name="Moss Packed RGB ARM Node Name", description="Moss Packed RGB ARM image texture node name", default="")
+    moss_mask_suffix: bpy.props.StringProperty(name="Moss Mask Suffix", description="Suffix of Moss Mask", default="")
+    moss_mask_node_name: bpy.props.StringProperty(name="Moss Mask Node Name", description="Moss Mask image texture node name", default="")
+
+    leaves_bc_suffix: bpy.props.StringProperty(name="Dirt Suffix", description="Suffix of Dirt", default="")
+    leaves_bc_node_name: bpy.props.StringProperty(name="Dirt Node Name", description="Dirt image texture node name", default="")
+    leaves_orm_suffix: bpy.props.StringProperty(name="Moss Packed RGB ARM Suffix", description="Suffix of Moss Packed RGB ARM", default="")
+    leaves_orm_node_name: bpy.props.StringProperty(name="Moss Packed RGB ARM Node Name", description="Moss Packed RGB ARM image texture node name", default="")
+    leaves_mask_suffix: bpy.props.StringProperty(name="Moss Mask Suffix", description="Suffix of Moss Mask", default="")
+    leaves_mask_node_name: bpy.props.StringProperty(name="Moss Mask Node Name", description="Moss Mask image texture node name", default="")
+
+    dirt_bc_suffix: bpy.props.StringProperty(name="Dirt Suffix", description="Suffix of Dirt", default="")
+    dirt_bc_node_name: bpy.props.StringProperty(name="Dirt Node Name", description="Dirt image texture node name", default="")
+    dirt_orm_suffix: bpy.props.StringProperty(name="Dirt Packed RGB ARM Suffix", description="Suffix of Dirt Packed RGB ARM", default="")
+    dirt_orm_node_name: bpy.props.StringProperty(name="Dirt Packed RGB ARM Node Name", description="Dirt Packed RGB ARM image texture node name", default="")
+    dirt_mask_suffix: bpy.props.StringProperty(name="Dirt Mask Suffix", description="Suffix of Dirt Mask", default="")
+    dirt_mask_node_name: bpy.props.StringProperty(name="Dirt Mask Node Name", description="Dirt Mask image texture node name", default="")
+    
 
     #tint textures
     is_show_tint_textures: bpy.props.BoolProperty(name="Show Tint Suffix and Node Names", default= False)
