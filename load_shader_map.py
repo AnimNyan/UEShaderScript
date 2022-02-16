@@ -1160,8 +1160,6 @@ def find_props_txt_and_create_shader_map(material, pathtool, selected_obj, previ
         #this allows for extra redundancy
         #so the props.txt file can be either in the current directory, or its subdirectories
 
- 
-        #go straight to checking the Exported Game folder
         props_txt_path = ""
         
         #default assume props txt exists and
@@ -1170,47 +1168,41 @@ def find_props_txt_and_create_shader_map(material, pathtool, selected_obj, previ
 
         #debug
         #print("props_txt_path:", props_txt_path)
-        #if can't find the propstxt file in the material folder do a recursive glob search
+        #Do a recursive glob search
         #in the exported Game folder which costs more time since many folders
         #because it might be somewhere else like this instead
         #\Game\Characters\Campers\CommonAcc\Materials\Top\MI_CMMHair019_TAA.props.txt
-        if props_txt_path == "":
-            abs_export_folder_path = bpy.path.abspath(pathtool.export_folder_path)
-            gen_obj_match = Path(abs_export_folder_path).rglob(props_txt_name)
-            #get the new props_txt_path in the new generator object
-            props_txt_path = get_value_in_gen_obj(gen_obj_match)
-            #debug
-            #print("refind props_txt_path:", props_txt_path)
-            
-            #if the props_txt_path is still nothing
-            #after second search in the game folder
-            #show an error message and ignore the material
-            #do not create a shader map for it
-            if props_txt_path == "":
-                warning_message = "".join(("Warning: props.txt for \"", selected_obj.name, "\" \"", material.name, 
-                            "\" was not found in Game Folder so it was ignored!"))
-                bpy.ops.ueshaderscript.show_message(message = warning_message)
-                log(warning_message)
-                is_props_txt_exist_for_material = False
+        abs_export_folder_path = bpy.path.abspath(pathtool.export_folder_path)
+        gen_obj_match = Path(abs_export_folder_path).rglob(props_txt_name)
 
-                #if the props_txt file wasn't found
-                #set the mat folder for the next loop to be nothing
-                #so it doesn't try to use the previous_props_txt_folder
-                previous_props_txt_folder = ""
-            
-            #if on the second search 
-            #from the export game folder
-            #the props_txt file is found 
-            #set the props txt folder for
-            #the next calling of find_props_txt_and_create_shader_map
-            else:
-                previous_props_txt_folder = os.path.dirname(props_txt_path)
-        #if on the first serach
-        #from the materials folder
-        #the props_txt file is found
+        #get the new props_txt_path in the new generator object
+        props_txt_path = get_value_in_gen_obj(gen_obj_match)
+        #debug
+        #print("refind props_txt_path:", props_txt_path)
+        
+        #if the props_txt_path is still nothing
+        #after second search in the game folder
+        #show an error message and ignore the material
+        #do not create a shader map for it
+        if props_txt_path == "":
+            warning_message = "".join(("Warning: props.txt for \"", selected_obj.name, "\" \"", material.name, 
+                        "\" was not found in Game Folder so it was ignored!"))
+            bpy.ops.ueshaderscript.show_message(message = warning_message)
+            log(warning_message)
+            is_props_txt_exist_for_material = False
+
+            #if the props_txt file wasn't found
+            #set the mat folder for the next loop to be nothing
+            #so it doesn't try to use the previous_props_txt_folder
+            previous_props_txt_folder = ""
+        
+        #if from the r glob
+        #the props_txt file is found 
+        #set the props txt folder for
         #the next calling of find_props_txt_and_create_shader_map
         else:
             previous_props_txt_folder = os.path.dirname(props_txt_path)
+        
         
         return props_txt_path, is_props_txt_exist_for_material, previous_props_txt_folder 
         #---------end nested function
@@ -1953,7 +1945,7 @@ def list_to_links(links_list, tree, nodes):
 def dict_to_textures(img_textures_list, regex_pattern_in_props_txt_file, total_capture_groups, texture_type_capture_group_index, material, node_tree, abs_props_txt_path, pathtool):
     #nested function so that don't have to copy all 
     #attributes
-    def check_should_load_image():
+    def check_should_load_image(tex_location):
         #nested function inside nested function so that don't have to copy all 
         #attributes
         def if_tex_type_or_location_match_suffix_load_image():
@@ -2013,22 +2005,23 @@ def dict_to_textures(img_textures_list, regex_pattern_in_props_txt_file, total_c
             #so it does not get deleted
             if pathtool.is_delete_unused_img_texture_nodes:
                 not_delete_img_texture_node_name_list.append(node_to_load.name)
-            
-            is_img_loaded = True
-
-            
-
 
         
-        complete_path = get_complete_path_to_texture_file(pathtool, tex_location)
+
+        complete_path, tex_path_no_file_type = get_complete_path_to_texture_file(pathtool, tex_location)
 
 
         is_img_loaded = False
+
+        #tex location must be the cleaned up path
+        tex_location = tex_path_no_file_type
 
         #If the texture is listed in the 
         #props.txt file and it is one of the
         #image textures we are interested in we will
         #load the corresponding image
+
+        
         
         #this for loop will load all image textures
         #via reading the img_textures_list
@@ -2142,6 +2135,7 @@ def dict_to_textures(img_textures_list, regex_pattern_in_props_txt_file, total_c
     #if either of these conditions is true we must iterate 
     #through the image textures list
     #once
+    #add them to the delete list don't delete them yet
     if (pathtool.is_delete_unused_img_texture_nodes):
         #go through the textures list once to load all the node_names to interested_node_name_list
         #we are interested in that might have something loaded to them
@@ -2149,7 +2143,7 @@ def dict_to_textures(img_textures_list, regex_pattern_in_props_txt_file, total_c
         #we know they should be deleted
         for textures in img_textures_list:
             node_name = textures["node_name"]
-            texture_id = textures["texture"]
+            #texture_id = textures["texture"]
             #list of the possible nodes that may be deleted
             #use this because we only want delete image texture nodes
             #that could have had something in them
@@ -2189,7 +2183,7 @@ def dict_to_textures(img_textures_list, regex_pattern_in_props_txt_file, total_c
 
             #iterate the tuple values inside the tuple
             #'AO_Rough_Metal', '/Game/ShadingAssets/Textures/TEX_GlamRockFreddy_EyeMat_OcclusionRoughnessMetallic'
-            check_should_load_image()
+            check_should_load_image(tex_location)
 
     #reminder match list can also look like
     #match_list ['/Game/Characters/Slashers/Doctor/Textures/Outfit011/T_DOStraps011_BC', 
@@ -2200,7 +2194,7 @@ def dict_to_textures(img_textures_list, regex_pattern_in_props_txt_file, total_c
     # identify the texture type with the suffix
     elif total_capture_groups == "1":
         for tex_location in match_list:
-            check_should_load_image()
+            check_should_load_image(tex_location)
     
     #will delete img_texture_nodes if needed
     delete_unused_img_texture_nodes_and_related_nodes(not_delete_img_texture_node_name_list, 
@@ -2245,7 +2239,7 @@ def get_complete_path_to_texture_file(pathtool, tex_location):
     #/Game/Characters/Slashers/Bear/Textures/Outfit01/MergedMesh.T_BEHead01_BC
     #or like /Game/Characters/Slashers/Bear/Textures/Outfit01/T_BEHead01_BC.T_BEHead01_BC
 
-    texture_path = clean_texture_path(texture_path, texture_file_type)
+    whole_path, tex_path_no_file_type = clean_texture_path(texture_path, texture_file_type)
 
     #debug
     #print("texture_path", texture_path)
@@ -2258,8 +2252,8 @@ def get_complete_path_to_texture_file(pathtool, tex_location):
     #the texture
     #we need e.g. C:\Nyan\Dwight Recolor\Game\Characters
     #\Slashers\Bear\Textures\Outfit01\T_BEHead01_BC
-    complete_path = texture_path
-    return complete_path
+    complete_path = whole_path
+    return complete_path, tex_path_no_file_type
 
 #concatenates two strings by merging overlapping parts
 #at the end of the string 1 and the start of string 2
@@ -2353,24 +2347,26 @@ def clean_texture_path(texture_path, texture_file_type):
 
     #this extracts the left of the "." character: "TEX_GlamRockFreddy_ORM"
     file_name = tex_path_list[0]
-    
-    #have to join the file extension ".tga" on as well
-    #making "TEX_GlamRockFreddy_ORM.tga"
-    file_name = "".join((file_name, texture_file_type))
 
     #os.path.dirname gives the parent folder name 
     #"C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures"
     tex_dir_name = os.path.dirname(texture_path)
 
-    #Now join them together with a backslash character to get
-    #"C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\TEX_GlamRockFreddy_ORM.tga"
-    tmp_tex_path = "\\".join((tex_dir_name, file_name))
+    #Now join them together with an escaped backslash character to get
+    #"C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\TEX_GlamRockFreddy_ORM"
+    tex_path_no_file_type = "\\".join((tex_dir_name, file_name))
+    
+    #have to join the file extension ".tga" on as well
+    #making "C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\TEX_GlamRockFreddy_ORM.tga"
+    whole_path = "".join((tex_path_no_file_type, texture_file_type))
 
-    print("tmp_tex_path", tmp_tex_path)
+    
+
+    #print("whole_path", whole_path)
     
     #check if the texture exists at the path
     #"C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\TEX_GlamRockFreddy_ORM.tga"
-    tex_file = pathlib.Path(tmp_tex_path)
+    tex_file = pathlib.Path(whole_path)
     is_tex_exist = tex_file.exists()
 
     #debug
@@ -2381,8 +2377,9 @@ def clean_texture_path(texture_path, texture_file_type):
 
     
     if (is_tex_exist):
-        #if the tex_path exists change the real tex_location to be the temporary one
-        texture_path = tmp_tex_path
+        #if the tex_path exists can do nothing and return the value
+        pass
+
     else:
 
         # Second case is more rare 
@@ -2393,15 +2390,15 @@ def clean_texture_path(texture_path, texture_file_type):
         #replace only first instance of a dot from the right to a backslash character
         #Start with "C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\SM_MERGED_GatorGolf_51.TEX_GlamRockFreddy_ORM"
         #get "C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\SM_MERGED_GatorGolf_51\TEX_GlamRockFreddy_ORM"
-        tmp_tex_path = replace_from_right(texture_path, ".", "\\", 1)
+        tex_path_no_file_type = replace_from_right(texture_path, ".", "\\", 1)
 
         #have to join the file extension ".tga" on as well
         #making "C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\SM_MERGED_GatorGolf_51\TEX_GlamRockFreddy_ORM.tga"
-        tmp_tex_path = "".join((tmp_tex_path, texture_file_type))
+        whole_path = "".join((tex_path_no_file_type, texture_file_type))
         
         #check if the texture exists at the path
         #"C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\SM_MERGED_GatorGolf_51\TEX_GlamRockFreddy_ORM.tga"
-        tex_file = pathlib.Path(tmp_tex_path)
+        tex_file = pathlib.Path(whole_path)
 
         is_tex_exist = tex_file.exists()
 
@@ -2412,8 +2409,8 @@ def clean_texture_path(texture_path, texture_file_type):
 
         #check if this different path exists otherwise return a custom error
         if(is_tex_exist):
-            #if the tex_path exists change the real tex_location to be the temporary one
-            texture_path = tmp_tex_path
+            #if the tex_path exists do nothing and pass
+            pass
             
         else:
             error_message = "".join(("Error: tex_location in props.txt does not exist!"))
@@ -2421,7 +2418,7 @@ def clean_texture_path(texture_path, texture_file_type):
         
     
     
-    return texture_path
+    return whole_path, tex_path_no_file_type
 
 
 
