@@ -2244,6 +2244,7 @@ def get_complete_path_to_texture_file(pathtool, tex_location):
     #need to clean tex_location because it looks like
     #/Game/Characters/Slashers/Bear/Textures/Outfit01/MergedMesh.T_BEHead01_BC
     #or like /Game/Characters/Slashers/Bear/Textures/Outfit01/T_BEHead01_BC.T_BEHead01_BC
+
     texture_path = clean_texture_path(texture_path, texture_file_type)
 
     #debug
@@ -2333,7 +2334,7 @@ def clean_texture_path(texture_path, texture_file_type):
     #or "C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\SM_MERGED_GatorGolf_51.TEX_GlamRockFreddy_ORM"
 
     # First case is more common 
-    # Input: "C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\SM_MERGED_GatorGolf_51.TEX_GlamRockFreddy_ORM" 
+    # Input: "C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\TEX_GlamRockFreddy_ORM.TEX_GlamRockFreddy_ORM" 
     # Output: "C:\Nyan\Dwight Recolor\Game\ShadingAssets\Textures\TEX_GlamRockFreddy_ORM.tga"
     # Then check if the texture exists at the Ouput path
 
@@ -2350,8 +2351,8 @@ def clean_texture_path(texture_path, texture_file_type):
     #refers to the parent not to the texture itself
     #even though sometimes parent and child have the same name 
 
-    #this extracts the right of the "." character: "TEX_GlamRockFreddy_ORM"
-    file_name = tex_path_list[1]
+    #this extracts the left of the "." character: "TEX_GlamRockFreddy_ORM"
+    file_name = tex_path_list[0]
     
     #have to join the file extension ".tga" on as well
     #making "TEX_GlamRockFreddy_ORM.tga"
