@@ -1167,6 +1167,9 @@ class SAVEUESHADERSCRIPT_PT_save_custom_preset_main_panel_2(SAVEUESHADERSCRIPT_s
                 box.prop(savetool, "glass_mask_suffix")
                 box.prop(savetool, "glass_mask_suffix")
 
+            #environment + splat maps
+            box.prop(savetool, "is_show_env_textures")
+
             if(savetool.is_show_env_textures == True):
                 box.prop(savetool, "splat_suffix")
                 box.prop(savetool, "splat_node_name")
