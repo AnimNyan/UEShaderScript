@@ -244,17 +244,25 @@ class PathProperties(bpy.types.PropertyGroup):
         default = 1
     )
 
-    splat_color_space: bpy.props.EnumProperty(
-        name = "Splat Color Space",
-        description = "Splat Image Texture Color Space",
+    ambient_occlusion_color_space: bpy.props.EnumProperty(
+        name = "Ambient Occlusion Color Space",
+        description = "Ambient Occlusion Image Texture Color Space",
         items = color_spaces_callback,
         #1 means Non-Color
         default = 1
     )
 
-    ambient_occlusion_color_space: bpy.props.EnumProperty(
-        name = "Ambient Occlusion Color Space",
-        description = "Ambient Occlusio Image Texture Color Space",
+    detail_n_color_space: bpy.props.EnumProperty(
+        name = "Detail Normal Color Space",
+        description = "Detail Normal Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    wpo_color_space: bpy.props.EnumProperty(
+        name = "World Position Offset Color Space",
+        description = "World Position Offset Image Texture Color Space",
         items = color_spaces_callback,
         #1 means Non-Color
         default = 1
@@ -326,6 +334,248 @@ class PathProperties(bpy.types.PropertyGroup):
     sheen_color_space: bpy.props.EnumProperty(
         name = "Sheen Color Space",
         description = "Sheen Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    glass_mask_color_space: bpy.props.EnumProperty(
+        name = "Glass Mask Color Space",
+        description = "Glass Mask Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+
+    #------splat + environment textures
+    splat_color_space: bpy.props.EnumProperty(
+        name = "Splat Color Space",
+        description = "Splat Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    red_bc_color_space: bpy.props.EnumProperty(
+        name = "Red Diffuse Color Space",
+        description = "Red Diffuse Image Texture Color Space",
+        items = color_spaces_callback
+        #no default means sRGB
+    )
+
+    red_orm_color_space: bpy.props.EnumProperty(
+        name = "Red Packed RGB Color Space",
+        description = "Red Packed RGB Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    red_n_color_space: bpy.props.EnumProperty(
+        name = "Red Normal Color Space",
+        description = "Red Normal Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    red_e_color_space: bpy.props.EnumProperty(
+        name = "Red Emissions Color Space",
+        description = "Red Emissions Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    green_bc_color_space: bpy.props.EnumProperty(
+        name = "Green Diffuse Color Space",
+        description = "Green Diffuse Image Texture Color Space",
+        items = color_spaces_callback
+        #no default means sRGB
+    )
+
+    green_orm_color_space: bpy.props.EnumProperty(
+        name = "Green Packed RGB Color Space",
+        description = "Green Packed RGB Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    green_n_color_space: bpy.props.EnumProperty(
+        name = "Green Normal Color Space",
+        description = "Green Normal Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    green_e_color_space: bpy.props.EnumProperty(
+        name = "Green Emissions Color Space",
+        description = "Green Emissions Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    blue_bc_color_space: bpy.props.EnumProperty(
+        name = "Blue Diffuse Color Space",
+        description = "Blue Diffuse Image Texture Color Space",
+        items = color_spaces_callback
+        #no default means sRGB
+    )
+
+    blue_orm_color_space: bpy.props.EnumProperty(
+        name = "Blue Packed RGB Color Space",
+        description = "Blue Packed RGB Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    blue_n_color_space: bpy.props.EnumProperty(
+        name = "Blue Normal Color Space",
+        description = "Blue Normal Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    blue_e_color_space: bpy.props.EnumProperty(
+        name = "Blue Emissions Color Space",
+        description = "Blue Emission Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    cyan_bc_color_space: bpy.props.EnumProperty(
+        name = "Cyan Diffuse Color Space",
+        description = "Cyan Diffuse Image Texture Color Space",
+        items = color_spaces_callback
+        #no default means sRGB
+    )
+
+    cyan_orm_color_space: bpy.props.EnumProperty(
+        name = "Cyan Packed RGB Color Space",
+        description = "Cyan Packed RGB Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    cyan_n_color_space: bpy.props.EnumProperty(
+        name = "Cyan Normal Color Space",
+        description = "Cyan Normal Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    cyan_e_color_space: bpy.props.EnumProperty(
+        name = "Cyan Emissions Color Space",
+        description = "Cyan Emissions Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    alpha_bc_color_space: bpy.props.EnumProperty(
+        name = "Alpha Diffuse Color Space",
+        description = "Alpha Diffuse Image Texture Color Space",
+        items = color_spaces_callback
+        #no default means sRGB
+    )
+
+    alpha_orm_color_space: bpy.props.EnumProperty(
+        name = "Alpha Packed RGB Color Space",
+        description = "Alpha Packed RGB Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    alpha_n_color_space: bpy.props.EnumProperty(
+        name = "Alpha Normal Color Space",
+        description = "Alpha Normal Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    alpha_e_color_space: bpy.props.EnumProperty(
+        name = "Alpha Emissions Color Space",
+        description = "Alpha Emissions Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    moss_bc_color_space: bpy.props.EnumProperty(
+        name = "Moss Diffuse Color Space",
+        description = "Moss Diffuse Image Texture Color Space",
+        items = color_spaces_callback
+        #no default means sRGB
+    )
+
+    moss_orm_color_space: bpy.props.EnumProperty(
+        name = "Moss Packed RGB Color Space",
+        description = "Moss Packed RGB Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    moss_mask_color_space: bpy.props.EnumProperty(
+        name = "Moss Mask Color Space",
+        description = "Moss Mask Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    leaves_bc_color_space: bpy.props.EnumProperty(
+        name = "Leaves Diffuse Color Space",
+        description = "Leaves Diffuse Image Texture Color Space",
+        items = color_spaces_callback
+        #no default means sRGB
+    )
+
+    leaves_orm_color_space: bpy.props.EnumProperty(
+        name = "Leaves Packed RGB Color Space",
+        description = "Leaves Packed RGB Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    leaves_mask_color_space: bpy.props.EnumProperty(
+        name = "Leaves Mask Color Space",
+        description = "Leaves Mask Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    dirt_bc_color_space: bpy.props.EnumProperty(
+        name = "Dirt Diffuse Color Space",
+        description = "Dirt Diffuse Image Texture Color Space",
+        items = color_spaces_callback
+        #no default means sRGB
+    )
+
+    dirt_orm_color_space: bpy.props.EnumProperty(
+        name = "Dirt Packed RGB Color Space",
+        description = "Dirt Packed RGB Image Texture Color Space",
+        items = color_spaces_callback,
+        #1 means Non-Color
+        default = 1
+    )
+
+    dirt_mask_color_space: bpy.props.EnumProperty(
+        name = "Dirt Mask Color Space",
+        description = "Dirt Mask Image Texture Color Space",
         items = color_spaces_callback,
         #1 means Non-Color
         default = 1
@@ -617,8 +867,9 @@ class LOADUESHADERSCRIPT_PT_color_space_main_panel_4(LOADUESHADERSCRIPT_shared_m
         layout.prop(pathtool, "metallic_color_space")
         layout.prop(pathtool, "subsurface_color_color_space")
         layout.prop(pathtool, "subsurface_color_space")
-        layout.prop(pathtool, "splat_color_space")
         layout.prop(pathtool, "ambient_occlusion_color_space")
+        layout.prop(pathtool, "detail_n_color_space")
+        layout.prop(pathtool, "wpo_color_space")
         layout.prop(pathtool, "tint_color_space")
         layout.prop(pathtool, "normal_detail_color_space")
         layout.prop(pathtool, "roughness_detail_color_space")
@@ -628,6 +879,37 @@ class LOADUESHADERSCRIPT_PT_color_space_main_panel_4(LOADUESHADERSCRIPT_shared_m
         layout.prop(pathtool, "clearcoat_color_space")
         layout.prop(pathtool, "anisotropic_color_space")
         layout.prop(pathtool, "sheen_color_space")
+        layout.prop(pathtool, "glass_mask_color_space")
+
+        layout.prop(pathtool, "splat_color_space")
+        layout.prop(pathtool, "red_bc_color_space")
+        layout.prop(pathtool, "red_orm_color_space")
+        layout.prop(pathtool, "red_n_color_space")
+        layout.prop(pathtool, "red_e_color_space")
+        layout.prop(pathtool, "green_bc_color_space")
+        layout.prop(pathtool, "green_orm_color_space")
+        layout.prop(pathtool, "green_n_color_space")
+        layout.prop(pathtool, "green_e_color_space")
+        layout.prop(pathtool, "blue_bc_color_space")
+        layout.prop(pathtool, "blue_orm_color_space")
+        layout.prop(pathtool, "blue_e_color_space")
+        layout.prop(pathtool, "cyan_bc_color_space")
+        layout.prop(pathtool, "cyan_orm_color_space")
+        layout.prop(pathtool, "cyan_n_color_space")
+        layout.prop(pathtool, "cyan_e_color_space")
+        layout.prop(pathtool, "alpha_bc_color_space")
+        layout.prop(pathtool, "alpha_orm_color_space")
+        layout.prop(pathtool, "alpha_n_color_space")
+        layout.prop(pathtool, "alpha_e_color_space")
+        layout.prop(pathtool, "moss_bc_color_space")
+        layout.prop(pathtool, "moss_orm_color_space")
+        layout.prop(pathtool, "moss_mask_color_space")
+        layout.prop(pathtool, "leaves_bc_color_space")
+        layout.prop(pathtool, "leaves_orm_color_space")
+        layout.prop(pathtool, "leaves_mask_color_space")
+        layout.prop(pathtool, "dirt_bc_color_space")
+        layout.prop(pathtool, "dirt_orm_color_space")
+        layout.prop(pathtool, "dirt_mask_color_space")
 
         layout.prop(pathtool, "tint_base_diffuse_color_space")
         layout.prop(pathtool, "tint_mask_color_space")
@@ -2457,10 +2739,12 @@ def change_colour_space(texture, node_to_load, pathtool):
         node_to_load.image.colorspace_settings.name = pathtool.subsurface_color_color_space
     elif texture == "subsurface":
         node_to_load.image.colorspace_settings.name = pathtool.subsurface_color_space
-    elif texture == "splat":
-        node_to_load.image.colorspace_settings.name = pathtool.splat_color_space
     elif texture == "ambient_occlusion":
         node_to_load.image.colorspace_settings.name = pathtool.ambient_occlusion_color_space
+    elif texture == "detail_normal":
+        node_to_load.image.colorspace_settings.name = pathtool.detail_n_color_space
+    elif texture == "world_position_offset":
+        node_to_load.image.colorspace_settings.name = pathtool.wpo_color_space
     elif texture == "tint":
         node_to_load.image.colorspace_settings.name = pathtool.tint_color_space
     elif texture == "normal_detail":
@@ -2479,6 +2763,66 @@ def change_colour_space(texture, node_to_load, pathtool):
         node_to_load.image.colorspace_settings.name = pathtool.anisotropic_color_space
     elif texture == "sheen":
         node_to_load.image.colorspace_settings.name = pathtool.sheen_color_space
+    elif texture == "splat":
+        node_to_load.image.colorspace_settings.name = pathtool.splat_color_space
+    elif texture == "red_bc":
+        node_to_load.image.colorspace_settings.name = pathtool.red_bc_color_space
+    elif texture == "red_orm":
+        node_to_load.image.colorspace_settings.name = pathtool.red_orm_color_space
+    elif texture == "red_n":
+        node_to_load.image.colorspace_settings.name = pathtool.red_n_color_space
+    elif texture == "red_e":
+        node_to_load.image.colorspace_settings.name = pathtool.red_e_color_space
+    elif texture == "green_bc":
+        node_to_load.image.colorspace_settings.name = pathtool.green_bc_color_space
+    elif texture == "green_orm":
+        node_to_load.image.colorspace_settings.name = pathtool.green_orm_color_space
+    elif texture == "green_n":
+        node_to_load.image.colorspace_settings.name = pathtool.green_n_color_space
+    elif texture == "green_e":
+        node_to_load.image.colorspace_settings.name = pathtool.green_e_color_space
+    elif texture == "blue_bc":
+        node_to_load.image.colorspace_settings.name = pathtool.blue_bc_color_space
+    elif texture == "blue_orm":
+        node_to_load.image.colorspace_settings.name = pathtool.blue_orm_color_space
+    elif texture == "blue_n":
+        node_to_load.image.colorspace_settings.name = pathtool.blue_n_color_space
+    elif texture == "blue_e":
+        node_to_load.image.colorspace_settings.name = pathtool.blue_e_color_space
+    elif texture == "cyan_bc":
+        node_to_load.image.colorspace_settings.name = pathtool.cyan_bc_color_space
+    elif texture == "cyan_orm":
+        node_to_load.image.colorspace_settings.name = pathtool.cyan_orm_color_space
+    elif texture == "cyan_n":
+        node_to_load.image.colorspace_settings.name = pathtool.cyan_n_color_space
+    elif texture == "cyan_e":
+        node_to_load.image.colorspace_settings.name = pathtool.cyan_e_color_space
+    elif texture == "alpha_bc":
+        node_to_load.image.colorspace_settings.name = pathtool.alpha_bc_color_space
+    elif texture == "alpha_orm":
+        node_to_load.image.colorspace_settings.name = pathtool.alpha_orm_color_space
+    elif texture == "alpha_n":
+        node_to_load.image.colorspace_settings.name = pathtool.alpha_n_color_space
+    elif texture == "alpha_e":
+        node_to_load.image.colorspace_settings.name = pathtool.alpha_e_color_space
+    elif texture == "moss_bc":
+        node_to_load.image.colorspace_settings.name = pathtool.moss_bc_color_space
+    elif texture == "moss_orm":
+        node_to_load.image.colorspace_settings.name = pathtool.moss_orm_color_space
+    elif texture == "moss_mask":
+        node_to_load.image.colorspace_settings.name = pathtool.moss_mask_color_space
+    elif texture == "leaves_bc":
+        node_to_load.image.colorspace_settings.name = pathtool.leaves_bc_color_space
+    elif texture == "leaves_orm":
+        node_to_load.image.colorspace_settings.name = pathtool.leaves_orm_color_space
+    elif texture == "leaves_mask":
+        node_to_load.image.colorspace_settings.name = pathtool.leaves_mask_color_space
+    elif texture == "dirt_bc":
+        node_to_load.image.colorspace_settings.name = pathtool.dirt_bc_color_space
+    elif texture == "dirt_orm":
+        node_to_load.image.colorspace_settings.name = pathtool.dirt_orm_color_space
+    elif texture == "dirt_mask":
+        node_to_load.image.colorspace_settings.name = pathtool.dirt_mask_color_space
     elif texture == "tint_base_diffuse":
         node_to_load.image.colorspace_settings.name = pathtool.tint_base_diffuse_color_space
     elif texture == "tint_mask":
@@ -3230,6 +3574,8 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
         pathtool.property_unset("subsurface_color_color_space")
         pathtool.property_unset("subsurface_color_space")
         pathtool.property_unset("ambient_occlusion_color_space")
+        pathtool.property_unset("detail_n_color_space")
+        pathtool.property_unset("wpo_color_space")
         pathtool.property_unset("tint_color_space")
         pathtool.property_unset("normal_detail_color_space")
         pathtool.property_unset("roughness_detail_color_space")
@@ -3239,6 +3585,39 @@ class LOADUESHADERSCRIPT_OT_reset_settings_main_panel(bpy.types.Operator):
         pathtool.property_unset("clearcoat_color_space")
         pathtool.property_unset("anisotropic_color_space")
         pathtool.property_unset("sheen_color_space")
+        pathtool.property_unset("glass_mask_color_space")
+
+        pathtool.property_unset("splat_color_space")
+        pathtool.property_unset("red_bc_color_space")
+        pathtool.property_unset("red_orm_color_space")
+        pathtool.property_unset("red_n_color_space")
+        pathtool.property_unset("red_e_color_space")
+        pathtool.property_unset("green_bc_color_space")
+        pathtool.property_unset("green_orm_color_space")
+        pathtool.property_unset("green_n_color_space")
+        pathtool.property_unset("green_e_color_space")
+        pathtool.property_unset("blue_bc_color_space")
+        pathtool.property_unset("blue_orm_color_space")
+        pathtool.property_unset("blue_n_color_space")
+        pathtool.property_unset("blue_e_color_space")
+        pathtool.property_unset("cyan_bc_color_space")
+        pathtool.property_unset("cyan_orm_color_space")
+        pathtool.property_unset("cyan_n_color_space")
+        pathtool.property_unset("cyan_e_color_space")
+        pathtool.property_unset("alpha_bc_color_space")
+        pathtool.property_unset("alpha_orm_color_space")
+        pathtool.property_unset("alpha_n_color_space")
+        pathtool.property_unset("alpha_e_color_space")
+        pathtool.property_unset("moss_bc_color_space")
+        pathtool.property_unset("moss_orm_color_space")
+        pathtool.property_unset("moss_mask_color_space")
+        pathtool.property_unset("leaves_bc_color_space")
+        pathtool.property_unset("leaves_orm_color_space")
+        pathtool.property_unset("leaves_mask_color_space")
+        pathtool.property_unset("dirt_bc_color_space")
+        pathtool.property_unset("dirt_orm_color_space")
+        pathtool.property_unset("dirt_mask_color_space")
+
         pathtool.property_unset("tint_base_diffuse_color_space")
         pathtool.property_unset("tint_mask_color_space")
         pathtool.property_unset("tint_mask_2_color_space")
