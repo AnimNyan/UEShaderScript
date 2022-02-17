@@ -939,7 +939,8 @@ class SaveProperties(bpy.types.PropertyGroup):
             ("DBD_ENVIRONMENT", "DBD Environment", ""),
             ("DBD_CLOTHING_TINT_RECOLOUR" , "DBD Tint Clothing Recolour", ""),
             ("DBD_HAIR_TINT_RECOLOUR" , "DBD Tint Hair Recolour", ""),
-            ("FNAF_SECURITY_BREACH_ENVIRONMENT", "FNAF Security Breach Environment", "")
+            ("FNAF_SECURITY_BREACH_ENVIRONMENT", "FNAF Security Breach Environment", ""),
+            ("FORTNITE_BASIC", "Fortnite Basic", "")
         ]
         
     )
@@ -953,6 +954,7 @@ class SaveProperties(bpy.types.PropertyGroup):
         [
             ("PARAMETER_INFO" , "props.txt ParameterInfo (e.g. Diffuse)", ""),
             ("SUFFIX" , "props.txt ParameterValue Suffix (e.g. _BC)", ""),
+            ("UE5_PARAMETER_INFO", "Unreal Engine 5 json Parameter Info (e.g. Diffuse)", ""),
             ("OTHER", "Custom Regular Expression", "")
         ]
         
@@ -2445,6 +2447,30 @@ class SAVEUESHADERSCRIPT_OT_load_default_suffixes(bpy.types.Operator):
             savetool.orm_suffix = "RMA, ORM Texture, AO_Rough_Metal, MergeMapInput, AORM, Roughenss & Metallic, PackedTexture, RAM, SRMH, surface_map, Surface_map, Reflection"
             savetool.m_suffix = "MaskSelection, Mask, Tiling_Alpha, OpacityMaskTexture"
             savetool.bde_suffix = "EMISSION, Emissive"
+        
+        elif(default_suffix == "FORTNITE_BASIC"):
+            bpy.ops.saveueshaderscript.reset_inputs_main_panel_operator()
+            savetool.bc_suffix = "Diffuse"
+            savetool.n_suffix = "Normals"
+            savetool.orm_suffix = "SpecularMasks"
+            
+            savetool.m_suffix = ""
+            savetool.m_node_name = ""
+            savetool.bde_suffix = ""
+            savetool.bde_node_name = ""
+
+            savetool.is_show_extra_textures = True
+            savetool.ambient_occlusion_suffix = "M"
+            savetool.ambient_occlusion_node_name = "Ambient Occlusion Node"
+
+            savetool.is_show_regex_options = True
+            #change the regex enum as well as fortnite uses unreal engine 5 and a different regex
+            savetool.default_regex_props_txt_enum = "UE5_PARAMETER_INFO"
+
+            #run the operation to load the default regex that has now been picked
+            bpy.ops.saveueshaderscript.load_default_regexes_operator()
+
+
 
         else:
             error_message = "".join("Error: the default_suffix", default_suffix, "was not found, please contact the plugin author.")
@@ -2489,11 +2515,18 @@ class SAVEUESHADERSCRIPT_OT_load_default_regexes(bpy.types.Operator):
             savetool.regex_props_txt = "TextureParameterValues\[\d+\][\s\S]+?ParameterInfo = { Name=(.+) }[\s\S]+?Texture2D'(.*)\'"
             savetool.total_capture_groups = "2"
             savetool.texture_type_capture_group_index = "0"
+        
+        elif(default_regex_enum == "UE5_PARAMETER_INFO"):
+            savetool.regex_props_txt = '"ParameterInfo": {\n[ ]+"Name": "(.*)",\n[^\n]+\n[^\n]+\n[^\n]+\n[ ]+"ParameterValue": {\n[^\n]+\n[ ]+"ObjectPath": "(.*)"'
+            savetool.total_capture_groups = "2"
+            savetool.texture_type_capture_group_index = "0"
 
         elif(default_regex_enum == "SUFFIX"):
             savetool.regex_props_txt = "Texture2D\'(.*)\'"
             savetool.total_capture_groups = "1"
             savetool.texture_type_capture_group_index = "0"
+        
+        
         
         elif(default_regex_enum == "OTHER"):
             savetool.regex_props_txt = "Type your own regular expression"
