@@ -1851,11 +1851,15 @@ class LOADUESHADERSCRIPT_OT_cust_denoise_blender_3_0_plus(bpy.types.Operator):
         #we have to try both strings as sometimes 
         #it can be bpy.context.scene.view_layers["ViewLayer"].use_pass_combined = True
         #or bpy.context.scene.view_layers["View Layer"].use_pass_combined = True
+        #or bpy.context.scene.view_layers["RenderLayer"].use_pass_combined = True
         #for blender 3.0+
         try:
             enable_render_layers_blender_3_0_plus("ViewLayer")
         except:
-            enable_render_layers_blender_3_0_plus("View Layer")
+            try:
+                enable_render_layers_blender_3_0_plus("View Layer")
+            except:
+                enable_render_layers_blender_3_0_plus("RenderLayer")
 
         #turn off default denoising so plugin doesn't denoise twice
         bpy.context.scene.cycles.use_denoising = False
