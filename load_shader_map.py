@@ -692,7 +692,7 @@ class LOADUESHADERSCRIPT_shared_main_panel:
     # bl_idname = "LOADUESHADERSCRIPT_PT_main_panel"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = "Load UE Shaders"
+    bl_category = "UE"
 
 
 #main panel part 1
