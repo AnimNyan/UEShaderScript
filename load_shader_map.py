@@ -91,7 +91,8 @@ class PathProperties(bpy.types.PropertyGroup):
         items = 
         [
             ("CLIP" , "Alpha Clip", ""),
-            ("HASHED" , "Alpha Hashed", "")
+            ("HASHED" , "Alpha Hashed", ""),
+            ("BLEND", "Alpha Blend", "")
         ]
   
         
@@ -2867,6 +2868,10 @@ def img_textures_special_handler(textures, pathtool, material, node_to_load, nod
         elif clipping_method == "HASHED":
             material.blend_method = "HASHED"
             material.shadow_method = "HASHED" 
+
+        elif clipping_method == "BLEND":
+            material.blend_method = "BLEND"
+            material.shadow_method = "BLEND" 
         
         else:
             error_message = "Error: could not find clipping method"
