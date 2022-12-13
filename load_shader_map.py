@@ -2190,10 +2190,25 @@ def create_a_new_node_group(new_node, node_dict, node_group_name):
 
 def copy_inputs_outputs_links_for_node_group(node_tree_of_group, new_node, node_dict, node_group_name):
     for input in node_dict["inputs"]:
-        new_node.inputs.new(input["type_name"], input["name"])
+        #if blender version is less than blender 3.4
+        if bpy.app.version < (3, 4, 0):
+            #this below line is no longer necessary in blender 3.4 because 
+            #In this case, the correct thing to do is use grptree.inputs.new instead of grp.inputs.new.
+            #This is the difference that I mentioned in the comments of the commit. Inputs must be added to the node group itself, not the group node that uses the node group.
+            new_node.inputs.new(input["type_name"], input["name"])
+
+        #blender 3.4 only requires you change the node tree referenced by the group node
         node_tree_of_group.inputs.new(input["type_name"], input["name"])
+
     for output in node_dict["outputs"]:
-        new_node.outputs.new(output["type_name"], output["name"])
+        #if blender version is less than blender 3.4
+        if bpy.app.version < (3, 4, 0):
+            #this below line is no longer necessary in blender 3.4 because 
+            #In this case, the correct thing to do is use grptree.inputs.new instead of grp.inputs.new.
+            #This is the difference that I mentioned in the comments of the commit. Inputs must be added to the node group itself, not the group node that uses the node group.
+            new_node.outputs.new(output["type_name"], output["name"])
+
+        #blender 3.4 only requires you change the node tree referenced by the group node
         node_tree_of_group.outputs.new(output["type_name"], output["name"])
     nodes = dict_to_nodes(node_dict["node_tree"]
                           ["nodes_list"], node_tree_of_group)
