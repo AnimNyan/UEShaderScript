@@ -24,7 +24,7 @@ from . import load_shader_map
 bl_info = {
     "name": "UEShaderScript - Load Save UE Shader Map Setups",
     "author": "Anime Nyan",
-    "version": (1, 2, 8),
+    "version": (1, 3, 0),
     "blender": (3, 2, 0),
     "location": "3D View > Properties > Load UE Shaders + Shader Editor > Properties > Save UE Shaders",
     "description": "Adds the ability to save and load shader maps and textures for Meshes and adds default preset shader maps",
